@@ -6,34 +6,42 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const CallbackPage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  const hasRun = useRef(false); // ✅ prevents double firing
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    async function loginUser() {
-      const res = await axios.post("/api/user", {
-        ...session?.user,
-        provider: "google",
-      });
-      console.log(res.data);
+    // ✅ wait until session is ready
+    if (status !== "authenticated") return;
 
-      // Onboarding process for the user
-      if (res.data.isNewUser) {
-        router.push("/onboarding");
-      } else router.push("/dashboard");
-
-      // const mailRes = await axios.get("/api/mails");
-      // console.log(mailRes.data);
-    }
-    // ✅ stop double POST in dev
+    // ✅ prevent double execution
     if (hasRun.current) return;
     hasRun.current = true;
-    if (session && session.user) loginUser();
 
-    console.log(session);
-  }, [session]);
+    async function loginUser() {
+      try {
+        const res = await axios.post("/api/user", {
+          ...session.user,
+          provider: "google",
+        });
+
+        console.log(res.data);
+
+        if (res.data.isNewUser) {
+          router.push("/onboarding");
+        } else {
+          router.push("/dashboard");
+        }
+      } catch (err) {
+        console.error(err);
+        router.push("/login"); // fallback safety
+      }
+    }
+
+    loginUser();
+  }, [status]); // 👈 depend on status, not session
+
   return (
     <div className="flex items-center justify-center h-screen w-full">
       <Loader2 className="h-7 w-7 animate-spin" />

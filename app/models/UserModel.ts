@@ -1,54 +1,30 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export type UserRole = "student" | "recruiter" | "cso";
+
 export interface IUser extends Document {
   name: string;
   email: string;
-
   provider: "google" | "custom";
-  providerId: string;
+  image: string;
   password?: string;
-
-  profileImage?: string;
-
-  // Fashion app specific
-  gender?: "male" | "female" | "other";
-  height?: number; // in cm
-  bodyType?: "lean" | "athletic" | "bulky" | "curvy" | "average";
-
-  stylePreferences?: string[]; // street, gym, classy etc
-
-  primaryAvatar?: mongoose.Types.ObjectId;
-
-  // onboardingCompleted: boolean;
-
+  providerId: string;
+  role: UserRole;
+  collegeId?: mongoose.Types.ObjectId;
+  professionalTitle?: string;
+  profession?: string;
   createdAt: Date;
 }
 
 const userSchema = new Schema<IUser>({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    default: "User",
-  },
-
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-  },
+  name: String,
+  email: { type: String, unique: true, required: true },
+  image: { type: String, default: "https://placehold.co/48" },
 
   provider: {
     type: String,
-    required: true,
     enum: ["google", "custom"],
-  },
-
-  providerId: {
-    type: String,
     required: true,
-    unique: true,
   },
 
   password: {
@@ -58,43 +34,29 @@ const userSchema = new Schema<IUser>({
     },
   },
 
-  profileImage: {
+  providerId: { type: String, required: true, unique: true },
+
+  role: {
     type: String,
+    enum: ["student", "recruiter", "cso"],
+    default: "student",
   },
 
-  gender: {
-    type: String,
-    enum: ["male", "female", "other"],
+  collegeId: {
+    type: Schema.Types.ObjectId,
+    ref: "College",
+    required: function () {
+      return this.role === "cso"; // required ONLY for CSO role
+    },
   },
 
-  height: {
-    type: Number,
-  },
+  professionalTitle: { type: String, default: "" },
+  profession: { type: String, default: "" },
 
-  bodyType: {
-    type: String,
-    enum: ["lean", "athletic", "bulky", "curvy", "average"],
-  },
-
-  stylePreferences: [String],
-
-  primaryAvatar: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Avatar",
-  },
-
-  // onboardingCompleted: {
-  //   type: Boolean,
-  //   default: false,
-  // },
-
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  createdAt: { type: Date, default: Date.now },
 });
 
-// MODEL
-const User = mongoose.models?.User || mongoose.model<IUser>("User", userSchema);
-// const User = mongoose.model<IUser>("User", userSchema);
-export default User;
+export default mongoose.models.User ||
+  mongoose.model<IUser>("User", userSchema);
+
+// export default mongoose.model<IUser>("User", userSchema);

@@ -27,7 +27,7 @@ export function LoginForm({
     if (err) {
       if (err === "OAuthAccountNotLinked") {
         setErrorMessage(
-          "Account exists with different login provider. Use the correct provider."
+          "Account exists with different login provider. Use the correct provider.",
         );
       } else if (err === "CredentialsSignin") {
         setErrorMessage("Invalid email or password.");
@@ -111,7 +111,7 @@ export function LoginForm({
     if (res?.error?.startsWith("USE_")) {
       // const provider = res.error.replace("USE_", "").toLowerCase();
       setErrorMessage(
-        `This email is registered with Google. Please Continue with Google.`
+        `This email is registered with Google. Please Continue with Google.`,
       );
       // setErrorMessage(
       //   `This email is registered with ${provider}. Please login using ${provider}.`
@@ -136,9 +136,9 @@ export function LoginForm({
               <div className="flex h-8 w-8 items-center justify-center rounded-md">
                 <GalleryVerticalEnd className="size-6" />
               </div>
-              <span className="sr-only">FashionGPT.</span>
+              <span className="sr-only">ScrollnHire.</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to FashionGPT.</h1>
+            <h1 className="text-xl font-bold">Welcome to ScrollnHire.</h1>
             <div className="text-center text-sm">
               Please Login to get started
             </div>

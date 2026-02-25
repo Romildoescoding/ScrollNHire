@@ -25,15 +25,16 @@ export async function POST(req: NextRequest) {
         user = await User.create({
           name,
           email,
-          profileImage: image,
+          image: image,
           provider: "google",
           providerId: email,
+          role: "student",
         });
       }
 
       return NextResponse.json(
         { message: "Google login successful", user, isNewUser },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       if (!password) {
         return NextResponse.json(
           { error: "Password required for custom login" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -57,13 +58,13 @@ export async function POST(req: NextRequest) {
       if (!isMatch) {
         return NextResponse.json(
           { error: "Invalid credentials" },
-          { status: 401 }
+          { status: 401 },
         );
       }
 
       return NextResponse.json(
         { message: "Login successful", user, isNewUser: false },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
     console.error("Error during login:", error);
     return NextResponse.json(
       { error: "Login failed", details: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

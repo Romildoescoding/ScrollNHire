@@ -1,4 +1,5 @@
 "use client";
+import StudentOnboarding from "@/components/student-onboarding";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -16,13 +17,13 @@ import { SetStateAction, useState } from "react";
 // Main Onboarding Page
 // -----------------------------
 export default function OnboardingPage() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [role, setRole] = useState<"student" | "employer" | "cso" | null>(null);
 
   return (
     <div className="min-h-screen flex justify-center bg-gray-50">
       <div className="w-full max-w-4xl pt-0 p-6 relative">
-        {step > 1 && (
+        {step > 0 && (
           <div className="absolute top-0 left-[-36px]">
             <button
               className="fixed top-[64px] w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary/10"
@@ -34,7 +35,10 @@ export default function OnboardingPage() {
             </button>
           </div>
         )}
-        <div className="sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4">
+        <div
+          style={{ opacity: step < 1 ? 0 : 100 }}
+          className=" transition-all sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4"
+        >
           <div className="w-full h-auto flex-1">
             <div className="flex justify-between items-center">
               <p className="text-slate-700 dark:text-slate-300 text-sm font-medium">
@@ -55,7 +59,7 @@ export default function OnboardingPage() {
             </div>
           </div>
         </div>
-        {step === 1 && (
+        {step === 0 && (
           <RoleSelection
             onSelect={(r) => {
               setRole(r);
@@ -65,19 +69,19 @@ export default function OnboardingPage() {
           />
         )}
 
-        {step === 2 && role === "student" && (
-          <StudentOnboarding onNext={() => setStep(3)} />
+        {step === 1 && role === "student" && (
+          <StudentOnboarding onNext={() => setStep(2)} />
         )}
 
-        {step === 2 && role === "employer" && (
-          <EmployerOnboarding onNext={() => setStep(3)} />
+        {step === 1 && role === "employer" && (
+          <EmployerOnboarding onNext={() => setStep(2)} />
         )}
 
-        {step === 2 && role === "cso" && (
-          <CSOOnboarding onNext={() => setStep(3)} />
+        {step === 1 && role === "cso" && (
+          <CSOOnboarding onNext={() => setStep(2)} />
         )}
 
-        {step === 3 && <CompletionScreen />}
+        {step === 2 && <CompletionScreen />}
       </div>
     </div>
   );
@@ -223,9 +227,17 @@ function RoleSelection({
       <div className="sticky bottom-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pt-2 pb-2 border-t border-primary/10">
         {/* <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-primary text-primary text-lg font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20"> */}
         <Button
-          onClick={() => setStep((step) => step + 1)}
+          onClick={() => {
+            if (role === null) return;
+            setStep((step) => step + 1);
+          }}
           className="w-full"
-          style={{ paddingTop: "24px", paddingBottom: "24px" }}
+          disabled={role === null}
+          style={{
+            paddingTop: "24px",
+            paddingBottom: "24px",
+            cursor: role === null ? "not allowed" : "pointer",
+          }}
         >
           <span className="truncate">Next</span>
           <span className="material-symbols-outlined">
@@ -244,51 +256,6 @@ function RoleSelection({
 // -----------------------------
 // Student Flow
 // -----------------------------
-function StudentOnboarding({ onNext }: { onNext: any }) {
-  const [form, setForm] = useState({
-    college: "",
-    degree: "",
-    year: "",
-    skills: "",
-  });
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Build your student profile</h2>
-
-      <input
-        placeholder="College Name"
-        className="w-full p-3 border rounded-lg"
-        onChange={(e) => setForm({ ...form, college: e.target.value })}
-      />
-
-      <input
-        placeholder="Degree"
-        className="w-full p-3 border rounded-lg"
-        onChange={(e) => setForm({ ...form, degree: e.target.value })}
-      />
-
-      <input
-        placeholder="Year (e.g. 3rd Year)"
-        className="w-full p-3 border rounded-lg"
-        onChange={(e) => setForm({ ...form, year: e.target.value })}
-      />
-
-      <input
-        placeholder="Skills (comma separated)"
-        className="w-full p-3 border rounded-lg"
-        onChange={(e) => setForm({ ...form, skills: e.target.value })}
-      />
-
-      <button
-        onClick={onNext}
-        className="w-full bg-black text-white py-3 rounded-lg"
-      >
-        Continue
-      </button>
-    </div>
-  );
-}
 
 // -----------------------------
 // Employer Flow

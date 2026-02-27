@@ -77,7 +77,7 @@ export default function CollegeSelect({
   const ref = useRef(null);
 
   return (
-    <div className="relative">
+    <div className="relative w-full flex-1">
       <Label className="mb-2">
         College <span className="text-red-500">*</span>
       </Label>

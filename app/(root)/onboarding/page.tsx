@@ -1,5 +1,7 @@
 "use client";
+import { useUserDetails } from "@/app/hooks/useUserDetails";
 import StudentOnboarding from "@/components/student-onboarding";
+import StudentProfileForm from "@/components/student-onboarding2";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -9,21 +11,56 @@ import {
   Check,
   Forward,
   GraduationCap,
+  Router,
   School,
 } from "lucide-react";
-import { SetStateAction, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { SetStateAction, useEffect, useState } from "react";
 
 // -----------------------------
 // Main Onboarding Page
 // -----------------------------
 export default function OnboardingPage() {
-  const [step, setStep] = useState(0);
+  const { user, refetchUser, status } = useUserDetails();
+  const router = useRouter();
+  const [step, setStep] = useState(3);
   const [role, setRole] = useState<"student" | "employer" | "cso" | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    console.log(user);
+
+    if (user.isOnboarded) {
+      return router.push("/dashboard");
+    }
+
+    if (user.role) {
+      setRole(role);
+    } else {
+      return setStep(1);
+    }
+    if (!user.gender) {
+      setStep(2);
+    } else {
+      setStep(3);
+    }
+
+    setLoading(false);
+  }, [router, user]);
 
   return (
-    <div className="min-h-screen flex justify-center bg-gray-50">
-      <div className="w-full max-w-4xl pt-0 p-6 relative">
-        {step > 0 && (
+    <>
+      {" "}
+      {loading ? (
+        <div className="h-full w-full flex items-center justify-center">
+          <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+        </div>
+      ) : (
+        <div className="min-h-screen flex justify-center bg-gray-50">
+          <div className="w-full max-w-4xl pt-0 p-6 relative">
+            {/* {step > 0 && (
           <div className="absolute top-0 left-[-36px]">
             <button
               className="fixed top-[64px] w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary/10"
@@ -34,56 +71,66 @@ export default function OnboardingPage() {
               </span>
             </button>
           </div>
-        )}
-        <div
-          style={{ opacity: step < 1 ? 0 : 100 }}
-          className=" transition-all sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4"
-        >
-          <div className="w-full h-auto flex-1">
-            <div className="flex justify-between items-center">
-              <p className="text-slate-700 dark:text-slate-300 text-sm font-medium">
-                Step {step} of 4
-              </p>
-              <p className="text-primary text-xs font-bold uppercase tracking-wider">
-                Role Selection
-              </p>
+        )} */}
+            <div
+              style={{ opacity: step < 1 ? 0 : 100 }}
+              className=" transition-all sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4"
+            >
+              <div className="w-full h-auto flex-1">
+                <div className="flex justify-between items-center">
+                  <p className="text-slate-700 dark:text-slate-300 text-sm font-medium">
+                    {step > 2 ? "Done" : `Step ${step} of 2`}
+                  </p>
+                  <p className="text-primary text-xs font-bold uppercase tracking-wider">
+                    {role === "student" && (
+                      <>
+                        {step === 1 && "Basic details"}
+                        {step === 2 && "Additional Information"}
+                        {step === 3 && "All Set!"}
+                      </>
+                    )}
+                  </p>
+                </div>
+                <div className="h-2 w-full rounded-full bg-primary/20">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{
+                      width: `${50 * (step - 1)}%`,
+                      transition: "width 0.5s ease-in-out",
+                    }}
+                  ></div>
+                </div>
+              </div>
             </div>
-            <div className="h-2 w-full rounded-full bg-primary/20">
-              <div
-                className="h-2 rounded-full bg-primary"
-                style={{
-                  width: `${25 * step}%`,
-                  transition: "width 0.5s ease-in-out",
+            {step === 0 && (
+              <RoleSelection
+                onSelect={(r) => {
+                  setRole(r);
                 }}
-              ></div>
-            </div>
+                role={role}
+                setStep={setStep}
+              />
+            )}
+
+            {step === 1 && <StudentOnboarding onNext={() => setStep(2)} />}
+
+            {step === 2 && role === "student" && (
+              <StudentProfileForm onNext={() => setStep(3)} />
+            )}
+
+            {step === 1 && role === "employer" && (
+              <EmployerOnboarding onNext={() => setStep(2)} />
+            )}
+
+            {step === 1 && role === "cso" && (
+              <CSOOnboarding onNext={() => setStep(2)} />
+            )}
+
+            {step === 3 && <CompletionScreen />}
           </div>
         </div>
-        {step === 0 && (
-          <RoleSelection
-            onSelect={(r) => {
-              setRole(r);
-            }}
-            role={role}
-            setStep={setStep}
-          />
-        )}
-
-        {step === 1 && role === "student" && (
-          <StudentOnboarding onNext={() => setStep(2)} />
-        )}
-
-        {step === 1 && role === "employer" && (
-          <EmployerOnboarding onNext={() => setStep(2)} />
-        )}
-
-        {step === 1 && role === "cso" && (
-          <CSOOnboarding onNext={() => setStep(2)} />
-        )}
-
-        {step === 2 && <CompletionScreen />}
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 
@@ -246,7 +293,7 @@ function RoleSelection({
         </Button>
         {/* </button> */}
         <p className="text-center mt-3 text-xs text-slate-500 dark:text-slate-400">
-          You can change your role later in account settings.
+          You cannot change your role later after this selection.
         </p>
       </div>
     </>
@@ -338,14 +385,32 @@ function CSOOnboarding({ onNext }: { onNext: any }) {
 // Completion Screen
 // -----------------------------
 function CompletionScreen() {
-  return (
-    <div className="text-center space-y-4">
-      <h2 className="text-2xl font-bold">You're all set 🚀</h2>
-      <p className="text-gray-600">Your profile is ready to go live.</p>
+  const router = useRouter();
 
-      <button className="bg-black text-white px-6 py-3 rounded-lg">
-        Go to Dashboard
-      </button>
-    </div>
+  useEffect(() => {
+    setTimeout(() => router.push("/dashboard"), 5000);
+  }, [router]);
+
+  return (
+    <>
+      <div className="flex flex-col flex-1 pt-2">
+        <header className="text-center mb-4">
+          <h1
+            className={`font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2`}
+          >
+            {`You're all set`}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-base">
+            {`Hang on! We're redirecting you to the dashboard.`}
+          </p>
+        </header>
+      </div>
+      <div className="w-full flex justify-center">
+        {/* <Button onClick={() => router.push("/dashboarding")}>
+          Go to Dashboard
+        </Button> */}
+        <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+      </div>
+    </>
   );
 }

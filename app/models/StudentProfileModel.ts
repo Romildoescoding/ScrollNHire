@@ -1,8 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IStudentProfile extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   collegeId?: mongoose.Types.ObjectId;
+  rollno: string;
   degree: string;
   branch: string;
   yearOfPassing: number;
@@ -18,15 +19,16 @@ export interface IStudentProfile extends Document {
 
 const studentProfileSchema = new Schema<IStudentProfile>({
   userId: {
-    type: Schema.Types.ObjectId,
+    type: String, // 🔥 CHANGE THIS
     ref: "User",
     required: true,
-    unique: true, // one profile per user
+    unique: true,
   },
   collegeId: {
     type: Schema.Types.ObjectId,
     ref: "College",
   },
+  rollno: String,
   degree: String,
   branch: String,
   yearOfPassing: Number,

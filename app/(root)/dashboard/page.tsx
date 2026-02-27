@@ -1,27 +1,27 @@
 "use client";
 
-import useFetchEmails from "@/app/hooks/useFetchEmails";
+// import useFetchEmails from "@/app/hooks/useFetchEmails";
 import { DataTable } from "@/components/email-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { EmailThread } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const {
-    emails,
-    setEmails,
-    total,
-    page,
-    setPage,
-    limit,
-    setLimit,
-    isLoading,
-    setSearch,
-  } = useFetchEmails();
-  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
-  useEffect(() => {
-    console.log(emails);
-  }, [emails]);
+  // const {
+  //   emails,
+  //   setEmails,
+  //   total,
+  //   page,
+  //   setPage,
+  //   limit,
+  //   setLimit,
+  //   isLoading,
+  //   setSearch,
+  // } = useFetchEmails();
+  // const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+  // useEffect(() => {
+  //   console.log(emails);
+  // }, [emails]);
   return (
     <div className="h-full w-full flex flex-col gap-4">
       <Card className="dark:bg-neutral-950 border-none shadow-none p-0">
@@ -31,7 +31,7 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="border rounded-sm">
-            <DataTable
+            {/* <DataTable
               pagination={{
                 page,
                 limit,
@@ -53,7 +53,8 @@ const Dashboard = () => {
               displayFilter={true}
               displaySelect={true}
               sortedViaSelected={false}
-            />
+            /> */}
+            DASHBOARD
           </div>
         </CardContent>
       </Card>

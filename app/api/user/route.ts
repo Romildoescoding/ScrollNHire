@@ -77,3 +77,66 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    await dbConnect();
+
+    const body = await req.json();
+    const { email, ...rest } = body;
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email is required to update user" },
+        { status: 400 },
+      );
+    }
+
+    // 🧹 Remove null / undefined fields
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(rest).filter(
+        ([_, value]) => value !== null && value !== undefined,
+      ),
+    );
+
+    // 🔒 Prevent updating restricted fields
+    const restrictedFields = [
+      "password",
+      "providerId",
+      "provider",
+      "email",
+      "createdAt",
+    ];
+
+    for (const field of restrictedFields) {
+      delete filteredUpdates[field];
+    }
+
+    // ⚠️ Optional: enforce schema-based logic
+    if (!filteredUpdates.role || filteredUpdates.role === "employer") {
+      delete filteredUpdates.collegeId;
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $set: filteredUpdates },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: "User updated successfully", user: updatedUser },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    console.error("Error updating user:", error);
+
+    return NextResponse.json(
+      { error: "Update failed", details: error.message },
+      { status: 500 },
+    );
+  }
+}

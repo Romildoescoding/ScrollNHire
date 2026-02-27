@@ -12,17 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CollegeSelect from "./college-select";
+import { useSession } from "next-auth/react";
 
 export default function StudentOnboarding({ onNext }: { onNext: any }) {
+  const { data: session } = useSession();
+
   const [form, setForm] = useState({
     firstName: "",
     middleName: "",
     lastName: "",
-    dob: "",
+    // dob: "",
     gender: "",
-    collegeId: "",
-    collegeName: "",
-    rollno: "",
+    // collegeId: "",
+    // collegeName: "",
+    // rollno: "",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -34,25 +37,84 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
 
     if (!form.firstName) newErrors.firstName = "First name is required";
     if (!form.lastName) newErrors.lastName = "Last name is required";
-    if (!form.dob) newErrors.dob = "Date of birth is required";
+    // if (!form.dob) newErrors.dob = "Date of birth is required";
     if (!form.gender) newErrors.gender = "Please select a gender";
-    if (!form.collegeId) {
-      newErrors.college = "Please select a college from the list";
-    }
-    if (!form.rollno) {
-      newErrors.rollno = "Please enter you rollno";
-    }
+    // if (!form.collegeId) {
+    //   newErrors.college = "Please select a college from the list";
+    // }
+    // if (!form.rollno) {
+    //   newErrors.rollno = "Please enter you rollno";
+    // }
 
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!session?.user?.email) {
+      console.error("No user session found");
+      return;
+    }
     const validationErrors = validate();
     setErrors(validationErrors);
     setSubmitted(true);
 
+    console.log(validationErrors);
     if (Object.keys(validationErrors).length === 0) {
-      onNext(form);
+      setLoading(true);
+      try {
+        // 🧠 transform form → backend format
+        const payload = {
+          name: [form.firstName, form.middleName, form.lastName]
+            .filter(Boolean)
+            .join(" "),
+          gender: form.gender,
+        };
+
+        const res = await fetch("/api/user", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: session.user.email,
+            ...payload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          console.error(data.error);
+          return;
+        }
+
+        // const res2 = await fetch("/api/profile/student", {
+        //   method: "PATCH",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     userId: session.user.id,
+        //     collegeId: form.collegeId,
+        //     rollno: form.rollno,
+        //   }),
+        // });
+
+        // const data2 = await res2.json();
+        // if (!res2.ok) {
+        //   console.error(data2.error);
+        //   return;
+        // }
+
+        console.log("✅ Updated user:", data.user);
+        // console.log("✅ Updated student profile:", data2.profile);
+
+        onNext(form);
+      } catch (err) {
+        console.error("❌ Update failed:", err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -125,8 +187,8 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
         </div>
 
         {/* DOB */}
-        <div className="flex justify-between w-full gap-2">
-          <div className="space-y-2 w-full max-w-52">
+        <div className="flex w-full gap-6">
+          {/* <div className="space-y-2 w-full max-w-52">
             <Label>
               Date of Birth <span className="text-red-500">*</span>
             </Label>
@@ -138,14 +200,15 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
             {submitted && errors.dob && (
               <p className="text-red-500 text-sm">{errors.dob}</p>
             )}
-          </div>
+          </div> */}
 
           {/* GENDER */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2"> */}
+          <div className="space-y-2 w-full">
             <Label>
               Gender <span className="text-red-500">*</span>
             </Label>
-            <Select
+            {/* <Select
               onValueChange={(value) => setForm({ ...form, gender: value })}
             >
               <SelectTrigger>
@@ -156,27 +219,39 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
                 <SelectItem value="female">Female</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
+            <div className="flex w-full justify-between gap-3 items-center">
+              {["male", "female", "other"].map((gender) => (
+                <Button
+                  key={gender}
+                  variant={"outline"}
+                  className={`${form.gender === gender ? "text-neutral-800 border-2 border-neutral-800" : "text-neutral-500 border border-neutral-200"} shadom-sm capitalize flex-1`}
+                  onClick={() => setForm({ ...form, gender })}
+                >
+                  {gender}
+                </Button>
+              ))}
+            </div>
 
             {submitted && errors.gender && (
               <p className="text-red-500 text-sm">{errors.gender}</p>
             )}
           </div>
+
+          {/* COLLEGE */}
+          {/* <CollegeSelect
+            value={form.collegeName}
+            onChange={(college) =>
+              setForm({
+                ...form,
+                collegeId: college.collegeId,
+                collegeName: college.collegeName,
+              })
+            }
+          /> */}
         </div>
 
-        {/* COLLEGE */}
-        <CollegeSelect
-          value={form.collegeName}
-          onChange={(college) =>
-            setForm({
-              ...form,
-              collegeId: college.collegeId,
-              collegeName: college.collegeName,
-            })
-          }
-        />
-
-        {form.collegeId && (
+        {/* {form.collegeId && (
           <div className="space-y-2">
             <Label>
               Institute Roll Number / University ID Number / USN{" "}
@@ -193,11 +268,15 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
               )}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* SUBMIT */}
-        <Button onClick={handleSubmit} disabled={!isValid} className="w-full">
+        {/* <Button onClick={handleSubmit} disabled={!isValid} className="w-full"> */}
+        <Button onClick={handleSubmit} className="w-full">
           Continue
+          {loading && (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          )}
         </Button>
       </div>
     </>

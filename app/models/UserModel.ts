@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export type UserRole = "student" | "recruiter" | "cso";
+export type UserRole = "student" | "employer" | "cso";
 export type Gender = "male" | "female" | "other";
 
 export interface IUser extends Document {
@@ -42,7 +42,7 @@ const userSchema = new Schema<IUser>({
 
   role: {
     type: String,
-    enum: ["student", "recruiter", "cso"],
+    enum: ["student", "employer", "cso"],
   },
 
   isOnboarded: {
@@ -58,7 +58,6 @@ const userSchema = new Schema<IUser>({
   gender: {
     type: String,
     enum: ["male", "female", "other"],
-    default: "male",
   },
 
   collegeId: {

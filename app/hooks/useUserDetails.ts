@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import { getUserDetails } from "../_lib/actions";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Gender, UserRole } from "../models/UserModel";
 
 interface User {
@@ -16,6 +16,7 @@ interface User {
 }
 
 export function useUserDetails() {
+  const fetched = useRef(false);
   const [user, setUser] = useState<User>({
     name: "",
     email: "",
@@ -27,15 +28,18 @@ export function useUserDetails() {
     role: null,
     gender: null,
   });
-  const [status, setStatus] = useState("");
+  // Can be used to check if the session came right and the user got fetched or not.
+  const [status, setStatus] = useState<"loading" | "authenticated" | "error">(
+    "loading",
+  );
   const { data: session } = useSession();
 
   // ✅ Create a function to re-fetch user details
   const fetchUser = useCallback(async (email: string | null) => {
-    setStatus("loading");
     try {
       const fetchedUser = await getUserDetails(email);
       setUser(fetchedUser.user);
+      fetched.current = true;
       setStatus("authenticated");
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -49,13 +53,15 @@ export function useUserDetails() {
       fetchUser(session.user.email);
       setStatus("authenticated");
     } else {
-      fetchUser(null);
+      // no need to fetch the user with no email yk as it is just not there.
+      // fetchUser(null);
     }
   }, [session?.user, fetchUser]);
 
   return {
     user,
     status,
+    fetched,
     refetchUser: () => fetchUser(session?.user?.email || null),
   };
 }

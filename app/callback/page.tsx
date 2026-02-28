@@ -20,6 +20,10 @@ const CallbackPage = () => {
     hasRun.current = true;
 
     async function loginUser() {
+      if (!session) {
+        console.log("Session is null in the /callback");
+        return;
+      }
       try {
         const res = await axios.post("/api/user", {
           ...session.user,

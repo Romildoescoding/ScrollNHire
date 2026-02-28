@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IInterviewRequest extends Document {
-  recruiterId: mongoose.Types.ObjectId;
+  employerId: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
   projectId?: mongoose.Types.ObjectId;
   message: string;
@@ -10,7 +10,7 @@ export interface IInterviewRequest extends Document {
 }
 
 const interviewSchema = new Schema<IInterviewRequest>({
-  recruiterId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  employerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   studentId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   projectId: { type: Schema.Types.ObjectId, ref: "Project" },
   message: String,

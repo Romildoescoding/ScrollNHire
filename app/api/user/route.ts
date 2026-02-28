@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
           image: image,
           provider: "google",
           providerId: email,
-          role: "student",
         });
       }
 

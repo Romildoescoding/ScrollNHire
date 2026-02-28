@@ -1,5 +1,7 @@
 "use client";
 import { useUserDetails } from "@/app/hooks/useUserDetails";
+import CSOPRofileForm from "@/components/cso-onboarding";
+import EmployerProfileForm from "@/components/employer-onboarding";
 import StudentOnboarding from "@/components/student-onboarding";
 import StudentProfileForm from "@/components/student-onboarding2";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import {
   Check,
   Forward,
   GraduationCap,
+  Loader2,
   Router,
   School,
 } from "lucide-react";
@@ -22,14 +25,17 @@ import { SetStateAction, useEffect, useState } from "react";
 // Main Onboarding Page
 // -----------------------------
 export default function OnboardingPage() {
-  const { user, refetchUser, status } = useUserDetails();
+  const { user, refetchUser, status, fetched } = useUserDetails();
   const router = useRouter();
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(-1);
   const [role, setRole] = useState<"student" | "employer" | "cso" | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    // The userobject alwys exists with "" values for each field. so, gonna use the status as laoding for now.
+    // if (status !== "authenticated") return;
+    // used the fetched ref instead.
+    if (!fetched) return;
+    // if (!user) return;
     console.log(user);
 
     if (user.isOnboarded) {
@@ -37,25 +43,30 @@ export default function OnboardingPage() {
     }
 
     if (user.role) {
-      setRole(role);
+      setRole(user.role);
     } else {
-      return setStep(1);
+      // setLoading(false);
+      return setStep(0);
     }
     if (!user.gender) {
-      setStep(2);
+      setStep(1);
     } else {
-      setStep(3);
+      setStep(2);
     }
 
-    setLoading(false);
-  }, [router, user]);
+    // setTimeout(() => setLoading(false), 1000);
+  }, [router, user, status]);
+
+  // useEffect(() => {
+  //   console.log(role, step);
+  // }, [role, step]);
 
   return (
     <>
       {" "}
-      {loading ? (
-        <div className="h-full w-full flex items-center justify-center">
-          <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+      {step < 0 ? (
+        <div className="h-[calc(100vh-56px)] w-full flex items-center justify-center">
+          <Loader2 className="h-7 w-7 animate-spin" />
         </div>
       ) : (
         <div className="min-h-screen flex justify-center bg-gray-50">
@@ -74,7 +85,7 @@ export default function OnboardingPage() {
         )} */}
             <div
               style={{ opacity: step < 1 ? 0 : 100 }}
-              className=" transition-all sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4"
+              className="z-11 transition-all sticky border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl top-[56px] flex flex-col gap-1  p-4"
             >
               <div className="w-full h-auto flex-1">
                 <div className="flex justify-between items-center">
@@ -118,12 +129,12 @@ export default function OnboardingPage() {
               <StudentProfileForm onNext={() => setStep(3)} />
             )}
 
-            {step === 1 && role === "employer" && (
-              <EmployerOnboarding onNext={() => setStep(2)} />
+            {step === 2 && role === "employer" && (
+              <EmployerProfileForm onNext={() => setStep(2)} />
             )}
 
-            {step === 1 && role === "cso" && (
-              <CSOOnboarding onNext={() => setStep(2)} />
+            {step === 2 && role === "cso" && (
+              <CSOPRofileForm onNext={() => setStep(2)} />
             )}
 
             {step === 3 && <CompletionScreen />}
@@ -146,6 +157,35 @@ function RoleSelection({
   role: string | null;
   setStep: React.Dispatch<SetStateAction<number>>;
 }) {
+  const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+  async function handleSelectRole() {
+    try {
+      if (!session?.user) return;
+      setLoading(true);
+      const res = await fetch("/api/user", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session.user.email,
+          role,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data.error);
+        return;
+      }
+      setStep((step) => step + 1);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col flex-1 pt-2 px-4 py-6">
@@ -276,7 +316,7 @@ function RoleSelection({
         <Button
           onClick={() => {
             if (role === null) return;
-            setStep((step) => step + 1);
+            handleSelectRole();
           }}
           className="w-full"
           disabled={role === null}
@@ -287,9 +327,14 @@ function RoleSelection({
           }}
         >
           <span className="truncate">Next</span>
-          <span className="material-symbols-outlined">
-            <ArrowRight />
-          </span>
+          {!loading && (
+            <span className="material-symbols-outlined">
+              <ArrowRight />
+            </span>
+          )}
+          {loading && (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          )}
         </Button>
         {/* </button> */}
         <p className="text-center mt-3 text-xs text-slate-500 dark:text-slate-400">

@@ -2,15 +2,15 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface ICompany extends Document {
   name: string;
-  logo?: string;
-  recruiterIds: mongoose.Types.ObjectId[];
+  domain?: string;
+  employerIds: mongoose.Types.ObjectId[];
   createdAt: Date;
 }
 
 const companySchema = new Schema<ICompany>({
   name: { type: String, required: true },
-  logo: String,
-  recruiterIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  domain: String,
+  employerIds: [{ type: Schema.Types.ObjectId, ref: "User" }],
   createdAt: { type: Date, default: Date.now },
 });
 

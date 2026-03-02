@@ -50,14 +50,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     // <SessionProvider>
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-56px)]">
       <button
         onClick={() => setIsSidebarOpen((open) => !open)}
         className={cn(
           "z-[11] h-14 w-18 flex items-center justify-center cursor-pointer transition-all duration-500 text-neutral-600 hover:text-neutral-950 border-b border-r bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-700 dark:text-white dark:hover:text-neutral-200 absolute left-68 top-0",
           isSidebarOpen
             ? "left-40 md:left-[184px] md:text-neutral-600"
-            : "left-4 md:left-[0px] text-neutral-600"
+            : "left-4 md:left-[0px] text-neutral-600",
         )}
         style={{ position: "fixed" }}
       >
@@ -75,7 +75,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           "h-full z-[10] w-full bg-[#000000bd] left-0 top-0 transition-all opacity-1 duration-500 fixed",
           isSidebarOpen
             ? "pointer-events-auto opacity-100 md:hidden"
-            : " pointer-events-none opacity-0  md:hidden"
+            : " pointer-events-none opacity-0  md:hidden",
         )}
         onClick={() => setIsSidebarOpen(false)}
       ></div>
@@ -83,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "fixed z-[10] max-h-screen min-h-screen left-0 top-0 h-full bg-white dark:bg-neutral-950 flex flex-col border-r md:flex md:relative transition-all duration-500 overflow-hidden",
-          isSidebarOpen ? "w-48 md:w-64" : "w-0 md:w-[72px]"
+          isSidebarOpen ? "w-48 md:w-64" : "w-0 md:w-[72px]",
         )}
         style={{ position: "sticky" }}
       >

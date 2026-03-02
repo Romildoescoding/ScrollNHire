@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface ICSOProfile extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   collegeId: mongoose.Types.ObjectId;
   designation: string;
   createdAt: Date;
@@ -9,7 +9,7 @@ export interface ICSOProfile extends Document {
 
 const csoProfileSchema = new Schema<ICSOProfile>({
   userId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: "User",
     required: true,
     unique: true,

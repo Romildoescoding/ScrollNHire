@@ -50,6 +50,7 @@ export function useUserDetails() {
   // handles the empty user session case with this check
   useEffect(() => {
     if (session?.user?.email) {
+      console.log(session?.user?.email);
       fetchUser(session.user.email);
       setStatus("authenticated");
     } else {

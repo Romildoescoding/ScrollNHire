@@ -62,7 +62,7 @@ export default function OnboardingPage() {
   // }, [role, step]);
 
   return (
-    <>
+    <main className="pt-[56px]">
       {" "}
       {step < 0 ? (
         <div className="h-[calc(100vh-56px)] w-full flex items-center justify-center">
@@ -130,18 +130,18 @@ export default function OnboardingPage() {
             )}
 
             {step === 2 && role === "employer" && (
-              <EmployerProfileForm onNext={() => setStep(2)} />
+              <EmployerProfileForm onNext={() => setStep(3)} />
             )}
 
             {step === 2 && role === "cso" && (
-              <CSOPRofileForm onNext={() => setStep(2)} />
+              <CSOPRofileForm onNext={() => setStep(3)} />
             )}
 
             {step === 3 && <CompletionScreen />}
           </div>
         </div>
       )}
-    </>
+    </main>
   );
 }
 

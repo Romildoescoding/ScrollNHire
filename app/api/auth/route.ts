@@ -6,34 +6,16 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const { email } = await req.json();
-  //   const cookieStore = cookies();
-  //   const token = (await cookieStore).get("session")?.value;
-  //   console.log("TH FUNCITO FOR GET DETAILS");
-  //   console.log(token);
-  //   console.log(email);
-
-  //   if (!email && !token) {
-  //     return NextResponse.json({ user: null });
-  //   }
-
+  await dbConnect();
   try {
-    if (email) {
-      const user = await User.findOne({ email });
-
-      return NextResponse.json({
-        user,
-      });
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
-
-    // else
-    // Verify the token
-    // const decoded = await verifySession();
-
-    // Return user information (excluding sensitive data)
-    // const mail = decoded.user?.email;
-    // if (!mail) throw new Error("User email is empty");
-    await dbConnect();
     const user = await User.findOne({ email });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json({
       user: {

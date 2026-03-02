@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/app/_lib/dbConnect";
-import EmployerProfile from "@/app/models/EmployerProfileModel";
+import CSOProfile from "@/app/models/CSOProfileModel";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest) {
     );
 
     // 🔥 Core logic: create if not exists, update if exists
-    const profile = await EmployerProfile.findOneAndUpdate(
+    const profile = await CSOProfile.findOneAndUpdate(
       { userId },
       {
         $set: filteredUpdates,

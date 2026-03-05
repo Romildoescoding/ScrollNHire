@@ -26,6 +26,12 @@ import {
   Archive,
   Bell,
   ListTodo,
+  Home,
+  SquarePlay,
+  BriefcaseBusiness,
+  Compass,
+  Laptop,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -37,16 +43,34 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 // import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AppLayout from "@/components/app-layout";
+import { useUserDetails } from "@/app/hooks/useUserDetails";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const [hideLayout, setHideLayout] = useState(false);
+  // const [hideLayout, setHideLayout] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const [role, setRole] = useState<"student" | "employer" | "cso" | null>(null);
+  const { user } = useUserDetails();
+
+  useEffect(() => {
+    // if (pathname === "/dashboard/student") {
+    //   setRole("student");
+    // } else if (pathname === "/dashboard/recruiter") {
+    //   setRole("employer");
+    // } else if (pathname === "/dashboard/cso") {
+    //   setRole("cso");
+    // } else {
+    //   setRole(null);
+    // }
+
+    // OR
+    setRole(user.role);
+  }, [pathname]);
 
   return (
     // <SessionProvider>
@@ -101,7 +125,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   href="/"
                   className="flex items-center gap-2 font-semibold"
                 >
-                  <div className="h-fit min-w-fit">SUMMAIL</div>
+                  <div className="h-fit min-w-fit">ScrollnHire</div>
                 </Link>
               </motion.div>
             )}
@@ -113,7 +137,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         >
           {/* MAIN FEATURES */}
           <div className="px-4 py-2 flex flex-col gap-1">
-            <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
+            {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
               <span
                 className="transition-all duration-500"
                 style={{ opacity: isSidebarOpen ? "100" : "0" }}
@@ -126,47 +150,115 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 -----
               </span>
-            </h2>
+            </h2> */}
             <div className="space-y-1 flex flex-col gap-1">
               <Button
                 variant={pathname === "/dashboard" ? "secondary" : "ghost"}
                 className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
                 onClick={() => router.push("/dashboard")}
               >
-                <BarChart3 className="text-neutral-500 mr-2" />
+                <Home className="text-neutral-500 mr-2" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
                   className="transition-all duration-300"
                 >
-                  Dashboard
+                  Home
                 </span>
               </Button>
 
               <Button
-                variant={pathname === "/actions" ? "secondary" : "ghost"}
+                variant={pathname === "/jobs" ? "secondary" : "ghost"}
                 className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/actions")}
+                onClick={() => router.push("/jobs")}
               >
-                <ListTodo className="text-neutral-500 mr-2 h-4 w-4" />
+                <BriefcaseBusiness className="text-neutral-500 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
                   className="transition-all duration-300"
                 >
-                  Actions
+                  Job Profiles
+                </span>
+              </Button>
+              <Button
+                variant={pathname === "/profile" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/profile")}
+              >
+                <User2 className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  My Profile
                 </span>
               </Button>
 
               <Button
-                variant={pathname === "/emails" ? "secondary" : "ghost"}
+                variant={pathname === "/interviews" ? "secondary" : "ghost"}
                 className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/emails")}
+                onClick={() => router.push("/interviews")}
               >
-                <Mails className="text-neutral-500 mr-2 h-4 w-4" />
+                <Laptop className="text-neutral-500 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
                   className="transition-all duration-300"
                 >
-                  Emails
+                  Interviews
+                </span>
+              </Button>
+
+              <Button
+                variant={pathname === "/reels" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/reels")}
+              >
+                <SquarePlay className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  Reels
+                </span>
+              </Button>
+
+              <Button
+                variant={pathname === "/explore" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/explore")}
+              >
+                <Compass className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  Explore
+                </span>
+              </Button>
+
+              <Button
+                variant={pathname === "/create" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/create")}
+              >
+                <Plus className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  Create
+                </span>
+              </Button>
+              <Button
+                variant={pathname === "/notifications" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/notifications")}
+              >
+                <Bell className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  Notifications
                 </span>
               </Button>
             </div>
@@ -174,7 +266,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* CONTACT SECTION */}
           <div className="px-4 py-2 flex flex-col gap-1">
-            <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
+            {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
               <span
                 className="transition-all duration-500"
                 style={{ opacity: isSidebarOpen ? "100" : "0" }}
@@ -187,21 +279,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 -----
               </span>
-            </h2>
+            </h2> */}
             <div className="space-y-1 flex flex-col gap-1">
-              <Button
-                variant={pathname === "/notification" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/notification")}
-              >
-                <Bell className="text-neutral-500 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
-                >
-                  Voice Alert
-                </span>
-              </Button>
               {/* <Button
                   variant={pathname === "/lists" ? "secondary" : "ghost"}
                   className="w-full pl-2 cursor-pointer justify-start overflow-hidden"

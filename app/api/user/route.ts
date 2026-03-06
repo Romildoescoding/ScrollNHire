@@ -18,10 +18,7 @@ export async function POST(req: NextRequest) {
 
     // ---------------------- GOOGLE LOGIN ----------------------
     if (provider === "google") {
-      let isNewUser = false;
-
       if (!user) {
-        isNewUser = true;
         user = await User.create({
           name,
           email,
@@ -32,7 +29,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json(
-        { message: "Google login successful", user, isNewUser },
+        { message: "Google login successful", user },
         { status: 200 },
       );
     }
@@ -62,7 +59,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json(
-        { message: "Login successful", user, isNewUser: false },
+        { message: "Login successful", user },
         { status: 200 },
       );
     }

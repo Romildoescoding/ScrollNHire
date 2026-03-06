@@ -32,7 +32,7 @@ const CallbackPage = () => {
 
         console.log(res.data);
 
-        if (res.data.isNewUser) {
+        if (!res.data.user.isOnboarded) {
           router.push("/onboarding");
         } else {
           router.push("/dashboard");

@@ -3,7 +3,7 @@ import mongoose, { Document, Model, Schema, Types } from "mongoose";
 /* ===================== INTERFACE ===================== */
 
 export interface IReel extends Document {
-  studentId: string;
+  studentId: mongoose.Types.ObjectId;
   projectId?: Types.ObjectId;
 
   videoUrl: string;
@@ -29,7 +29,7 @@ export interface IReel extends Document {
 const reelSchema = new Schema<IReel>(
   {
     studentId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       ref: "StudentProfile",
       required: true,
     },

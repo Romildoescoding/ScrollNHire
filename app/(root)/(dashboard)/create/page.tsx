@@ -1,16 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import TagsInput from "@/components/ui/tags-input";
 import { useSession } from "next-auth/react";
 import React, { useRef, useState } from "react";
 
-const Dashboard = () => {
+const Create = () => {
   const { data: session } = useSession();
+
   const [video, setVideo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+  const [tags, setTags] = useState<string[]>([]);
+
+  const [caption, setCaption] = useState("");
+  // const [tagsInput, setTagsInput] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ---------------- FILE HANDLING ---------------- */
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("video/")) return;
@@ -28,11 +38,16 @@ const Dashboard = () => {
   const reset = () => {
     setVideo(null);
     setPreview(null);
+    setCaption("");
+    setTags([]);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  /* ---------------- UPLOAD ---------------- */
+
   const uploadVideo = async () => {
-    if (!video) return;
+    if (!video || !caption.trim()) return;
     if (!session?.user) return;
 
     setLoading(true);
@@ -51,17 +66,24 @@ const Dashboard = () => {
       );
 
       const cloudData = await cloudRes.json();
-      console.log(cloudData);
 
       const videoUrl = cloudData.secure_url;
 
+      // const tags = tagsInput
+      //   .split(",")
+      //   .map((t) => t.trim())
+      //   .filter(Boolean);
+
       await fetch("/api/reel", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          studentId: session?.user?.id,
+          studentId: session.user.id,
           videoUrl,
-          caption: "",
-          tags: [],
+          caption: caption.trim(),
+          tags,
           duration: cloudData.duration,
         }),
       });
@@ -76,18 +98,20 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="flex flex-col flex-1 pt-2 px-4 py-6">
-        <header className="text-center mb-8">
-          <h1
-            className={`font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2`}
-          >
+      <div className="flex flex-col flex-1 pt-2 px-4 py-6 space-y-6">
+        <header className="text-center mb-4">
+          <h1 className="font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2">
             Share your Reel
           </h1>
         </header>
 
+        {/* VIDEO UPLOAD AREA */}
+
         <div
           className="border-2 border-dashed rounded-lg h-[350px] flex items-center justify-center relative cursor-pointer"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!video) fileInputRef.current?.click();
+          }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
         >
@@ -102,6 +126,7 @@ const Dashboard = () => {
               <video
                 src={preview}
                 controls
+                loop
                 className="w-full h-full object-contain rounded-lg"
               />
 
@@ -127,7 +152,27 @@ const Dashboard = () => {
             }}
           />
         </div>
+
+        {/* CAPTION */}
+
+        <div className="flex flex-col gap-2">
+          <label className="text-md font-medium">Caption *</label>
+
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="Write something about your reel..."
+            className="border rounded-md p-3 min-h-[100px] resize-none"
+            required
+          />
+        </div>
+
+        {/* TAGS */}
+
+        <TagsInput tags={tags} setTags={setTags} />
       </div>
+
+      {/* ACTION BAR */}
 
       <div className="sticky grid grid-cols-2 gap-4 bottom-0 bg-background-light/80 backdrop-blur-md p-4 border-t">
         <Button onClick={reset} variant="outline" className="w-full">
@@ -136,7 +181,7 @@ const Dashboard = () => {
 
         <Button
           onClick={uploadVideo}
-          disabled={!video || loading}
+          disabled={!video || !caption.trim() || loading}
           className="w-full"
         >
           Share
@@ -149,4 +194,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Create;

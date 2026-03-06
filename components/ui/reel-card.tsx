@@ -1,0 +1,248 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Heart, MessageCircle, Share, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+// import Image from "next/image";
+
+interface Student {
+  _id: string;
+  skills: string[];
+  verified: boolean;
+  user: {
+    name: string;
+    image: string;
+  };
+}
+
+interface Reel {
+  _id: string;
+  videoUrl: string;
+  caption?: string;
+  likesCount: number;
+  commentsCount: number;
+  student: Student;
+}
+
+interface Comment {
+  _id: string;
+  text: string;
+  studentId: {
+    username: string;
+    avatar: string;
+  };
+}
+
+export default function ReelCard({ reel }: { reel: Reel }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(reel.likesCount);
+
+  const [showLikeAnim, setShowLikeAnim] = useState(false);
+
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  const [commentText, setCommentText] = useState("");
+
+  const [showFullCaption, setShowFullCaption] = useState(false);
+
+  /* VIDEO AUTOPLAY */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!videoRef.current) return;
+
+        if (entry.isIntersecting) {
+          videoRef.current.play();
+        } else {
+          videoRef.current.pause();
+        }
+      },
+      { threshold: 0.7 },
+    );
+
+    if (videoRef.current) observer.observe(videoRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  /* LIKE */
+  const handleLike = async () => {
+    const newLiked = !liked;
+
+    setLiked(newLiked);
+    setLikes((prev) => prev + (newLiked ? 1 : -1));
+
+    setShowLikeAnim(true);
+
+    setTimeout(() => setShowLikeAnim(false), 600);
+
+    await fetch(`/api/reel/${reel._id}/like`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+  };
+
+  /* LOAD COMMENTS */
+  const openComments = async () => {
+    setCommentsOpen(true);
+
+    const res = await fetch(`/api/reel/${reel._id}/comments`);
+    const data = await res.json();
+
+    setComments(data.comments);
+  };
+
+  /* ADD COMMENT */
+  const submitComment = async () => {
+    if (!commentText.trim()) return;
+
+    const res = await fetch(`/api/reel/${reel._id}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        text: commentText,
+      }),
+    });
+
+    const newComment = await res.json();
+
+    setComments((prev) => [newComment, ...prev]);
+    setCommentText("");
+  };
+
+  return (
+    <div className="flex justify-center w-full bg-black">
+      {/* PHONE WIDTH CONTAINER */}
+      <div className="relative w-[380px] h-screen bg-black overflow-hidden">
+        {/* VIDEO */}
+        <video
+          ref={videoRef}
+          src={reel.videoUrl}
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover"
+          onDoubleClick={handleLike}
+        />
+
+        {/* DOUBLE TAP HEART */}
+        <AnimatePresence>
+          {showLikeAnim && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1.5 }}
+              exit={{ scale: 0 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <Heart size={120} className="text-white fill-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* RIGHT ACTIONS */}
+        <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 text-white">
+          <button onClick={handleLike} className="flex flex-col items-center">
+            <Heart
+              size={30}
+              className={liked ? "fill-red-500 text-red-500" : ""}
+            />
+            <span className="text-xs">{likes}</span>
+          </button>
+
+          <button onClick={openComments} className="flex flex-col items-center">
+            <MessageCircle size={30} />
+            <span className="text-xs">{comments.length}</span>
+          </button>
+
+          <button className="flex flex-col items-center">
+            <Share size={30} />
+          </button>
+        </div>
+
+        {/* BOTTOM GRADIENT */}
+        <div className="absolute bottom-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent">
+          {/* USER */}
+          <div className="flex items-center gap-3 mb-2">
+            <img
+              src={reel.student.user.image}
+              className="w-9 h-9 rounded-full object-cover"
+            />
+
+            <span className="font-semibold text-white">
+              @{reel.student.user.name}
+            </span>
+          </div>
+
+          {/* CAPTION */}
+          <p
+            onClick={() => setShowFullCaption(!showFullCaption)}
+            className="text-white text-sm cursor-pointer"
+          >
+            {showFullCaption ? reel.caption : reel.caption?.slice(0, 80)}
+          </p>
+        </div>
+
+        {/* COMMENT DRAWER */}
+        <AnimatePresence>
+          {commentsOpen && (
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: "30%" }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 20 }}
+              className="absolute bottom-0 left-0 w-full h-[70%] bg-white rounded-t-2xl flex flex-col"
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-center p-4 border-b">
+                <span className="font-semibold">Comments</span>
+
+                <button onClick={() => setCommentsOpen(false)}>
+                  <X />
+                </button>
+              </div>
+
+              {/* COMMENT LIST */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {comments.map((c) => (
+                  <div key={c._id} className="flex gap-3">
+                    <img
+                      src={c.studentId.avatar}
+                      className="w-8 h-8 rounded-full"
+                    />
+
+                    <div>
+                      <p className="font-semibold text-sm">
+                        {c.studentId.username}
+                      </p>
+
+                      <p className="text-sm text-gray-700">{c.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* COMMENT INPUT */}
+              <div className="p-3 border-t flex gap-2">
+                <input
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="flex-1 border rounded-full px-4 py-2 text-sm"
+                />
+
+                <button
+                  onClick={submitComment}
+                  className="text-blue-500 font-semibold"
+                >
+                  Post
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

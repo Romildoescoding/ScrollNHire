@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { Model } from "mongoose";
 
 export type UserRole = "student" | "employer" | "cso";
 export type Gender = "male" | "female" | "other";
@@ -74,7 +75,9 @@ const userSchema = new Schema<IUser>({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.User ||
-  mongoose.model<IUser>("User", userSchema);
+// export default mongoose.models.User ||
+//   mongoose.model<IUser>("User", userSchema);
 
 // export default mongoose.model<IUser>("User", userSchema);
+export const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);

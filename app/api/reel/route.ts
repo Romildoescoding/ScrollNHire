@@ -1,23 +1,36 @@
 import dbConnect from "@/app/_lib/dbConnect";
 import { Reel } from "@/app/models/ReelModel";
-import StudentProfile from "@/models/StudentProfileModel";
+import { User } from "@/app/models/UserModel";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    const { studentId, videoUrl, caption, tags, duration } = await req.json();
+    const { userId, videoUrl, caption, tags, duration } = await req.json();
 
-    if (!studentId || !videoUrl) {
+    if (!userId || !videoUrl) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
       );
     }
 
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (user.role !== "student") {
+      return NextResponse.json(
+        { error: "Only students can upload reels" },
+        { status: 403 },
+      );
+    }
+
     const reel = await Reel.create({
-      studentId,
+      userId,
       videoUrl,
       caption: caption || "",
       tags: tags || [],
@@ -72,27 +85,17 @@ export async function GET(req: NextRequest) {
     })
     .limit(limit)
     .populate({
-      path: "studentId",
-      select: "userId skills verified",
-      populate: {
-        path: "userId",
-        model: "User",
-        select: "name image",
-      },
+      path: "userId",
+      model: "User",
+      select: "name image role",
     })
     .lean();
 
   /* transform studentId -> student */
 
-  const formattedReels = reels.map((reel: any) => ({
+  const formattedReels = reels.map(({ userId, ...reel }) => ({
     ...reel,
-    student: {
-      _id: reel.studentId._id,
-      skills: reel.studentId.skills,
-      verified: reel.studentId.verified,
-      user: reel.studentId.userId,
-    },
-    studentId: undefined,
+    user: userId,
   }));
 
   /* next cursor */

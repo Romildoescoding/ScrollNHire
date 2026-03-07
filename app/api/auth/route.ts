@@ -1,6 +1,6 @@
 import dbConnect from "@/app/_lib/dbConnect";
 // import { verifySession } from "@/app/_lib/session";
-import User from "@/app/models/UserModel";
+import { User } from "@/app/models/UserModel";
 // import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 

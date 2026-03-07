@@ -3,14 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import ReelCard from "@/components/ui/reel-card";
 
-interface Student {
+interface User {
   _id: string;
-  skills: string[];
-  verified: boolean;
-  user: {
-    name: string;
-    image: string;
-  };
+  name: string;
+  image: string;
+  role: string;
 }
 
 interface Reel {
@@ -20,7 +17,7 @@ interface Reel {
   likesCount: number;
   commentsCount: number;
   viewsCount: number;
-  student: Student;
+  user: User;
 }
 
 interface Cursor {
@@ -80,14 +77,16 @@ export default function ReelFeed() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [fetchReels]);
 
+  const [isMuted, setIsMuted] = useState(false);
+
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory">
+    <div className="h-[calc(100vh-96px)] overflow-y-scroll snap-y snap-mandatory">
       {reels.map((reel) => (
         <div
           key={reel._id}
-          className="h-screen snap-start flex items-center justify-center"
+          className="h-full snap-start flex items-center justify-center"
         >
-          <ReelCard reel={reel} />
+          <ReelCard isMuted={isMuted} setIsMuted={setIsMuted} reel={reel} />
         </div>
       ))}
 

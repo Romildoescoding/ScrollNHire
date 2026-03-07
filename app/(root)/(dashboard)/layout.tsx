@@ -47,6 +47,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AppLayout from "@/components/app-layout";
 import { useUserDetails } from "@/app/hooks/useUserDetails";
+import { useUploadProgress } from "@/app/context/ReelUploadContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   // const [hideLayout, setHideLayout] = useState(false);
@@ -72,6 +73,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setRole(user.role);
   }, [pathname]);
 
+  const { uploadProgress } = useUploadProgress();
+
   return (
     // <SessionProvider>
     <div className="flex min-h-[calc(100vh-56px)]">
@@ -91,6 +94,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <PanelLeftOpen size={20} />
         )}
       </button>
+
+      {/* {uploadProgress > -1 && ( */}
+
+      <motion.div
+        style={{ top: uploadProgress > -1 ? "56px" : "-32px" }}
+        className="w-full transition-all duration-500 bg-transparent fixed top-14 right-0 h-8 flex z-50"
+      >
+        <div
+          className={cn(
+            "h-full transition-all duration-500",
+            isSidebarOpen ? "w-[192px] md:w-[256px]" : "w-[0px] md:w-[72px]",
+          )}
+        />
+
+        <div className="flex-1 transition-all border-b border-border duration-500 h-full bg-background flex justify-center items-center">
+          <span className="text-foreground text-sm mr-3 whitespace-nowrap">
+            Uploading reel
+          </span>
+
+          <div className="w-full max-w-2xl h-2 bg-muted rounded overflow-hidden">
+            <div
+              className="h-full bg-foreground transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+
+          <span className="text-muted-foreground text-xs ml-3 w-10 text-right">
+            {uploadProgress}%
+          </span>
+        </div>
+      </motion.div>
+      {/* // )} */}
 
       {/* Sidebar */}
 

@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import { Types } from "mongoose";
 
 export interface ICSOProfile extends Document {
-  userId: Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   collegeId: mongoose.Types.ObjectId;
   designation: string;
   createdAt: Date;

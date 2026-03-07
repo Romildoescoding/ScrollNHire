@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IEmployerProfile extends Document {
-  userId: Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   companyId?: mongoose.Types.ObjectId;
   designation: string;
   createdAt: Date;

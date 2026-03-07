@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Heart, MessageCircle, Share, X } from "lucide-react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Heart,
+  MessageCircle,
+  Share,
+  Volume,
+  Volume2,
+  VolumeOff,
+  X,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useSession } from "next-auth/react";
 // import Image from "next/image";
 
-interface Student {
+interface User {
   _id: string;
-  skills: string[];
-  verified: boolean;
-  user: {
-    name: string;
-    image: string;
-  };
+  name: string;
+  image: string;
+  role: string;
 }
 
 interface Reel {
@@ -21,7 +27,7 @@ interface Reel {
   caption?: string;
   likesCount: number;
   commentsCount: number;
-  student: Student;
+  user: User;
 }
 
 interface Comment {
@@ -33,7 +39,16 @@ interface Comment {
   };
 }
 
-export default function ReelCard({ reel }: { reel: Reel }) {
+export default function ReelCard({
+  reel,
+  isMuted,
+  setIsMuted,
+}: {
+  reel: Reel;
+  isMuted: boolean;
+  setIsMuted: React.Dispatch<SetStateAction<boolean>>;
+}) {
+  const { data: session } = useSession();
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [liked, setLiked] = useState(false);
@@ -70,6 +85,10 @@ export default function ReelCard({ reel }: { reel: Reel }) {
 
   /* LIKE */
   const handleLike = async () => {
+    if (!session?.user) {
+      console.log("session.user doesnt exist");
+      return;
+    }
     const newLiked = !liked;
 
     setLiked(newLiked);
@@ -81,7 +100,9 @@ export default function ReelCard({ reel }: { reel: Reel }) {
 
     await fetch(`/api/reel/${reel._id}/like`, {
       method: "POST",
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        userId: session.user.id,
+      }),
     });
   };
 
@@ -113,15 +134,16 @@ export default function ReelCard({ reel }: { reel: Reel }) {
   };
 
   return (
-    <div className="flex justify-center w-full bg-black">
+    <div className="flex h-full justify-center w-full bg-background">
       {/* PHONE WIDTH CONTAINER */}
-      <div className="relative w-[380px] h-screen bg-black overflow-hidden">
+      <div className="relative w-[380px] h-full bg-background rounded-md overflow-hidden">
         {/* VIDEO */}
         <video
           ref={videoRef}
           src={reel.videoUrl}
           loop
-          muted
+          muted={isMuted}
+          autoPlay
           playsInline
           className="h-full w-full object-cover"
           onDoubleClick={handleLike}
@@ -143,7 +165,10 @@ export default function ReelCard({ reel }: { reel: Reel }) {
 
         {/* RIGHT ACTIONS */}
         <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 text-white">
-          <button onClick={handleLike} className="flex flex-col items-center">
+          <button
+            onClick={handleLike}
+            className="cursor-pointer flex flex-col items-center"
+          >
             <Heart
               size={30}
               className={liked ? "fill-red-500 text-red-500" : ""}
@@ -151,12 +176,15 @@ export default function ReelCard({ reel }: { reel: Reel }) {
             <span className="text-xs">{likes}</span>
           </button>
 
-          <button onClick={openComments} className="flex flex-col items-center">
+          <button
+            onClick={openComments}
+            className="cursor-pointer flex flex-col items-center"
+          >
             <MessageCircle size={30} />
             <span className="text-xs">{comments.length}</span>
           </button>
 
-          <button className="flex flex-col items-center">
+          <button className="cursor-pointer flex flex-col items-center">
             <Share size={30} />
           </button>
         </div>
@@ -166,13 +194,11 @@ export default function ReelCard({ reel }: { reel: Reel }) {
           {/* USER */}
           <div className="flex items-center gap-3 mb-2">
             <img
-              src={reel.student.user.image}
+              src={reel.user.image}
               className="w-9 h-9 rounded-full object-cover"
             />
 
-            <span className="font-semibold text-white">
-              @{reel.student.user.name}
-            </span>
+            <span className="font-semibold text-white">@{reel.user.name}</span>
           </div>
 
           {/* CAPTION */}
@@ -183,6 +209,17 @@ export default function ReelCard({ reel }: { reel: Reel }) {
             {showFullCaption ? reel.caption : reel.caption?.slice(0, 80)}
           </p>
         </div>
+
+        <button
+          onClick={() => setIsMuted((muted) => !muted)}
+          className="cursor-pointer absolute bottom-4 right-4 flex items-center justify-center h-8 w-8 rounded-full bg-neutral-950/50 hover:bg-neutral-700/50 transition-all border-none outline-none"
+        >
+          {!isMuted ? (
+            <Volume2 className="h-4 w-4" />
+          ) : (
+            <VolumeOff className="h-4 w-4" />
+          )}
+        </button>
 
         {/* COMMENT DRAWER */}
         <AnimatePresence>

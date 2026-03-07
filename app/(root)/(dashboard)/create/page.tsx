@@ -1,12 +1,20 @@
 "use client";
 
+import { useUploadProgress } from "@/app/context/ReelUploadContext";
 import { Button } from "@/components/ui/button";
 import TagsInput from "@/components/ui/tags-input";
+import axios from "axios";
 import { useSession } from "next-auth/react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const Create = () => {
   const { data: session } = useSession();
+  useEffect(() => {
+    console.log("session ->");
+    console.log(session);
+  }, [session]);
+
+  const { setUploadProgress } = useUploadProgress();
 
   const [video, setVideo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -57,18 +65,24 @@ const Create = () => {
       formData.append("file", video);
       formData.append("upload_preset", "reel_upload");
 
-      const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/dyvlnnly8/video/upload`,
+      const cloudRes = await axios.post(
+        "https://api.cloudinary.com/v1_1/dyvlnnly8/video/upload",
+        formData,
         {
-          method: "POST",
-          body: formData,
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 1),
+            );
+
+            console.log("Upload progress:", percent);
+            setUploadProgress(percent); // React state
+          },
         },
       );
 
-      const cloudData = await cloudRes.json();
+      const cloudData = cloudRes.data;
 
       const videoUrl = cloudData.secure_url;
-
       // const tags = tagsInput
       //   .split(",")
       //   .map((t) => t.trim())
@@ -80,7 +94,7 @@ const Create = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          studentId: session.user.id,
+          userId: session.user.id,
           videoUrl,
           caption: caption.trim(),
           tags,
@@ -91,9 +105,10 @@ const Create = () => {
       reset();
     } catch (err) {
       console.error(err);
+    } finally {
+      setUploadProgress(-1);
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/app/_lib/dbConnect";
-import User from "@/app/models/UserModel";
+import { User } from "@/app/models/UserModel";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -60,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // Password check
         const isValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password,
         );
         if (!isValid) return null;
 
@@ -94,13 +94,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user, account }) {
-      // If login from Google or Credentials
+      // When user logs in
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
+        await dbConnect();
+
+        const dbUser = await User.findOne({ email: user.email });
+
+        if (dbUser) {
+          token.id = dbUser._id.toString(); // ✅ Mongo id
+          token.role = dbUser.role;
+        }
       }
 
-      // Save Google tokens
       if (account?.provider === "google") {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;

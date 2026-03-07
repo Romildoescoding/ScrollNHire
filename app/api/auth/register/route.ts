@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/app/_lib/dbConnect";
-import User from "@/app/models/UserModel";
+import { User } from "@/app/models/UserModel";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
           error: "User already exists",
           provider: existingUser.provider,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         error: "Signup failed",
         details: error.message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -3,7 +3,7 @@ import mongoose, { Document, Model, Schema, Types } from "mongoose";
 /* ===================== INTERFACE ===================== */
 
 export interface IReel extends Document {
-  studentId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   projectId?: Types.ObjectId;
 
   videoUrl: string;
@@ -28,9 +28,9 @@ export interface IReel extends Document {
 
 const reelSchema = new Schema<IReel>(
   {
-    studentId: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "StudentProfile",
+      ref: "User",
       required: true,
     },
 
@@ -81,7 +81,7 @@ const reelSchema = new Schema<IReel>(
   },
   { timestamps: true },
 );
-reelSchema.index({ studentId: 1 });
+reelSchema.index({ userId: 1 });
 reelSchema.index({ projectId: 1 });
 /* ===================== MODEL ===================== */
 

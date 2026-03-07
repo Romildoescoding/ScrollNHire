@@ -2,7 +2,7 @@ import mongoose, { Schema, Model, Document, Types } from "mongoose";
 
 export interface ILike extends Document {
   reelId: Types.ObjectId;
-  studentId: Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
@@ -14,9 +14,9 @@ const likeSchema = new Schema<ILike>(
       required: true,
     },
 
-    studentId: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "StudentProfile",
+      ref: "User",
       required: true,
     },
   },
@@ -24,10 +24,10 @@ const likeSchema = new Schema<ILike>(
 );
 
 likeSchema.index({ reelId: 1 });
-likeSchema.index({ studentId: 1 });
+likeSchema.index({ userId: 1 });
 
 /* Prevent duplicate likes */
-likeSchema.index({ reelId: 1, studentId: 1 }, { unique: true });
+likeSchema.index({ reelId: 1, userId: 1 }, { unique: true });
 
 export const Like: Model<ILike> =
   mongoose.models.Like || mongoose.model<ILike>("Like", likeSchema);

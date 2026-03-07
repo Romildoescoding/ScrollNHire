@@ -5,16 +5,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { reelId: string } },
+  { params }: { params: Promise<{ reelId: string }> },
 ) {
   await dbConnect();
 
-  const { studentId } = await req.json();
-  const { reelId } = params;
+  const { userId } = await req.json();
+  const { reelId } = await params;
 
   const existingLike = await Like.findOne({
     reelId,
-    studentId,
+    userId,
   });
 
   if (existingLike) {
@@ -29,7 +29,7 @@ export async function POST(
 
   await Like.create({
     reelId,
-    studentId,
+    userId,
   });
 
   await Reel.findByIdAndUpdate(reelId, {

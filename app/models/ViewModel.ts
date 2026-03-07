@@ -4,7 +4,7 @@ import mongoose, { Schema, Model, Document, Types } from "mongoose";
 
 export interface IView extends Document {
   reelId: Types.ObjectId;
-  studentId?: Types.ObjectId;
+  userId?: Types.ObjectId;
   watchedAt: Date;
 }
 
@@ -19,9 +19,9 @@ const viewSchema = new Schema<IView>(
       index: true,
     },
 
-    studentId: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "StudentProfile",
+      ref: "User",
       required: false, // anonymous viewers allowed
     },
 
@@ -41,7 +41,7 @@ const viewSchema = new Schema<IView>(
 viewSchema.index({ reelId: 1 });
 
 // prevent spam views from same user in short time (optional logic layer)
-viewSchema.index({ reelId: 1, studentId: 1 });
+viewSchema.index({ reelId: 1, userId: 1 });
 
 /* ===================== MODEL ===================== */
 

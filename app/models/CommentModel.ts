@@ -2,8 +2,7 @@ import mongoose, { Schema, Model, Document, Types } from "mongoose";
 
 export interface IComment extends Document {
   reelId: Types.ObjectId;
-  studentId: Types.ObjectId;
-
+  userId: mongoose.Types.ObjectId;
   text: string;
 
   createdAt: Date;
@@ -18,9 +17,9 @@ const commentSchema = new Schema<IComment>(
       required: true,
     },
 
-    studentId: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "StudentProfile",
+      ref: "User",
       required: true,
     },
 

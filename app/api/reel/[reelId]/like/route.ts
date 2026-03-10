@@ -5,12 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ reelId: string }> },
+  context: { params: Promise<{ reelId: string }> },
 ) {
   await dbConnect();
 
+  const { reelId } = await context.params;
   const { userId } = await req.json();
-  const { reelId } = await params;
 
   const existingLike = await Like.findOne({
     reelId,

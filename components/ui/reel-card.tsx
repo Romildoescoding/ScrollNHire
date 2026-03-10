@@ -4,7 +4,9 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import {
   Heart,
   MessageCircle,
+  Send,
   Share,
+  User2,
   Volume,
   Volume2,
   VolumeOff,
@@ -12,6 +14,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Input } from "./input";
 // import Image from "next/image";
 
 interface User {
@@ -33,9 +38,10 @@ interface Reel {
 interface Comment {
   _id: string;
   text: string;
-  studentId: {
-    username: string;
-    avatar: string;
+  userId: {
+    name: string;
+    image: string;
+    role: string;
   };
 }
 
@@ -118,11 +124,16 @@ export default function ReelCard({
 
   /* ADD COMMENT */
   const submitComment = async () => {
+    if (!session?.user) {
+      console.log("session.user doesnt exist");
+      return;
+    }
     if (!commentText.trim()) return;
 
     const res = await fetch(`/api/reel/${reel._id}/comments`, {
       method: "POST",
       body: JSON.stringify({
+        userId: session?.user?.id,
         text: commentText,
       }),
     });
@@ -170,22 +181,22 @@ export default function ReelCard({
             className="cursor-pointer flex flex-col items-center"
           >
             <Heart
-              size={30}
+              size={24}
               className={liked ? "fill-red-500 text-red-500" : ""}
             />
-            <span className="text-xs">{likes}</span>
+            <span className="text-[10px]">{likes}</span>
           </button>
 
           <button
             onClick={openComments}
             className="cursor-pointer flex flex-col items-center"
           >
-            <MessageCircle size={30} />
-            <span className="text-xs">{comments.length}</span>
+            <MessageCircle size={24} />
+            <span className="text-[10px]">{comments.length}</span>
           </button>
 
           <button className="cursor-pointer flex flex-col items-center">
-            <Share size={30} />
+            <Send size={24} />
           </button>
         </div>
 
@@ -226,10 +237,10 @@ export default function ReelCard({
           {commentsOpen && (
             <motion.div
               initial={{ y: "100%" }}
-              animate={{ y: "30%" }}
+              animate={{ y: "0%" }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 20 }}
-              className="absolute bottom-0 left-0 w-full h-[70%] bg-white rounded-t-2xl flex flex-col"
+              className="text-primary absolute bottom-0 left-0 w-full h-[60%] bg-background  rounded-t-2xl flex flex-col"
             >
               {/* HEADER */}
               <div className="flex justify-between items-center p-4 border-b">
@@ -244,25 +255,39 @@ export default function ReelCard({
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {comments.map((c) => (
                   <div key={c._id} className="flex gap-3">
-                    <img
-                      src={c.studentId.avatar}
-                      className="w-8 h-8 rounded-full"
-                    />
-
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage
+                        src={c?.userId?.image ?? undefined}
+                        alt="Avatar"
+                      />
+                      <AvatarFallback>
+                        <User2 size={20} />
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
-                      <p className="font-semibold text-sm">
-                        {c.studentId.username}
+                      <p className="flex gap-1 items-end font-semibold text-xs">
+                        <span>{c.userId.name}</span>
+                        <span className="text-primary/40">1w</span>
                       </p>
 
-                      <p className="text-sm text-gray-700">{c.text}</p>
+                      <p className="text-xs text-primary">{c.text}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* COMMENT INPUT */}
-              <div className="p-3 border-t flex gap-2">
-                <input
+              <div className="p-3 border-t flex gap-2 items-center">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={session?.user?.image ?? undefined}
+                    alt="Avatar"
+                  />
+                  <AvatarFallback>
+                    <User2 size={20} />
+                  </AvatarFallback>
+                </Avatar>
+                <Input
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder="Add a comment..."

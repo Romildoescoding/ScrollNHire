@@ -5,9 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { reelId: string } },
+  context: { params: Promise<{ reelId: string }> },
 ) {
   await dbConnect();
+
+  const { reelId } = await context.params;
 
   const { searchParams } = new URL(req.url);
   const cursor = searchParams.get("cursor");
@@ -15,7 +17,7 @@ export async function GET(
   const limit = 10;
 
   const query: any = {
-    reelId: params.reelId,
+    reelId,
   };
 
   if (cursor) {
@@ -25,8 +27,14 @@ export async function GET(
   const comments = await Comment.find(query)
     .sort({ createdAt: -1 })
     .limit(limit)
+    .populate({
+      path: "userId",
+      model: "User",
+      select: "name image role",
+    })
     .lean();
 
+  //
   const nextCursor =
     comments.length === limit ? comments[comments.length - 1].createdAt : null;
 
@@ -38,16 +46,16 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { reelId: string } },
+  context: { params: Promise<{ reelId: string }> },
 ) {
   await dbConnect();
 
-  const { text, studentId } = await req.json();
-  const { reelId } = params;
+  const { text, userId } = await req.json();
+  const { reelId } = await context.params;
 
   const comment = await Comment.create({
     reelId,
-    studentId,
+    userId,
     text,
   });
 

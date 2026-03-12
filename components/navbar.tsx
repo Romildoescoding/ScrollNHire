@@ -69,6 +69,7 @@ const Navbar = () => {
           size="icon"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
+          it is for the mobile version of the application
           {mobileMenuOpen ? (
             <X className="size-5" />
           ) : (

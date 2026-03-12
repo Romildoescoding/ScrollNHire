@@ -163,14 +163,14 @@ export function LoginForm({
       </form>
 
       <p className="h-[1px] w-full bg-neutral-300 relative">
-        <span className="absolute flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 text-neutral-500 bg-white h-6 w-6 items-center justify-center">
+        <span className="absolute flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 text-neutral-500 bg-background h-6 w-6 items-center justify-center">
           or
         </span>
       </p>
 
       {/* ERROR UI */}
       {errorMessage && (
-        <p className="text-red-600 bg-[#ffe3e3] p-2 rounded-md text-center text-xs">
+        <p className="text-red-600 dark:text-red-300 bg-[#ffe3e3] dark:bg-[#290000] p-2 rounded-md text-center text-xs">
           {errorMessage}
         </p>
       )}
@@ -184,14 +184,14 @@ export function LoginForm({
               id="email"
               placeholder=" "
               className="peer block w-full border border-neutral-400 rounded-lg px-3 py-2 
-               focus:outline-none focus:border-neutral-500 bg-transparent"
+               focus:outline-none focus:border-neutral-500 bg-transparent dark:bg-background"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <label
               htmlFor="email"
-              className="absolute left-3 top-2 px-1 bg-white text-neutral-500 transition-all duration-200
+              className="absolute left-3 top-2 px-1 bg-background text-neutral-500 transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:text-sm 
                 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-sm
                 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-neutral-600"
@@ -207,7 +207,7 @@ export function LoginForm({
               id="password"
               placeholder=" "
               className="peer block w-full border border-neutral-400 rounded-lg px-3 py-2 
-               focus:outline-none focus:border-neutral-500 bg-transparent"
+               focus:outline-none focus:border-neutral-500 bg-transparent dark:bg-background"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -225,7 +225,7 @@ export function LoginForm({
 
             <label
               htmlFor="password"
-              className="absolute left-3 top-2 px-1 bg-white text-neutral-500 transition-all duration-200
+              className="absolute left-3 top-2 px-1 bg-background text-neutral-500 transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:text-sm 
                 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-sm
                 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-neutral-600"

@@ -80,7 +80,7 @@ export default function ReelFeed() {
   const [isMuted, setIsMuted] = useState(false);
 
   return (
-    <div className="h-[calc(100vh-96px)] overflow-y-scroll snap-y snap-mandatory">
+    <div className="h-[calc(100vh-96px)] overflow-y-scroll snap-y snap-mandatory no-scrollbar">
       {reels.map((reel) => (
         <div
           key={reel._id}

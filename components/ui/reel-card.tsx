@@ -2,7 +2,10 @@
 
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import {
+  Bookmark,
+  BookmarkCheck,
   Heart,
+  Loader2,
   MessageCircle,
   Send,
   Share,
@@ -17,6 +20,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Input } from "./input";
+import { formatCommentTime } from "@/app/_lib/actions";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 // import Image from "next/image";
 
 interface User {
@@ -64,6 +69,8 @@ export default function ReelCard({
 
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLength, setcommentsLength] = useState(reel.commentsCount);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   const [commentText, setCommentText] = useState("");
 
@@ -115,11 +122,16 @@ export default function ReelCard({
   /* LOAD COMMENTS */
   const openComments = async () => {
     setCommentsOpen(true);
-
-    const res = await fetch(`/api/reel/${reel._id}/comments`);
-    const data = await res.json();
-
-    setComments(data.comments);
+    try {
+      setLoadingComments(true);
+      const res = await fetch(`/api/reel/${reel._id}/comments`);
+      const data = await res.json();
+      setComments(data.comments);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingComments(false);
+    }
   };
 
   /* ADD COMMENT */
@@ -130,18 +142,55 @@ export default function ReelCard({
     }
     if (!commentText.trim()) return;
 
-    const res = await fetch(`/api/reel/${reel._id}/comments`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId: session?.user?.id,
-        text: commentText,
-      }),
-    });
+    try {
+      const res = await fetch(`/api/reel/${reel._id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({
+          userId: session?.user?.id,
+          text: commentText,
+        }),
+      });
+      const result = await res.json();
 
-    const newComment = await res.json();
+      if (!result.success) {
+        console.log(result.message);
+        return;
+      }
 
-    setComments((prev) => [newComment, ...prev]);
-    setCommentText("");
+      const newComment = result.data;
+
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
+      setcommentsLength((c) => c + 1);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const [isShortlisted, setIsShortlisted] = useState(false);
+
+  const toggleShortlist = async () => {
+    if (!session?.user) return;
+    try {
+      const res = await fetch(`/api/reel/${reel._id}/shortlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employerId: session.user.id,
+          studentId: reel.user._id,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        setIsShortlisted(result.shortlisted);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -175,7 +224,8 @@ export default function ReelCard({
         </AnimatePresence>
 
         {/* RIGHT ACTIONS */}
-        <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 text-white">
+
+        <div className="absolute right-4 bottom-24 flex flex-col items-center gap-3 text-white">
           <button
             onClick={handleLike}
             className="cursor-pointer flex flex-col items-center"
@@ -192,9 +242,28 @@ export default function ReelCard({
             className="cursor-pointer flex flex-col items-center"
           >
             <MessageCircle size={24} />
-            <span className="text-[10px]">{comments.length}</span>
+            <span className="text-[10px]">{commentsLength}</span>
           </button>
 
+          {session?.user?.role === "employer" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={toggleShortlist}
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  {isShortlisted ? (
+                    <BookmarkCheck size={24} />
+                  ) : (
+                    <Bookmark size={24} />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Shortlist student</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
           <button className="cursor-pointer flex flex-col items-center">
             <Send size={24} />
           </button>
@@ -223,7 +292,7 @@ export default function ReelCard({
 
         <button
           onClick={() => setIsMuted((muted) => !muted)}
-          className="cursor-pointer absolute bottom-4 right-4 flex items-center justify-center h-8 w-8 rounded-full bg-neutral-950/50 hover:bg-neutral-700/50 transition-all border-none outline-none"
+          className="text-neutral-50 cursor-pointer absolute bottom-4 right-4 flex items-center justify-center h-8 w-8 rounded-full bg-neutral-950/50 hover:bg-neutral-700/50 transition-all border-none outline-none"
         >
           {!isMuted ? (
             <Volume2 className="h-4 w-4" />
@@ -252,29 +321,39 @@ export default function ReelCard({
               </div>
 
               {/* COMMENT LIST */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {comments.map((c) => (
-                  <div key={c._id} className="flex gap-3">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage
-                        src={c?.userId?.image ?? undefined}
-                        alt="Avatar"
-                      />
-                      <AvatarFallback>
-                        <User2 size={20} />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="flex gap-1 items-end font-semibold text-xs">
-                        <span>{c.userId.name}</span>
-                        <span className="text-primary/40">1w</span>
-                      </p>
 
-                      <p className="text-xs text-primary">{c.text}</p>
+              {loadingComments && (
+                <div className="h-full w-full flex items-center justify-center">
+                  <Loader2 className="h-7 w-7 animate-spin" />
+                </div>
+              )}
+              {!loadingComments && (
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {comments.map((c) => (
+                    <div key={c._id} className="flex gap-3">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage
+                          src={c?.userId?.image ?? undefined}
+                          alt="Avatar"
+                        />
+                        <AvatarFallback>
+                          <User2 size={20} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="flex gap-1 items-end font-semibold text-xs">
+                          <span>{c?.userId?.name}</span>
+                          <span className="text-primary/40">
+                            {formatCommentTime(c.createdAt)}
+                          </span>
+                        </p>
+
+                        <p className="text-xs text-primary">{c.text}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {/* COMMENT INPUT */}
               <div className="p-3 border-t flex gap-2 items-center">

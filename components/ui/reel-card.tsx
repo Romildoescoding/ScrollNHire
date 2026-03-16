@@ -38,6 +38,8 @@ interface Reel {
   likesCount: number;
   commentsCount: number;
   user: User;
+  isShortlisted: boolean;
+  isLiked: boolean;
 }
 
 interface Comment {
@@ -62,7 +64,7 @@ export default function ReelCard({
   const { data: session } = useSession();
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(reel.isLiked);
   const [likes, setLikes] = useState(reel.likesCount);
 
   const [showLikeAnim, setShowLikeAnim] = useState(false);
@@ -71,19 +73,37 @@ export default function ReelCard({
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLength, setcommentsLength] = useState(reel.commentsCount);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [isShortlisted, setIsShortlisted] = useState(reel.isShortlisted);
 
   const [commentText, setCommentText] = useState("");
 
   const [showFullCaption, setShowFullCaption] = useState(false);
 
-  /* VIDEO AUTOPLAY */
+  const hasCountedView = useRef(false);
+
+  /* VIDEO AUTOPLAY AND REEL-VIEW UPDATE */
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      async ([entry]) => {
         if (!videoRef.current) return;
 
         if (entry.isIntersecting) {
-          videoRef.current.play();
+          try {
+            await videoRef.current.play();
+
+            if (!hasCountedView.current) {
+              hasCountedView.current = true;
+
+              fetch(`/api/reel/${reel._id}/view`, {
+                method: "POST",
+                body: JSON.stringify({
+                  userId: session?.user?.id || null,
+                }),
+              });
+            }
+          } catch (err) {
+            // autoplay may fail sometimes
+          }
         } else {
           videoRef.current.pause();
         }
@@ -94,7 +114,7 @@ export default function ReelCard({
     if (videoRef.current) observer.observe(videoRef.current);
 
     return () => observer.disconnect();
-  }, []);
+  }, [reel._id, session]);
 
   /* LIKE */
   const handleLike = async () => {
@@ -166,8 +186,6 @@ export default function ReelCard({
       console.log(err);
     }
   };
-
-  const [isShortlisted, setIsShortlisted] = useState(false);
 
   const toggleShortlist = async () => {
     if (!session?.user) return;
@@ -260,7 +278,9 @@ export default function ReelCard({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Shortlist student</p>
+                <p>
+                  {isShortlisted ? "Unshortlist student" : "Shortlist student"}
+                </p>
               </TooltipContent>
             </Tooltip>
           )}

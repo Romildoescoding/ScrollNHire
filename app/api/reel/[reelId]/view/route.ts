@@ -9,12 +9,12 @@ export async function POST(
 ) {
   await dbConnect();
 
-  const { studentId } = await req.json();
+  const { userId } = await req.json();
   const { reelId } = params;
 
   await View.create({
     reelId,
-    studentId,
+    userId,
   });
 
   await Reel.findByIdAndUpdate(reelId, {

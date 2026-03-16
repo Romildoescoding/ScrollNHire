@@ -18,6 +18,8 @@ interface Reel {
   commentsCount: number;
   viewsCount: number;
   user: User;
+  isShortlisted: boolean;
+  isLiked: boolean;
 }
 
 interface Cursor {

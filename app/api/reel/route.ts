@@ -1,6 +1,9 @@
 import dbConnect from "@/app/_lib/dbConnect";
+import HiringProcessModel from "@/app/models/HiringProcessModel";
+import { Like } from "@/app/models/LikeModel";
 import { Reel } from "@/app/models/ReelModel";
 import { User } from "@/app/models/UserModel";
+import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -52,66 +55,110 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
+  try {
+    await dbConnect();
 
-  const { searchParams } = new URL(req.url);
+    const session = await auth();
+    const viewerId = session?.user?.id;
+    console.log(viewerId);
 
-  const cursorCreatedAt = searchParams.get("cursorCreatedAt");
-  const cursorId = searchParams.get("cursorId");
+    const { searchParams } = new URL(req.url);
+    const cursorCreatedAt = searchParams.get("cursorCreatedAt");
+    const cursorId = searchParams.get("cursorId");
 
-  const limit = 5;
+    const limit = 5;
 
-  const query: any = {};
+    const query: any = {};
 
-  /* stable pagination condition */
+    if (cursorCreatedAt && cursorId) {
+      query.$or = [
+        { createdAt: { $lt: new Date(cursorCreatedAt) } },
+        {
+          createdAt: new Date(cursorCreatedAt),
+          _id: { $lt: cursorId },
+        },
+      ];
+    }
 
-  if (cursorCreatedAt && cursorId) {
-    query.$or = [
-      { createdAt: { $lt: new Date(cursorCreatedAt) } },
+    const reels = await Reel.find(query)
+      .sort({
+        isFeatured: -1,
+        likesCount: -1,
+        viewsCount: -1,
+        createdAt: -1,
+        _id: -1,
+      })
+      .limit(limit)
+      .populate({
+        path: "userId",
+        model: "User",
+        select: "name image role",
+      })
+      .lean();
+
+    const reelIds = reels.map((r) => r._id);
+
+    let likedSet = new Set<string>();
+    let shortlistedSet = new Set<string>();
+
+    if (viewerId) {
+      /* fetch likes */
+
+      const likes = await Like.find({
+        userId: viewerId,
+        reelId: { $in: reelIds },
+      }).select("reelId");
+
+      likedSet = new Set(likes.map((l) => l.reelId.toString()));
+
+      /* fetch shortlists */
+
+      const hiringProcesses = await HiringProcessModel.find({
+        employerId: viewerId,
+        reelId: { $in: reelIds },
+      }).select("reelId status");
+
+      shortlistedSet = new Set(
+        hiringProcesses
+          .filter((h) => h.status !== "rejected")
+          .map((h) => h.reelId.toString()),
+      );
+    }
+
+    /* format reels */
+
+    const formattedReels = reels.map(({ userId, ...reel }) => ({
+      ...reel,
+      user: userId,
+      isLiked: likedSet.has(reel._id.toString()),
+      isShortlisted: shortlistedSet.has(reel._id.toString()),
+    }));
+
+    const last = reels[reels.length - 1];
+
+    const nextCursor =
+      reels.length === limit
+        ? {
+            createdAt: last.createdAt,
+            id: last._id,
+          }
+        : null;
+
+    return NextResponse.json({
+      reels: formattedReels,
+      nextCursor,
+    });
+  } catch (error: any) {
+    console.error("FETCH_REELS_ERROR:", error);
+
+    return NextResponse.json(
       {
-        createdAt: new Date(cursorCreatedAt),
-        _id: { $lt: cursorId },
+        success: false,
+        message: "Failed to fetch reels",
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       },
-    ];
+      { status: 500 },
+    );
   }
-
-  const reels = await Reel.find(query)
-    .sort({
-      isFeatured: -1,
-      likesCount: -1,
-      viewsCount: -1,
-      createdAt: -1,
-      _id: -1,
-    })
-    .limit(limit)
-    .populate({
-      path: "userId",
-      model: "User",
-      select: "name image role",
-    })
-    .lean();
-
-  /* transform studentId -> student */
-
-  const formattedReels = reels.map(({ userId, ...reel }) => ({
-    ...reel,
-    user: userId,
-  }));
-
-  /* next cursor */
-
-  const last = reels[reels.length - 1];
-
-  const nextCursor =
-    reels.length === limit
-      ? {
-          createdAt: last.createdAt,
-          id: last._id,
-        }
-      : null;
-
-  return NextResponse.json({
-    reels: formattedReels,
-    nextCursor,
-  });
 }

@@ -1,6 +1,8 @@
 import dbConnect from "@/app/_lib/dbConnect";
-import ShortlistModel from "@/app/models/ShortlistModel";
+import { Notification } from "@/app/models/NotificationModel";
+import HiringProcess from "@/app/models/HiringProcessModel";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function POST(
   req: NextRequest,
@@ -12,7 +14,10 @@ export async function POST(
     const { reelId } = await context.params;
     const body = await req.json();
 
-    const { employerId, studentId } = body;
+    const { studentId } = body;
+
+    const session = await auth();
+    const employerId = session?.user?.id;
 
     if (!reelId) {
       return NextResponse.json(
@@ -28,37 +33,56 @@ export async function POST(
       );
     }
 
-    const existing = await ShortlistModel.findOne({
+    const existing = await HiringProcess.findOne({
       employerId,
       studentId,
       reelId,
     });
+
+    /* UN-SHORTLIST */
 
     if (existing) {
-      await ShortlistModel.deleteOne({ _id: existing._id });
+      // If already in the hiring pipeline, CAN"T SHORTLIST HIM DUDE..
+      if (existing.status !== "shortlisted") {
+        return NextResponse.json(
+          { success: false, message: "Candidate already in hiring process" },
+          { status: 400 },
+        );
+      }
+      await HiringProcess.deleteOne({ _id: existing._id });
 
-      return {
+      return NextResponse.json({
+        success: true,
         shortlisted: false,
         message: "Removed from shortlist",
-      };
+      });
     }
 
-    const shortlist = await ShortlistModel.create({
+    /* CREATE HIRING PROCESS */
+
+    const hiring = await HiringProcess.create({
       employerId,
       studentId,
       reelId,
+      status: "shortlisted",
     });
 
-    const result = {
-      shortlisted: true,
-      message: "Student shortlisted",
-      data: shortlist,
-    };
+    /* CREATE NOTIFICATION */
+
+    await Notification.create({
+      recipientId: studentId,
+      senderId: employerId,
+      reelId,
+      type: "shortlist",
+      message: "Your project reel was shortlisted by an employer",
+    });
 
     return NextResponse.json(
       {
         success: true,
-        ...result,
+        shortlisted: true,
+        message: "Student shortlisted",
+        data: hiring,
       },
       { status: 200 },
     );

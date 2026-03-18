@@ -36,3 +36,52 @@ export function formatCommentTime(date: Date | string) {
 
   return `${Math.min(weeks, 78)}w`;
 }
+
+export function formatNotificationTime(date: Date | string) {
+  const now = new Date();
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  const diffMs = now.getTime() - inputDate.getTime();
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  // ⏱ Seconds
+  if (seconds < 60) {
+    return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
+  }
+
+  // ⏱ Minutes
+  if (minutes < 60) {
+    return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  }
+
+  // ⏱ Hours
+  if (hours < 24) {
+    return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  }
+
+  // 📅 Yesterday
+  if (days === 1) {
+    return "Yesterday";
+  }
+
+  // 📅 Days (< 7)
+  if (days < 7) {
+    return `${days} days ago`;
+  }
+
+  // 📅 Exactly 1 week
+  if (days < 14) {
+    return "A week ago";
+  }
+
+  // 📅 Beyond 1 week → full date
+  return inputDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}

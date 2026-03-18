@@ -4,10 +4,20 @@ export interface INotification extends Document {
   recipientId: mongoose.Types.ObjectId;
   senderId: mongoose.Types.ObjectId;
   reelId?: mongoose.Types.ObjectId;
+
   type: "shortlist" | "like" | "comment" | "interview";
-  message: string;
+
+  message?: string; // optional now
+
   isRead: boolean;
+
+  meta?: {
+    role?: string;
+    commentText?: string; // future-proof for comments
+  };
+
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const notificationSchema = new Schema<INotification>(
@@ -38,18 +48,26 @@ const notificationSchema = new Schema<INotification>(
 
     message: {
       type: String,
-      required: true,
     },
 
     isRead: {
       type: Boolean,
       default: false,
     },
+
+    meta: {
+      role: { type: String },
+      commentText: { type: String },
+    },
   },
   { timestamps: true },
 );
 
+// Core index (feed)
 notificationSchema.index({ recipientId: 1, createdAt: -1 });
+
+// Unread queries
+notificationSchema.index({ recipientId: 1, isRead: 1 });
 
 export const Notification: Model<INotification> =
   mongoose.models.Notification ||

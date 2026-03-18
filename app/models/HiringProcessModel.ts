@@ -16,6 +16,7 @@ export interface IHiringProcess extends Document {
     | "hired";
 
   interviewDate?: Date;
+  role: string;
 
   createdAt: Date;
 }
@@ -56,6 +57,10 @@ const hiringSchema = new Schema<IHiringProcess>(
     },
 
     interviewDate: Date,
+    role: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true },
 );

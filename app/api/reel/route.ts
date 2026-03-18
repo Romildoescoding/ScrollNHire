@@ -10,7 +10,8 @@ export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    const { userId, videoUrl, caption, tags, duration } = await req.json();
+    const { userId, videoUrl, thumbnailUrl, caption, tags, duration } =
+      await req.json();
 
     if (!userId || !videoUrl) {
       return NextResponse.json(
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
     const reel = await Reel.create({
       userId,
       videoUrl,
+      thumbnailUrl,
       caption: caption || "",
       tags: tags || [],
       duration,

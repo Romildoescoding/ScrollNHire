@@ -83,6 +83,11 @@ const Create = () => {
       const cloudData = cloudRes.data;
 
       const videoUrl = cloudData.secure_url;
+
+      const thumbnailUrl = videoUrl.replace(
+        "/upload/",
+        "/upload/so_1,w_400,h_600,c_fill,q_auto,f_jpg/",
+      );
       // const tags = tagsInput
       //   .split(",")
       //   .map((t) => t.trim())
@@ -96,6 +101,7 @@ const Create = () => {
         body: JSON.stringify({
           userId: session.user.id,
           videoUrl,
+          thumbnailUrl,
           caption: caption.trim(),
           tags,
           duration: cloudData.duration,

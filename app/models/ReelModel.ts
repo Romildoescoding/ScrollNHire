@@ -7,6 +7,7 @@ export interface IReel extends Document {
   projectId?: Types.ObjectId;
 
   videoUrl: string;
+  thumbnailUrl: string;
   caption?: string;
 
   tags: string[];
@@ -40,6 +41,11 @@ const reelSchema = new Schema<IReel>(
     },
 
     videoUrl: {
+      type: String,
+      required: true,
+    },
+
+    thumbnailUrl: {
       type: String,
       required: true,
     },

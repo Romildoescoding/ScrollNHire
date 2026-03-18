@@ -74,7 +74,7 @@ export async function POST(
       senderId: employerId,
       reelId,
       type: "shortlist",
-      message: "Your project reel was shortlisted by an employer",
+      message: "shortlisted your profile",
     });
 
     return NextResponse.json(

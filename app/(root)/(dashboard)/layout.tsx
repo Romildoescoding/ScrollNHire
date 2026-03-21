@@ -48,6 +48,7 @@ import { usePathname, useRouter } from "next/navigation";
 import AppLayout from "@/components/app-layout";
 import { useUserDetails } from "@/app/hooks/useUserDetails";
 import { useUploadProgress } from "@/app/context/ReelUploadContext";
+import axios from "axios";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   // const [hideLayout, setHideLayout] = useState(false);
@@ -57,6 +58,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const [role, setRole] = useState<"student" | "employer" | "cso" | null>(null);
   const { user } = useUserDetails();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const res = await axios.get("/api/notifications/unread");
+
+      const data = res.data;
+      setUnreadNotifications(data.unreadCount || 0);
+    } catch (err) {
+      console.error("FETCH_NOTIFICATIONS_ERROR:", err);
+    }
+  };
 
   useEffect(() => {
     // if (pathname === "/dashboard/student") {
@@ -70,6 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // }
 
     // OR
+    fetchUnreadNotifications();
     setRole(user.role);
   }, [pathname]);
 
@@ -285,9 +299,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Button>
               <Button
                 variant={pathname === "/notifications" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"
                 onClick={() => router.push("/notifications")}
               >
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-0 left-6 flex items-center justify-center h-[14px] w-[14px] text-[10px] bg-red-500 text-white rounded-full">
+                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                  </span>
+                )}
                 <Bell className="text-neutral-500 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}

@@ -41,7 +41,16 @@ const viewSchema = new Schema<IView>(
 viewSchema.index({ reelId: 1 });
 
 // prevent spam views from same user in short time (optional logic layer)
-viewSchema.index({ reelId: 1, userId: 1 });
+// Logged-in user	✅ only 1 view
+// Same user refresh	❌ blocked
+// Anonymous users	✅ allowed multiple
+viewSchema.index(
+  { reelId: 1, userId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { userId: { $exists: true, $ne: null } },
+  },
+);
 
 // analytics queries stay fast
 viewSchema.index({ reelId: 1, watchedAt: -1 });

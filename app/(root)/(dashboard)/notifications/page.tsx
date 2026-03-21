@@ -1,17 +1,30 @@
 "use client";
 
 import { formatNotificationTime } from "@/app/_lib/actions";
+import axios from "axios";
 import { Bookmark, Calendar, Heart, MessageCircle } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type NotificationType = {
+  _id: string;
   recipientId: string;
-  senderId: string;
-  reelId?: string;
+  senderId: {
+    _id: string;
+    name: string;
+    image: string;
+  };
+  reelId?: {
+    _id: string;
+    caption: string;
+    thumbnailUrl: string;
+  };
   type: "shortlist" | "like" | "comment" | "interview";
-  message: string;
+  message?: string;
   isRead: boolean;
-  createdAt: Date;
+  createdAt: string;
+  meta?: {
+    role?: string;
+  };
 };
 
 const NotificationsPage = () => {
@@ -19,77 +32,119 @@ const NotificationsPage = () => {
     "all" | "interview" | "shortlist" | "comment"
   >("all");
 
-  const [notifications, setNotifications] = useState<NotificationType[]>([
-    {
-      recipientId: "1",
-      senderId: "2",
-      type: "like",
-      message: 'liked your reel "Frontend Animation Demo"',
-      isRead: false,
-      createdAt: new Date("2026-03-18T12:00:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "3",
-      type: "comment",
-      message: 'commented: "Bro this UI is clean 🔥"',
-      isRead: false,
-      createdAt: new Date("2026-03-18T10:30:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "4",
-      type: "shortlist",
-      message: "shortlisted you for Frontend Developer role",
-      isRead: false,
-      createdAt: new Date("2026-03-17T18:45:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "5",
-      type: "interview",
-      message: "invited you to an interview at 7:00 PM",
-      isRead: false,
-      createdAt: new Date("2026-03-17T14:15:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "6",
-      type: "like",
-      message: 'liked your reel "Node.js API Project"',
-      isRead: true,
-      createdAt: new Date("2026-03-16T20:10:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "7",
-      type: "comment",
-      message: 'commented: "Can you share repo?"',
-      isRead: true,
-      createdAt: new Date("2026-03-16T16:05:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "8",
-      type: "shortlist",
-      message: "shortlisted you for Full Stack Intern role",
-      isRead: false,
-      createdAt: new Date("2026-03-15T11:20:00Z"),
-    },
-    {
-      recipientId: "1",
-      senderId: "9",
-      type: "interview",
-      message: "scheduled your interview for tomorrow",
-      isRead: false,
-      createdAt: new Date("2026-02-15T09:00:00Z"),
-    },
-  ]);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  // const [notifications, setNotifications] = useState<NotificationType[]>([
+  //   {
+  //     recipientId: "1",
+  //     senderId: "2",
+  //     type: "like",
+  //     message: 'liked your reel "Frontend Animation Demo"',
+  //     isRead: false,
+  //     createdAt: new Date("2026-03-18T12:00:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "3",
+  //     type: "comment",
+  //     message: 'commented: "Bro this UI is clean 🔥"',
+  //     isRead: false,
+  //     createdAt: new Date("2026-03-18T10:30:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "4",
+  //     type: "shortlist",
+  //     message: "shortlisted you for Frontend Developer role",
+  //     isRead: false,
+  //     createdAt: new Date("2026-03-17T18:45:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "5",
+  //     type: "interview",
+  //     message: "invited you to an interview at 7:00 PM",
+  //     isRead: false,
+  //     createdAt: new Date("2026-03-17T14:15:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "6",
+  //     type: "like",
+  //     message: 'liked your reel "Node.js API Project"',
+  //     isRead: true,
+  //     createdAt: new Date("2026-03-16T20:10:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "7",
+  //     type: "comment",
+  //     message: 'commented: "Can you share repo?"',
+  //     isRead: true,
+  //     createdAt: new Date("2026-03-16T16:05:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "8",
+  //     type: "shortlist",
+  //     message: "shortlisted you for Full Stack Intern role",
+  //     isRead: false,
+  //     createdAt: new Date("2026-03-15T11:20:00Z"),
+  //   },
+  //   {
+  //     recipientId: "1",
+  //     senderId: "9",
+  //     type: "interview",
+  //     message: "scheduled your interview for tomorrow",
+  //     isRead: false,
+  //     createdAt: new Date("2026-02-15T09:00:00Z"),
+  //   },
+  // ]);
 
   const filteredNotifications =
     category === "all"
       ? notifications
       : notifications.filter((n) => n.type === category);
+
+  const fetchNotifications = async (pageNumber = 1) => {
+    try {
+      setLoading(true);
+
+      const res = await axios.get("/api/notifications", {
+        params: {
+          page: pageNumber,
+          limit: 10,
+        },
+      });
+
+      const data = res.data;
+
+      if (pageNumber === 1) {
+        setNotifications(data.data);
+      } else {
+        setNotifications((prev) => [...prev, ...data.data]);
+      }
+
+      setHasMore(data.pagination.hasMore);
+    } catch (err) {
+      console.error("FETCH_NOTIFICATIONS_ERROR:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications(1);
+  }, []);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchNotifications(nextPage);
+  };
 
   return (
     <div>
@@ -123,6 +178,18 @@ const NotificationsPage = () => {
           ))}
         </main>
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handleLoadMore}
+            disabled={loading}
+            className="px-4 py-2 bg-primary/10 rounded-md text-sm font-bold hover:bg-primary/20 transition"
+          >
+            {loading ? "Loading..." : "Load More"}
+          </button>
+        </div>
+      )}
       {/* </main> */}
     </div>
   );
@@ -155,6 +222,19 @@ function Notif({ notification }: { notification: NotificationType }) {
     }
   };
 
+  const getMessage = () => {
+    switch (notification.type) {
+      case "like":
+        return "liked your reel";
+      case "comment":
+        return "commented on your reel";
+      case "shortlist":
+        return `shortlisted you for ${notification.meta?.role || "a role"}`;
+      case "interview":
+        return `invited you for ${notification.meta?.role || "an interview"}`;
+    }
+  };
+
   const getTagClass = () => {
     switch (notification.type) {
       case "like":
@@ -169,13 +249,13 @@ function Notif({ notification }: { notification: NotificationType }) {
   };
 
   return (
-    <div className="flex items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors">
+    <div className="cursor-pointer flex items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors">
       {/* PROFILE */}
       <div className="relative shrink-0">
         <div
           className="w-12 h-12 rounded-full bg-slate-200 bg-cover bg-center"
           style={{
-            backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAAEnJuIN6yp1Bm4YE4ZllHR263X76SUzYQORfH8nDzIS8qr3I5E_-xQIXdQTlTPQGwaNbAi-Qg8881LcA-3XXrw5wTmmRlIgkASyDZ4TRdi2XsgCxrpehGVkxVGLIV-bAWr7ruyoCEk071NMUZIHwVdUuHVj46L9eno9dTPFF06RYVHAMmhcncxWHVn3GA_d-mtVD8LOhqxMUrfQdHR8Ckc6H5GC2HoOkoGK0g-MBwaMuFn5glE5L6yTntcZhsyX2ViodEDtjY7JU")`,
+            backgroundImage: `url("${notification.senderId?.image}")`,
           }}
         />
 
@@ -188,17 +268,29 @@ function Notif({ notification }: { notification: NotificationType }) {
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium leading-tight mb-1">
-          <span className="font-bold text-slate-900 dark:text-slate-100">
-            John
-          </span>{" "}
-          {notification.message}
-        </p>
+      <div className="flex-1 flex gap-4 items-center min-w-0">
+        <div>
+          <p className=" min-w-fit text-sm font-medium leading-tight mb-1">
+            <span className="font-bold text-slate-900 dark:text-slate-100">
+              {notification.senderId?.name || "User"}
+            </span>{" "}
+            {getMessage()}
+          </p>
 
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-          {formatNotificationTime(notification.createdAt)}
-        </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {formatNotificationTime(notification.createdAt)}
+          </p>
+        </div>
+
+        {notification.reelId?.thumbnailUrl && (
+          <div
+            className="h-12 aspect-[2/3] rounded-md bg-slate-200 bg-cover bg-center"
+            style={{
+              // background: "red",
+              backgroundImage: `url("${notification.reelId?.thumbnailUrl}")`,
+            }}
+          />
+        )}
       </div>
 
       <div

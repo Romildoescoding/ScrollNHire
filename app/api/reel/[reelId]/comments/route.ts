@@ -1,5 +1,6 @@
 import dbConnect from "@/app/_lib/dbConnect";
 import { Comment } from "@/app/models/CommentModel";
+import { Notification } from "@/app/models/NotificationModel";
 import { Reel } from "@/app/models/ReelModel";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -77,6 +78,23 @@ export async function POST(
       userId,
       text,
     });
+
+    // CREATE A NOTIFICATION FOR THE USER
+    // ---------------------------------------------
+    const reel = await Reel.findById(reelId).select("userId");
+
+    if (reel && reel.userId.toString() !== userId) {
+      await Notification.create({
+        recipientId: reel.userId,
+        senderId: userId,
+        reelId,
+        type: "comment",
+        meta: {
+          commentText: text,
+        },
+      });
+    }
+    // ---------------------------------------------
 
     // increment reel comment count
     await Reel.findByIdAndUpdate(reelId, {

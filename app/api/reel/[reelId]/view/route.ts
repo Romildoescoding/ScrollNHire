@@ -5,21 +5,23 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { reelId: string } },
+  context: { params: Promise<{ reelId: string }> },
 ) {
   await dbConnect();
 
   const { userId } = await req.json();
-  const { reelId } = params;
+  const { reelId } = await context.params;
 
-  await View.create({
-    reelId,
-    userId,
-  });
+  try {
+    const existing = await View.findOne({ reelId, userId });
 
-  await Reel.findByIdAndUpdate(reelId, {
-    $inc: { viewsCount: 1 },
-  });
+    if (!existing) {
+      await View.create({ reelId, userId });
 
+      await Reel.findByIdAndUpdate(reelId, {});
+    }
+  } catch (err) {
+    console.error("VIEW_ERROR:", err);
+  }
   return NextResponse.json({ success: true });
 }

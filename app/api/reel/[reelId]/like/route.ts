@@ -1,5 +1,6 @@
 import dbConnect from "@/app/_lib/dbConnect";
 import { Like } from "@/app/models/LikeModel";
+import { Notification } from "@/app/models/NotificationModel";
 import { Reel } from "@/app/models/ReelModel";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -31,6 +32,29 @@ export async function POST(
     reelId,
     userId,
   });
+
+  // CREATE A NOTIFICATION FOR THE USER
+  // ---------------------------------------------
+  const reel = await Reel.findById(reelId).select("userId");
+
+  if (reel && reel.userId.toString() !== userId) {
+    const existingNotification = await Notification.findOne({
+      recipientId: reel.userId,
+      senderId: userId,
+      reelId,
+      type: "like",
+    });
+
+    if (!existingNotification) {
+      await Notification.create({
+        recipientId: reel.userId,
+        senderId: userId,
+        reelId,
+        type: "like",
+      });
+    }
+  }
+  // ---------------------------------------------
 
   await Reel.findByIdAndUpdate(reelId, {
     $inc: { likesCount: 1 },

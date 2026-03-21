@@ -62,11 +62,11 @@ export async function GET(req: NextRequest) {
 
     const session = await auth();
     const viewerId = session?.user?.id;
-    console.log(viewerId);
 
     const { searchParams } = new URL(req.url);
     const cursorCreatedAt = searchParams.get("cursorCreatedAt");
     const cursorId = searchParams.get("cursorId");
+    const initialReelId = searchParams.get("initialReelId");
 
     const limit = 5;
 
@@ -82,21 +82,60 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const reels = await Reel.find(query)
-      .sort({
-        isFeatured: -1,
-        likesCount: -1,
-        viewsCount: -1,
-        createdAt: -1,
-        _id: -1,
-      })
-      .limit(limit)
-      .populate({
-        path: "userId",
-        model: "User",
-        select: "name image role",
-      })
-      .lean();
+    let reels: any[] = [];
+
+    // ✅ HANDLE INITIAL REEL ONLY ON FIRST LOAD
+    if (initialReelId && !cursorCreatedAt && !cursorId) {
+      const initialReel = await Reel.findById(initialReelId)
+        .populate({
+          path: "userId",
+          model: "User",
+          select: "name image role",
+        })
+        .lean();
+
+      if (initialReel) {
+        reels.push(initialReel);
+      }
+
+      // ❌ exclude initial reel from normal query
+      query._id = { $ne: initialReelId };
+
+      const remaining = await Reel.find(query)
+        .sort({
+          isFeatured: -1,
+          likesCount: -1,
+          viewsCount: -1,
+          createdAt: -1,
+          _id: -1,
+        })
+        .limit(limit - reels.length)
+        .populate({
+          path: "userId",
+          model: "User",
+          select: "name image role",
+        })
+        .lean();
+
+      reels = [...reels, ...remaining];
+    } else {
+      // 🔁 NORMAL FLOW
+      reels = await Reel.find(query)
+        .sort({
+          isFeatured: -1,
+          likesCount: -1,
+          viewsCount: -1,
+          createdAt: -1,
+          _id: -1,
+        })
+        .limit(limit)
+        .populate({
+          path: "userId",
+          model: "User",
+          select: "name image role",
+        })
+        .lean();
+    }
 
     const reelIds = reels.map((r) => r._id);
 
@@ -104,16 +143,12 @@ export async function GET(req: NextRequest) {
     let shortlistedSet = new Set<string>();
 
     if (viewerId) {
-      /* fetch likes */
-
       const likes = await Like.find({
         userId: viewerId,
         reelId: { $in: reelIds },
       }).select("reelId");
 
       likedSet = new Set(likes.map((l) => l.reelId.toString()));
-
-      /* fetch shortlists */
 
       const hiringProcesses = await HiringProcessModel.find({
         employerId: viewerId,
@@ -126,8 +161,6 @@ export async function GET(req: NextRequest) {
           .map((h) => h.reelId.toString()),
       );
     }
-
-    /* format reels */
 
     const formattedReels = reels.map(({ userId, ...reel }) => ({
       ...reel,

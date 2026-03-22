@@ -16,7 +16,6 @@ const viewSchema = new Schema<IView>(
       type: Schema.Types.ObjectId,
       ref: "Reel",
       required: true,
-      index: true,
     },
 
     userId: {

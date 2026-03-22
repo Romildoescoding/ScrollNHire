@@ -284,19 +284,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </Button>
 
-              <Button
-                variant={pathname === "/create" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/create")}
-              >
-                <Plus className="text-neutral-500 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+              {role === "student" && (
+                <Button
+                  variant={pathname === "/create" ? "secondary" : "ghost"}
+                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                  onClick={() => router.push("/create")}
                 >
-                  Create
-                </span>
-              </Button>
+                  <Plus className="text-neutral-500 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className="transition-all duration-300"
+                  >
+                    Create
+                  </span>
+                </Button>
+              )}
               <Button
                 variant={pathname === "/notifications" ? "secondary" : "ghost"}
                 className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"

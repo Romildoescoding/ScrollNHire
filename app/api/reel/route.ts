@@ -4,6 +4,7 @@ import { Like } from "@/app/models/LikeModel";
 import { Reel } from "@/app/models/ReelModel";
 import { User } from "@/app/models/UserModel";
 import { auth } from "@/auth";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -64,27 +65,53 @@ export async function GET(req: NextRequest) {
     const viewerId = session?.user?.id;
 
     const { searchParams } = new URL(req.url);
+
     const cursorCreatedAt = searchParams.get("cursorCreatedAt");
     const cursorId = searchParams.get("cursorId");
     const initialReelId = searchParams.get("initialReelId");
+    const search = searchParams.get("search");
 
     const limit = 5;
 
     const query: any = {};
 
-    if (cursorCreatedAt && cursorId) {
+    // 🔍 SEARCH (optional)
+    if (search) {
       query.$or = [
-        { createdAt: { $lt: new Date(cursorCreatedAt) } },
+        { caption: { $regex: search, $options: "i" } },
+        { tags: { $in: [new RegExp(search, "i")] } },
+      ];
+    }
+
+    // 🚫 ALWAYS exclude initial reel to prevent duplication
+    if (initialReelId) {
+      query._id = {
+        ...(query._id || {}),
+        $ne: new mongoose.Types.ObjectId(initialReelId),
+      };
+    }
+
+    // 🔁 CURSOR PAGINATION (FIXED)
+    if (cursorCreatedAt && cursorId) {
+      query.$and = [
+        ...(query.$and || []),
         {
-          createdAt: new Date(cursorCreatedAt),
-          _id: { $lt: cursorId },
+          $or: [
+            { createdAt: { $lt: new Date(cursorCreatedAt) } },
+            {
+              createdAt: new Date(cursorCreatedAt),
+              _id: {
+                $lt: new mongoose.Types.ObjectId(cursorId),
+              },
+            },
+          ],
         },
       ];
     }
 
     let reels: any[] = [];
 
-    // ✅ HANDLE INITIAL REEL ONLY ON FIRST LOAD
+    // 🎯 INITIAL REEL HANDLING
     if (initialReelId && !cursorCreatedAt && !cursorId) {
       const initialReel = await Reel.findById(initialReelId)
         .populate({
@@ -98,14 +125,8 @@ export async function GET(req: NextRequest) {
         reels.push(initialReel);
       }
 
-      // ❌ exclude initial reel from normal query
-      query._id = { $ne: initialReelId };
-
       const remaining = await Reel.find(query)
         .sort({
-          isFeatured: -1,
-          likesCount: -1,
-          viewsCount: -1,
           createdAt: -1,
           _id: -1,
         })
@@ -122,9 +143,6 @@ export async function GET(req: NextRequest) {
       // 🔁 NORMAL FLOW
       reels = await Reel.find(query)
         .sort({
-          isFeatured: -1,
-          likesCount: -1,
-          viewsCount: -1,
           createdAt: -1,
           _id: -1,
         })
@@ -142,6 +160,7 @@ export async function GET(req: NextRequest) {
     let likedSet = new Set<string>();
     let shortlistedSet = new Set<string>();
 
+    // ❤️ LIKES + SHORTLISTS
     if (viewerId) {
       const likes = await Like.find({
         userId: viewerId,
@@ -162,6 +181,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // 🎁 FORMAT RESPONSE
     const formattedReels = reels.map(({ userId, ...reel }) => ({
       ...reel,
       user: userId,
@@ -169,6 +189,7 @@ export async function GET(req: NextRequest) {
       isShortlisted: shortlistedSet.has(reel._id.toString()),
     }));
 
+    // 🧭 NEXT CURSOR
     const last = reels[reels.length - 1];
 
     const nextCursor =

@@ -98,7 +98,14 @@ export default function ReelFeed({
     const res = await fetch(`/api/reel?${params.toString()}`);
     const data = await res.json();
 
-    setReels((prev) => [...prev, ...data.reels]);
+    // setReels((prev) => [...prev, ...data.reels]);
+    // preventing dupliacates.. might need to fix this later on.
+    setReels((prev) => {
+      const newReels = data.reels.filter(
+        (r: Reel) => !prev.some((p) => p._id === r._id),
+      );
+      return [...prev, ...newReels];
+    });
 
     if (data.nextCursor) {
       setCursor(data.nextCursor);

@@ -82,7 +82,7 @@ export default function ReelFeed({
 
   const fetchReels = useCallback(async () => {
     if (isFetchingRef.current || !hasMore) return;
-    console.log("FETCH REELS CALLED");
+    // console.log("FETCH REELS CALLED");
 
     isFetchingRef.current = true;
     setLoading(true);
@@ -129,8 +129,9 @@ export default function ReelFeed({
       setHasMore(false);
     }
 
+    isFetchingRef.current = false;
     setLoading(false);
-  }, [cursor, loading, hasMore]); // ❌ removed initialReelId
+  }, [cursor, hasMore]); // ❌ removed initialReelId
 
   // preventing oldIds from getting new reels.
   useEffect(() => {
@@ -144,24 +145,51 @@ export default function ReelFeed({
     fetchReels();
   }, []);
 
+  // useEffect(() => {
+  //   console.log("hasMore:", hasMore);
+  //   console.log("cursor:", cursor);
+  // }, [cursor, hasMore]);
+
   // refetching reels on scroll
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    if (!containerRef.current || !loadMoreRef.current) return;
 
-    const handleScroll = () => {
-      if (
-        container.scrollTop + container.clientHeight >=
-        container.scrollHeight - 300
-      ) {
-        fetchReels();
-      }
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // console.log("🔥 OBSERVER TRIGGERED");
+          fetchReels();
+        }
+      },
+      {
+        root: containerRef.current,
+        threshold: 0.1,
+      },
+    );
 
-    container.addEventListener("scroll", handleScroll);
+    observer.observe(loadMoreRef.current);
 
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [fetchReels]);
+    return () => observer.disconnect();
+  }, [fetchReels, reels]); // 👈 IMPORTANT
+  // useEffect(() => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
+
+  //   const handleScroll = () => {
+  //     if (
+  //       container.scrollTop + container.clientHeight >=
+  //       container.scrollHeight - 300
+  //     ) {
+  //       fetchReels();
+  //     }
+  //   };
+
+  //   container.addEventListener("scroll", handleScroll);
+
+  //   return () => container.removeEventListener("scroll", handleScroll);
+  // }, [fetchReels]);
 
   // useEffect(() => {
   //   const handleScroll = () => {
@@ -204,6 +232,7 @@ export default function ReelFeed({
             <ReelSkeleton />
           </div>
         ))}
+      <div ref={loadMoreRef} className="h-32 w-full" />
     </div>
   );
 }

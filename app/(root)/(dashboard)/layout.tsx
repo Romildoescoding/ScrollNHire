@@ -116,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <motion.div
         style={{ top: uploadProgress > -1 ? "56px" : "-32px" }}
-        className="w-full transition-all duration-500 bg-transparent fixed top-14 right-0 h-8 flex z-50"
+        className="w-full transition-all duration-500 bg-transparent fixed top-14 right-0 h-8 flex z-8"
       >
         <div
           className={cn(

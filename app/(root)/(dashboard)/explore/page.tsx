@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface User {
   _id: string;
@@ -46,9 +47,12 @@ export default function ExplorePage() {
     setIsMobile(window.innerWidth < 768);
   }, []);
 
-  const fetchReels = useCallback(async () => {
-    if (loading || !hasMore) return;
+  const isFetchingRef = useRef(false);
 
+  const fetchReels = useCallback(async () => {
+    if (isFetchingRef.current || !hasMore) return;
+
+    isFetchingRef.current = true;
     setLoading(true);
 
     const params = new URLSearchParams();
@@ -67,16 +71,24 @@ export default function ExplorePage() {
 
     setReels((prev) => [...prev, ...data.reels]);
 
+    //     setReels((prev) => {
+    //   const map = new Map(prev.map((r) => [r._id, r]));
+    //   data.reels.forEach((r: Reel) => map.set(r._id, r));
+    //   return Array.from(map.values());
+    // });
+
     if (data.nextCursor) {
       setCursor(data.nextCursor);
     } else {
       setHasMore(false);
     }
 
+    isFetchingRef.current = false;
     setLoading(false);
-  }, [cursor, loading, hasMore, query]);
+  }, [cursor, hasMore, query]);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const hasInitialLoadRef = useRef(false);
 
   // Proper reset before fresh fetch for page mount or navigation back.
 
@@ -105,14 +117,21 @@ export default function ExplorePage() {
     fetchReels();
   }, [fetchReels]);
 
+  useEffect(() => {
+    if (reels.length > 0) {
+      hasInitialLoadRef.current = true;
+    }
+  }, [reels]);
+
   // infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current || !hasInitialLoadRef.current) return;
 
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
 
       if (scrollTop + clientHeight >= scrollHeight - 300) {
+        console.log("FETCHING REELS THROUGH THE INFINITE SCROLL");
         fetchReels();
       }
     };
@@ -207,13 +226,14 @@ export default function ExplorePage() {
 
         {/* ⏳ loader */}
         {loading && (
-          <div className="text-center text-white py-4">
-            Loading more reels...
+          // <div className="h-[calc(100vh-56px)] w-full flex items-center justify-center">
+          <div className="h-fit w-full flex items-center justify-center">
+            <Loader2 className="h-7 w-7 animate-spin" />
           </div>
         )}
 
         {!hasMore && (
-          <div className="text-center text-neutral-500 py-4">No more reels</div>
+          <div className="text-center text-neutral-500 py-4">{`That's it for the reels`}</div>
         )}
       </div>
     </div>

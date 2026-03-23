@@ -3,6 +3,7 @@
 import { formatNotificationTime } from "@/app/_lib/actions";
 import axios from "axios";
 import { Bookmark, Calendar, Heart, MessageCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 type NotificationType = {
@@ -36,73 +37,6 @@ const NotificationsPage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  // const [notifications, setNotifications] = useState<NotificationType[]>([
-  //   {
-  //     recipientId: "1",
-  //     senderId: "2",
-  //     type: "like",
-  //     message: 'liked your reel "Frontend Animation Demo"',
-  //     isRead: false,
-  //     createdAt: new Date("2026-03-18T12:00:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "3",
-  //     type: "comment",
-  //     message: 'commented: "Bro this UI is clean 🔥"',
-  //     isRead: false,
-  //     createdAt: new Date("2026-03-18T10:30:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "4",
-  //     type: "shortlist",
-  //     message: "shortlisted you for Frontend Developer role",
-  //     isRead: false,
-  //     createdAt: new Date("2026-03-17T18:45:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "5",
-  //     type: "interview",
-  //     message: "invited you to an interview at 7:00 PM",
-  //     isRead: false,
-  //     createdAt: new Date("2026-03-17T14:15:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "6",
-  //     type: "like",
-  //     message: 'liked your reel "Node.js API Project"',
-  //     isRead: true,
-  //     createdAt: new Date("2026-03-16T20:10:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "7",
-  //     type: "comment",
-  //     message: 'commented: "Can you share repo?"',
-  //     isRead: true,
-  //     createdAt: new Date("2026-03-16T16:05:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "8",
-  //     type: "shortlist",
-  //     message: "shortlisted you for Full Stack Intern role",
-  //     isRead: false,
-  //     createdAt: new Date("2026-03-15T11:20:00Z"),
-  //   },
-  //   {
-  //     recipientId: "1",
-  //     senderId: "9",
-  //     type: "interview",
-  //     message: "scheduled your interview for tomorrow",
-  //     isRead: false,
-  //     createdAt: new Date("2026-02-15T09:00:00Z"),
-  //   },
-  // ]);
 
   const filteredNotifications =
     category === "all"
@@ -196,6 +130,7 @@ const NotificationsPage = () => {
 };
 
 function Notif({ notification }: { notification: NotificationType }) {
+  const router = useRouter();
   const getIcon = () => {
     switch (notification.type) {
       case "like":
@@ -249,7 +184,10 @@ function Notif({ notification }: { notification: NotificationType }) {
   };
 
   return (
-    <div className="cursor-pointer flex items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors">
+    <div
+      onClick={() => router.push(`/reels/${notification.reelId?._id}`)}
+      className="cursor-pointer flex items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors"
+    >
       {/* PROFILE */}
       <div className="relative shrink-0">
         <div

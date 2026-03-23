@@ -77,9 +77,14 @@ export default function ReelFeed({
     return () => observer.disconnect();
   }, [reels, router]);
 
-  const fetchReels = useCallback(async () => {
-    if (loading || !hasMore) return;
+  const isFetchingRef = useRef(false);
+  const reelIdsRef = useRef(new Set<string>());
 
+  const fetchReels = useCallback(async () => {
+    if (isFetchingRef.current || !hasMore) return;
+    console.log("FETCH REELS CALLED");
+
+    isFetchingRef.current = true;
     setLoading(true);
 
     const params = new URLSearchParams();
@@ -98,14 +103,25 @@ export default function ReelFeed({
     const res = await fetch(`/api/reel?${params.toString()}`);
     const data = await res.json();
 
+    const uniqueReels: Reel[] = [];
+
+    for (const reel of data.reels) {
+      if (!reelIdsRef.current.has(reel._id)) {
+        reelIdsRef.current.add(reel._id);
+        uniqueReels.push(reel);
+      }
+    }
+
+    setReels((prev) => [...prev, ...uniqueReels]);
+
     // setReels((prev) => [...prev, ...data.reels]);
     // preventing dupliacates.. might need to fix this later on.
-    setReels((prev) => {
-      const newReels = data.reels.filter(
-        (r: Reel) => !prev.some((p) => p._id === r._id),
-      );
-      return [...prev, ...newReels];
-    });
+    // setReels((prev) => {
+    //   const newReels = data.reels.filter(
+    //     (r: Reel) => !prev.some((p) => p._id === r._id),
+    //   );
+    //   return [...prev, ...newReels];
+    // });
 
     if (data.nextCursor) {
       setCursor(data.nextCursor);
@@ -115,6 +131,14 @@ export default function ReelFeed({
 
     setLoading(false);
   }, [cursor, loading, hasMore]); // ❌ removed initialReelId
+
+  // preventing oldIds from getting new reels.
+  useEffect(() => {
+    setReels([]);
+    setCursor(null);
+    setHasMore(true);
+    reelIdsRef.current.clear();
+  }, [initialReelId]);
 
   useEffect(() => {
     fetchReels();
@@ -171,9 +195,43 @@ export default function ReelFeed({
         </div>
       ))}
 
-      {loading && (
-        <div className="text-white text-center py-4">Loading more reels...</div>
-      )}
+      {loading &&
+        Array.from({ length: 2 }).map((_, i) => (
+          <div
+            key={`skeleton-${i}`}
+            className="h-full snap-start flex items-center justify-center"
+          >
+            <ReelSkeleton />
+          </div>
+        ))}
     </div>
   );
 }
+
+export const ReelSkeleton = () => {
+  return (
+    <div className="flex h-full justify-center w-full bg-background animate-pulse">
+      <div className="relative w-[380px] h-full shimmer rounded-md overflow-hidden">
+        {/* fake video block */}
+        <div className="absolute inset-0 shimmer" />
+
+        {/* bottom overlay skeleton */}
+        <div className="absolute bottom-4 left-3 right-3 space-y-3">
+          {/* username */}
+          <div className="h-4 w-24 shimmer rounded" />
+
+          {/* caption lines */}
+          <div className="h-3 w-40 shimmer rounded" />
+          <div className="h-3 w-32 shimmer rounded" />
+        </div>
+
+        {/* right side actions (like, comment etc) */}
+        <div className="absolute right-3 bottom-20 flex flex-col items-center gap-4">
+          <div className="h-10 w-10 shimmer rounded-full" />
+          <div className="h-10 w-10 shimmer rounded-full" />
+          <div className="h-10 w-10 shimmer rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+};

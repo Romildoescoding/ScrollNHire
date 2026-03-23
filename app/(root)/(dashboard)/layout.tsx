@@ -83,9 +83,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // }
 
     // OR
-    fetchUnreadNotifications();
     setRole(user.role);
-  }, [pathname]);
+  }, [user.role]);
+
+  useEffect(() => {
+    fetchUnreadNotifications();
+  }, []);
 
   const { uploadProgress } = useUploadProgress();
 

@@ -116,8 +116,8 @@ export default function ReelCard({
     return () => observer.disconnect();
   }, [reel._id, session]);
 
-  /* LIKE */
-  const handleLike = async () => {
+  /* TOGGLE LIKE */
+  const toggleLike = async () => {
     if (!session?.user) {
       console.log("session.user doesnt exist");
       return;
@@ -137,6 +137,33 @@ export default function ReelCard({
         userId: session.user.id,
       }),
     });
+  };
+
+  /* LIKE */
+  const handleLike = async () => {
+    if (!session?.user) {
+      console.log("session.user doesnt exist");
+      return;
+    }
+
+    const alreadyLiked = liked;
+
+    if (!alreadyLiked) {
+      setLiked(true);
+      setLikes((prev) => prev + 1);
+    }
+
+    setShowLikeAnim(true);
+
+    setTimeout(() => setShowLikeAnim(false), 600);
+
+    if (!alreadyLiked)
+      await fetch(`/api/reel/${reel._id}/like`, {
+        method: "POST",
+        body: JSON.stringify({
+          userId: session.user.id,
+        }),
+      });
   };
 
   /* LOAD COMMENTS */
@@ -245,7 +272,7 @@ export default function ReelCard({
 
         <div className="absolute right-4 bottom-24 flex flex-col items-center gap-3 text-white">
           <button
-            onClick={handleLike}
+            onClick={toggleLike}
             className="cursor-pointer flex flex-col items-center"
           >
             <Heart

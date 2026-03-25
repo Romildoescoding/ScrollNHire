@@ -205,9 +205,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </h2> */}
             <div className="space-y-1 flex flex-col gap-1">
               <Button
-                variant={pathname === "/dashboard" ? "secondary" : "ghost"}
+                variant={pathname === "/student" ? "secondary" : "ghost"}
                 className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/dashboard")}
+                disabled={role === null}
+                // add the one for cso too.
+                onClick={() =>
+                  router.push(role === "student" ? "/student" : "/employer")
+                }
               >
                 <Home className="text-neutral-500 mr-2" />
                 <span

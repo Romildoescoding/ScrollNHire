@@ -162,3 +162,28 @@ html {
     background-position: 200% 0;
   }
 }
+
+.glass-card {
+  background: rgba(26, 25, 25, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.liquid-glow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(137, 172, 255, 0.08) 0%,
+    transparent 70%
+  );
+}
+.text-gradient-primary {
+  background: linear-gradient(135deg, #89acff 0%, #739eff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}

@@ -171,13 +171,12 @@ export async function GET(req: NextRequest) {
 
       const hiringProcesses = await HiringProcessModel.find({
         employerId: viewerId,
-        reelId: { $in: reelIds },
-      }).select("reelId status");
+        status: { $ne: "rejected" },
+        reels: { $in: reelIds },
+      }).select("reels");
 
       shortlistedSet = new Set(
-        hiringProcesses
-          .filter((h) => h.status !== "rejected")
-          .map((h) => h.reelId.toString()),
+        hiringProcesses.flatMap((p) => p.reels.map((r: any) => r.toString())),
       );
     }
 

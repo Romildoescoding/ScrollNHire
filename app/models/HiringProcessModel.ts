@@ -1,24 +1,24 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IHiringProcess extends Document {
-  employerId: mongoose.Types.ObjectId;
-  studentId: mongoose.Types.ObjectId;
-  reelId: mongoose.Types.ObjectId;
+  employerId: Types.ObjectId;
+  studentId: Types.ObjectId;
+
+  reels: Types.ObjectId[];
 
   status:
     | "shortlisted"
-    | "chat_requested"
-    | "chat_active"
     | "interview_scheduled"
     | "interview_completed"
     | "offer_sent"
     | "rejected"
     | "hired";
 
-  interviewDate?: Date;
   role: string;
+  interviewDate?: Date;
 
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const hiringSchema = new Schema<IHiringProcess>(
@@ -35,18 +35,17 @@ const hiringSchema = new Schema<IHiringProcess>(
       required: true,
     },
 
-    reelId: {
-      type: Schema.Types.ObjectId,
-      ref: "Reel",
-      required: true,
-    },
+    reels: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Reel",
+      },
+    ],
 
     status: {
       type: String,
       enum: [
         "shortlisted",
-        "chat_requested",
-        "chat_active",
         "interview_scheduled",
         "interview_completed",
         "offer_sent",
@@ -56,19 +55,18 @@ const hiringSchema = new Schema<IHiringProcess>(
       default: "shortlisted",
     },
 
-    interviewDate: Date,
     role: {
       type: String,
       required: true,
     },
+
+    interviewDate: Date,
   },
   { timestamps: true },
 );
 
-hiringSchema.index(
-  { employerId: 1, studentId: 1, reelId: 1 },
-  { unique: true },
-);
+/* 🔥 UNIQUE RELATIONSHIP */
+hiringSchema.index({ employerId: 1, studentId: 1 }, { unique: true });
 
 export default mongoose.models.HiringProcess ||
-  mongoose.model("HiringProcess", hiringSchema);
+  mongoose.model<IHiringProcess>("HiringProcess", hiringSchema);

@@ -12,44 +12,81 @@ export async function POST(
     await dbConnect();
 
     const { reelId } = await context.params;
-    const body = await req.json();
-
-    const { studentId } = body;
+    const { studentId } = await req.json();
 
     const session = await auth();
     const employerId = session?.user?.id;
 
-    if (!reelId) {
+    if (!reelId || !studentId || !employerId) {
       return NextResponse.json(
-        { success: false, message: "reelId is required" },
+        { success: false, message: "Missing required fields" },
         { status: 400 },
       );
     }
 
-    if (!employerId || !studentId) {
-      return NextResponse.json(
-        { success: false, message: "employerId and studentId are required" },
-        { status: 400 },
-      );
-    }
+    /* 🔍 FIND EXISTING RELATIONSHIP */
 
-    const existing = await HiringProcess.findOne({
+    let existing = await HiringProcess.findOne({
       employerId,
       studentId,
-      reelId,
     });
 
-    /* UN-SHORTLIST */
+    /* 🆕 CREATE NEW */
 
-    if (existing) {
-      // If already in the hiring pipeline, CAN"T SHORTLIST HIM DUDE..
-      if (existing.status !== "shortlisted") {
-        return NextResponse.json(
-          { success: false, message: "Candidate already in hiring process" },
-          { status: 400 },
-        );
+    if (!existing) {
+      const hiring = await HiringProcess.create({
+        employerId,
+        studentId,
+        reels: [reelId],
+        status: "shortlisted",
+        role: "Not specified", // adjust if needed
+      });
+
+      await Notification.create({
+        recipientId: studentId,
+        senderId: employerId,
+        reelId,
+        type: "shortlist",
+        message: "shortlisted your profile",
+      });
+
+      return NextResponse.json({
+        success: true,
+        shortlisted: true,
+        message: "Student shortlisted",
+        data: hiring,
+      });
+    }
+
+    /* 🚫 BLOCK if already progressed */
+
+    if (existing.status !== "shortlisted") {
+      return NextResponse.json(
+        { success: false, message: "Candidate already in hiring process" },
+        { status: 400 },
+      );
+    }
+
+    const alreadyShortlisted = existing.reels.some(
+      (r: any) => r.toString() === reelId,
+    );
+
+    /* ❌ REMOVE REEL */
+
+    if (alreadyShortlisted) {
+      const updated = await HiringProcess.findOneAndUpdate(
+        { _id: existing._id },
+        {
+          $pull: { reels: reelId },
+        },
+        { new: true },
+      );
+
+      /* 🧠 If no reels left → delete entire hiring process */
+
+      if (updated.reels.length === 0) {
+        await HiringProcess.deleteOne({ _id: existing._id });
       }
-      await HiringProcess.deleteOne({ _id: existing._id });
 
       return NextResponse.json({
         success: true,
@@ -58,34 +95,22 @@ export async function POST(
       });
     }
 
-    /* CREATE HIRING PROCESS */
+    /* ➕ ADD REEL */
 
-    const hiring = await HiringProcess.create({
-      employerId,
-      studentId,
-      reelId,
-      status: "shortlisted",
-    });
-
-    /* CREATE NOTIFICATION */
-
-    await Notification.create({
-      recipientId: studentId,
-      senderId: employerId,
-      reelId,
-      type: "shortlist",
-      message: "shortlisted your profile",
-    });
-
-    return NextResponse.json(
+    const updated = await HiringProcess.findOneAndUpdate(
+      { _id: existing._id },
       {
-        success: true,
-        shortlisted: true,
-        message: "Student shortlisted",
-        data: hiring,
+        $addToSet: { reels: reelId },
       },
-      { status: 200 },
+      { new: true },
     );
+
+    return NextResponse.json({
+      success: true,
+      shortlisted: true,
+      message: "Reel added to shortlist",
+      data: updated,
+    });
   } catch (error: any) {
     console.error("SHORTLIST_ERROR:", error);
 

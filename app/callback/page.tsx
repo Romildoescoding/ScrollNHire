@@ -34,8 +34,10 @@ const CallbackPage = () => {
 
         if (!res.data.user.isOnboarded) {
           router.push("/onboarding");
+        } else if (res.data.user.role === "student") {
+          router.push("/student");
         } else {
-          router.push("/dashboard");
+          router.push("/employer");
         }
       } catch (err) {
         console.error(err);

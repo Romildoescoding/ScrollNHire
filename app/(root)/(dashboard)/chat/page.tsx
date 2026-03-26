@@ -1,35 +1,53 @@
 "use client";
-import React from "react";
-import { Send } from "lucide-react";
-
-const chats = [
-  {
-    name: "Jacquenetta",
-    message: "Great! Looking forward to it.",
-    time: "10m",
-    unread: 3,
-  },
-  {
-    name: "Nickola",
-    message: "Sounds perfect!",
-    time: "40m",
-    unread: 0,
-  },
-  {
-    name: "Farand",
-    message: "How about 7 PM?",
-    time: "Yesterday",
-    unread: 1,
-  },
-];
+import React, { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCheck,
+  MoreVertical,
+  PhoneMissed,
+  Search,
+  Send,
+  User2,
+  Video,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import SenderMessage from "@/components/sender-message";
+import UserMessage from "@/components/receiver-message";
+import useConversations, { IConversation } from "@/app/hooks/useConversations";
+import useMessages from "@/app/hooks/useMessages";
+import { useSession } from "next-auth/react";
+import ChatArea from "@/components/chat-area";
 
 const AiChatPage = () => {
+  const [selectedConversation, setSelectedConversation] =
+    useState<IConversation | null>(null);
+
+  const { conversations, loading: convoLoading } = useConversations();
+
+  const { data: session } = useSession();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredConvos = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    if (!query) return conversations;
+
+    return conversations.filter(
+      (convo) =>
+        convo.sender.name.toLowerCase().includes(query) ||
+        convo.lastMessage?.message?.toLowerCase().includes(query),
+    );
+  }, [conversations, searchQuery]);
+
   return (
-    <div className="h-screen flex bg-gray-100 dark:bg-zinc-900 text-black dark:text-white">
+    <div className="h-full flex bg-background dark:bg-neutral-900 text-black dark:text-white">
       {/* Sidebar */}
-      <div className="w-full max-w-sm border-r border-gray-200 dark:border-zinc-700 flex flex-col">
+      <div className="w-full max-w-xs  bg-background dark:bg-neutral-950 rounded-md border border-border dark:border-zinc-700 flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-zinc-700 flex justify-between items-center">
+        <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
           <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-800">
             +
@@ -37,74 +55,85 @@ const AiChatPage = () => {
         </div>
 
         {/* Search */}
-        <div className="p-4">
-          <input
-            type="text"
-            placeholder="Search chats..."
-            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 outline-none"
-          />
+        <div className="border-b p-4">
+          <div className="relative">
+            {/* Icon */}
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+
+            {/* Input */}
+            <Input
+              type="text"
+              placeholder="Search chats..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto">
-          {chats.map((chat, i) => (
+          {filteredConvos.map((chat, i) => (
             <div
               key={i}
-              className="px-4 py-3 flex items-center gap-3 hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer"
+              onClick={() => {
+                setSelectedConversation(chat);
+              }}
+              className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer"
             >
               {/* Avatar */}
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={session?.user?.image ?? undefined}
+                  alt="Avatar"
+                />
+                <AvatarFallback>{chat.sender?.name[0] || "U"}</AvatarFallback>
+              </Avatar>
               <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white">
-                {chat.name[0]}
+                {chat.sender?.image || chat.sender?.name[0] || "U"}
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium truncate">{chat.name}</span>
-                  <span className="text-xs text-gray-500">{chat.time}</span>
+                  <span className="font-medium truncate">
+                    {chat.sender?.name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(
+                      chat.lastMessage?.createdAt ?? new Date(),
+                    ).toLocaleTimeString()}
+                  </span>
                 </div>
-                <p className="text-sm text-gray-500 truncate">{chat.message}</p>
+                <div className="flex items-center">
+                  {chat.lastMessage?.senderId !== session?.user?.id && (
+                    <span className="mr-1 flex">
+                      {chat.lastMessage?.isRead ? (
+                        <CheckCheck className="text-cyan-500" size={16} />
+                      ) : (
+                        <Check className="text-foreground/40" size={16} />
+                      )}
+                    </span>
+                  )}
+                  <p className=" mr-2 flex-1 text-sm text-gray-500 truncate">
+                    {chat.lastMessage?.message ||
+                      "Click to start conversation."}
+                  </p>
+                  {/* Unread */}
+                  {chat.unreadMessagesCount > 0 && (
+                    <div className="min-w-5 h-5 text-xs flex items-center justify-center bg-cyan-500 text-white rounded-full">
+                      {chat.unreadMessagesCount}
+                    </div>
+                  )}
+                </div>
               </div>
-
-              {/* Unread */}
-              {chat.unread > 0 && (
-                <div className="w-5 h-5 text-xs flex items-center justify-center bg-green-500 text-white rounded-full">
-                  {chat.unread}
-                </div>
-              )}
             </div>
           ))}
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* Incoming */}
-          <div className="max-w-md bg-gray-200 dark:bg-zinc-800 p-3 rounded-lg">
-            Hey! How’s it going?
-          </div>
-
-          {/* Outgoing */}
-          <div className="max-w-md ml-auto bg-blue-500 text-white p-3 rounded-lg">
-            All good bro, working on the chat UI 😤
-          </div>
-        </div>
-
-        {/* Input */}
-        <div className="p-4 border-t border-gray-200 dark:border-zinc-700 flex gap-3">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 outline-none"
-          />
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2 hover:bg-blue-600">
-            <Send size={16} />
-            Send
-          </button>
-        </div>
-      </div>
+      <ChatArea selectedConversation={selectedConversation} />
     </div>
   );
 };

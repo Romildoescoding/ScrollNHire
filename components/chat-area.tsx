@@ -1,177 +1,115 @@
-"use client";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowDown, Copy, Loader2, Send } from "lucide-react";
-// import UserMessage from "./UserMessage";
-// import AiMessage from "./AiMessage";
-// import { getUserClient } from "../_lib/actions";
-// import { SessionProvider, useSession } from "next-auth/react";
-// import Spinner from "./Spinner";
-// import { useCurrentUser } from "../auth/useCurrentUser";
-// import useChats from "../(root)/chat/useChats";
-// import useSendMessage from "../(root)/chat/useSendMessage";
-// import useGeminiAI from "../(root)/chat/useGeminiAI";
-// import ChatInputForm from "./ChatInputForm";
-// import Modal from "./Modal";
-// import ModalUploadPdf from "./ModalUploadPdf";
-// import usePdfGeminiAI from "../(root)/chat/usePdfGeminiAI";
-// import FileMessage from "./FileMessage";
-import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  MoreVertical,
+  PhoneMissed,
+  Send,
+  User2,
+  Video,
+} from "lucide-react";
+import React from "react";
 import UserMessage from "./receiver-message";
 import SenderMessage from "./sender-message";
-import ChatInputForm from "./chat-input-form";
-import { useUserDetails } from "@/app/hooks/useUserDetails";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useSession } from "next-auth/react";
+import { IConversation } from "@/app/hooks/useConversations";
+import useMessages from "@/app/hooks/useMessages";
 
-//OPTIMIZE IT TO PREVENT RE-RENDERS ON ENTERING THE DATA IN THE TEXTAREA
+const ChatArea = ({
+  selectedConversation,
+}: {
+  selectedConversation: IConversation | null;
+}) => {
+  const { data: session } = useSession();
 
-const ChatArea = ({ chatId, isSidebarOpen }) => {
-  const chatAreaRef = useRef(null);
-  const { user } = useUserDetails();
-  const [chats, setChats] = useState([
-    { sender: "ai", content: "Hello" },
-    { sender: "user", content: "Nah dude, heyy" },
-  ]);
-  const [isGeminiLoading, setIsGeminiLoading] = useState(false);
-  const [showModal, setShowModal] = useState("");
-  //   const { user, status } = useUserDetails();
-  //   const { sendMessage, isSending, error } = useSendMessage();
-  const [selectedPdfFile, setSelectedPdfFile] = useState(null);
-  //   const {
-  //     sendMessageAI,
-  //     isSending: isSendingAI,
-  //     error: errorAI,
-  //   } = useGeminiAI();
-  const router = useRouter();
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  const [isAtBottom, setIsAtBottom] = useState(true);
-  //Take to editor feature
-  //   const { setNotes } = useNotes();
-
-  //   const {
-  //     sendPDfMessageAI,
-  //     isSending: isSending2,
-  //     error: errorPDF,
-  //   } = usePdfGeminiAI();
-
-  //   const handleGenerate = async (markdown: string, id: number) => {
-  //     // const results: INote[] = [];
-
-  //     const results = [];
-  //     const note = await convertMarkdownToBlocknote(markdown, id);
-  //     const rawText = note.candidates[0]?.content?.parts[0]?.text || "";
-  //     console.log(rawText);
-  //     const cleanJson = rawText.replace(/^```json\s+|\s+```$/g, "").trim();
-  //     console.log(cleanJson);
-
-  //     // Ensure there's no trailing characters or syntax issues
-  //     const lastIndex = cleanJson.lastIndexOf("]");
-  //     const finalJson = cleanJson.substring(0, lastIndex + 1);
-
-  //     const parsedData = JSON.parse(finalJson);
-  //     console.log(parsedData);
-  //     results.push(parsedData);
-
-  //     console.log(results);
-  //     const prevNotes = JSON.parse(localStorage.getItem("notes") || "[[]]");
-  //     // This actually works
-  //     setNotes([[...prevNotes[0], ...results]]);
-  //     // setNotes([[...prevNotes[0], ...results[0]]]);
-  //     router.push("/notes/editor");
-  //   };
-
-  //Scrolling into the latest message to bottom..
-  useEffect(() => {
-    if (chatAreaRef.current) {
-      chatAreaRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [isGeminiLoading]);
-
-  function scrollToBottom() {
-    chatAreaRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  const [status, setStatus] = useState(null);
-
+  const {
+    messages,
+    setMessages,
+    loading: messagesLoading,
+  } = useMessages(selectedConversation?._id || null);
   return (
-    // <SessionProvider>
-    <>
-      {/* {showModal === "select-file" && (
-        <Modal setShowModal={setShowModal}>
-          <ModalUploadPdf
-            chatId={chatId}
-            setShowModal={setShowModal}
-            setSelectedPdfFile={setSelectedPdfFile}
-          />
-        </Modal>
-      )} */}
+    <div className="flex-1 flex flex-col">
+      <div className="flex justify-between items-center gap-4 px-4 py-3">
+        {/* Left Section */}
+        <div className="flex items-center gap-4">
+          {/* Back Button (mobile only) */}
+          <button className="flex lg:hidden items-center justify-center w-10 h-10 rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
 
-      <div
-        className={`w-full relative flex justify-center h-fit min-h-[calc(100vh-80px)] pt-4 ${
-          selectedPdfFile ? "pb-40" : "pb-28"
-        }`}
-      >
-        <div
-          ref={parentRef}
-          className="w-full max-w-[95vw] min-[450px]:max-w-[75vw] min-[800px]:max-w-[60vw] h-fit flex flex-col gap-4"
-          // Styles to display the loading spinner
-          style={{
-            alignItems:
-              !status || status === "loading" || status === ""
-                ? "center"
-                : "top",
-            justifyContent:
-              !status || status === "loading" || status === ""
-                ? "center"
-                : "start",
-          }}
-        >
-          {!status || status === "loading" || status === "" || !chats ? (
-            <Loader2 height={24} width={24} />
-          ) : (
-            <>
-              {chats.map((message, i) =>
-                message.sender === "ai" ? (
-                  <SenderMessage
-                    key={i}
-                    user={user}
-                    text={message.content}
-                    // handleGenerate={handleGenerate}
-                    // isProcessing={isProcessing}
-                  />
-                ) : (
-                  // ) : message.document ? (
-                  //   <FileMessage
-                  //     key={i}
-                  //     user={user}
-                  //     document={message.document}
-                  //   />
-                  <UserMessage key={i} user={user} text={message.content} />
-                ),
-              )}
-              {isGeminiLoading && <SenderMessage user={user} text={""} />}
-              {/* Scroll to the bottom yk */}
-              <div ref={chatAreaRef} /> {/* Scroll target */}
-            </>
-          )}
+          {/* Avatar */}
+          <div className="relative w-10 h-10">
+            <Avatar className="h-full w-full">
+              <AvatarImage
+                src={selectedConversation?.sender.image ?? undefined}
+                alt="Avatar"
+              />
+              <AvatarFallback>
+                <User2 size={20} />
+              </AvatarFallback>
+            </Avatar>
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900" />
+          </div>
 
-          <ChatInputForm
-            scrollToBottom={scrollToBottom}
-            selectedPDfFile={selectedPdfFile}
-            setSelectedPdfFile={setSelectedPdfFile}
-            sendPDfMessageAI={() => {}}
-            isSidebarOpen={isSidebarOpen}
-            sendMessage={() => {}}
-            setChats={() => {}}
-            setIsGeminiLoading={setIsGeminiLoading}
-            sendMessageAI={() => {}}
-            chatId={chatId}
-            setShowModal={setShowModal}
-          />
+          {/* Name + Status */}
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold">
+              {selectedConversation?.sender.name}
+            </span>
+            {/* <span className="text-xs text-green-500">{selectedConversation?.sender.status}</span> */}
+            <span className="text-xs text-green-500">Online</span>
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-2">
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-2">
+            <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+              <Video className="w-4 h-4" />
+            </button>
+
+            <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+              <PhoneMissed className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* More Menu */}
+          <button className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700">
+            <MoreVertical className="w-4 h-4" />
+          </button>
         </div>
       </div>
-    </>
-    // </SessionProvider>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {/* Incoming */}
+        {messages.map((msg) =>
+          msg.senderId !== session?.user?.id ? (
+            <SenderMessage
+              key={msg._id}
+              text={msg.text}
+              user={{}}
+              setReply={() => {}}
+            />
+          ) : (
+            <UserMessage key={msg._id} text={msg.text} user={{}} />
+          ),
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-gray-200 dark:border-zinc-700 flex gap-3">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 outline-none"
+        />
+        <button className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2 hover:bg-blue-600">
+          <Send size={16} />
+          Send
+        </button>
+      </div>
+    </div>
   );
 };
 

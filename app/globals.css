@@ -187,3 +187,64 @@ html {
     "GRAD" 0,
     "opsz" 24;
 }
+
+.sender-message {
+  height: fit-content;
+  width: fit-content;
+  /* max-width: 40vw; */
+  background: #fafafa;
+  /* color: #efefef; */
+  border-radius: 10px;
+  border: 2px solid #eeeeee;
+  padding: 10px 10px;
+  /* padding-bottom: 30px; */
+  position: relative;
+  color: #0d0d0d;
+}
+
+.user-message {
+  height: fit-content;
+  width: fit-content;
+  /* max-width: 40vw; */
+  border: 2px solid;
+  border-radius: 10px;
+  padding: 10px 10px;
+  position: relative;
+}
+
+/* Scrollbar for WebKit-based browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+  height: 12px; /* Height of the scrollbar for horizontal scrolling */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+  border-radius: 10px; /* Round corners */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Round corners */
+  /* border: 3px solid #fff; Space between the thumb and track */
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #18181b; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Round corners */
+  border: 3px solid #fff; /* Space between the thumb and track */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #323232; /* Color on hover */
+}
+
+/* Scrollbar for Firefox */
+* {
+  scrollbar-width: thin; /* Thin scrollbar */
+  scrollbar-color: #bfbfbf #9c9c9c00; /* Thumb color and track color */
+}
+
+.dark * {
+  scrollbar-width: thin; /* Thin scrollbar */
+  scrollbar-color: #1b1b1b #9c9c9c00; /* Thumb color and track color */
+}

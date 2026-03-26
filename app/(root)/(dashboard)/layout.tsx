@@ -32,6 +32,7 @@ import {
   Compass,
   Laptop,
   Plus,
+  MessageCircleMore,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -260,6 +261,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   className="transition-all duration-300"
                 >
                   Interviews
+                </span>
+              </Button>
+              <Button
+                variant={pathname === "/chat" ? "secondary" : "ghost"}
+                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                onClick={() => router.push("/chat")}
+              >
+                <MessageCircleMore className="text-neutral-500 mr-2 h-4 w-4" />
+                <span
+                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                  className="transition-all duration-300"
+                >
+                  Chats
                 </span>
               </Button>
 

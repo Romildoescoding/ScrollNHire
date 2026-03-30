@@ -313,10 +313,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Button>
 
               <Button
-                variant={pathname === "/reels" ? "secondary" : "ghost"}
+                variant={pathname.includes("/reels") ? "secondary" : "ghost"}
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/reels"
+                  pathname.includes("/reels")
                     ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                     : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                 )}
@@ -327,7 +327,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
                   className={cn(
                     "transition-all duration-300",
-                    pathname !== "/reels" && "text-zinc-500 dark:text-zinc-400",
+                    !pathname.includes("/reels") &&
+                      "text-zinc-500 dark:text-zinc-400",
                   )}
                 >
                   Reels

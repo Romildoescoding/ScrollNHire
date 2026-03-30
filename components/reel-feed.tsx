@@ -239,7 +239,7 @@ export default function ReelFeed({
 
 export const ReelSkeleton = () => {
   return (
-    <div className="flex h-full justify-center w-full bg-background animate-pulse">
+    <div className="flex h-full justify-center w-full bg-background dark:dark:bg-[#0f0f12] animate-pulse">
       <div className="relative w-[380px] h-full shimmer rounded-md overflow-hidden">
         {/* fake video block */}
         <div className="absolute inset-0 shimmer" />

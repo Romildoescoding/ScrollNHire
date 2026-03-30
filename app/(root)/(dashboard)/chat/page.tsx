@@ -43,13 +43,13 @@ const AiChatPage = () => {
   }, [conversations, searchQuery]);
 
   return (
-    <div className="h-full flex bg-background dark:bg-neutral-900 text-black dark:text-white">
+    <div className="h-full flex bg-background dark:bg-[#0f0f12] rounded-lg text-black dark:text-white">
       {/* Sidebar */}
-      <div className="w-full max-w-xs  bg-background dark:bg-neutral-950 rounded-md border border-border dark:border-zinc-700 flex flex-col">
+      <div className="w-ful; max-w-xs bg-background dark:bg-zinc-950 rounded-lg border border-border  flex flex-col">
         {/* Header */}
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
-          <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-800">
+          <button className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800">
             +
           </button>
         </div>
@@ -79,7 +79,7 @@ const AiChatPage = () => {
               onClick={() => {
                 setSelectedConversation(chat);
               }}
-              className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer"
+              className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
             >
               {/* Avatar */}
               <Avatar className="h-8 w-8">
@@ -89,7 +89,7 @@ const AiChatPage = () => {
                 />
                 <AvatarFallback>{chat.sender?.name[0] || "U"}</AvatarFallback>
               </Avatar>
-              <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white">
+              <div className="w-10 h-10 rounded-full bg-zinc-400 flex items-center justify-center text-white">
                 {chat.sender?.image || chat.sender?.name[0] || "U"}
               </div>
 
@@ -99,7 +99,7 @@ const AiChatPage = () => {
                   <span className="font-medium truncate">
                     {chat.sender?.name}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-zinc-500">
                     {new Date(
                       chat.lastMessage?.createdAt ?? new Date(),
                     ).toLocaleTimeString()}
@@ -115,7 +115,7 @@ const AiChatPage = () => {
                       )}
                     </span>
                   )}
-                  <p className=" mr-2 flex-1 text-sm text-gray-500 truncate">
+                  <p className=" mr-2 flex-1 text-sm text-zinc-500 truncate">
                     {chat.lastMessage?.message ||
                       "Click to start conversation."}
                   </p>

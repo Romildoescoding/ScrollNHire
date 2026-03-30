@@ -1,13 +1,16 @@
-import Navbar from "@/components/navbar";
+// import Navbar from "@/components/navbar";
 import React from "react";
 import { ReelUploadProvider } from "../context/ReelUploadContext";
+import { SidebarProvider } from "../context/SidebarContext";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ReelUploadProvider>
-      <Navbar />
-      <main>{children}</main>
-    </ReelUploadProvider>
+    <SidebarProvider>
+      <ReelUploadProvider>
+        {/* <Navbar /> */}
+        <main>{children}</main>
+      </ReelUploadProvider>
+    </SidebarProvider>
   );
 };
 

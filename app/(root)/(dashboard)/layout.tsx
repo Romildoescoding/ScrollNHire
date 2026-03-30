@@ -50,10 +50,13 @@ import AppLayout from "@/components/app-layout";
 import { useUserDetails } from "@/app/hooks/useUserDetails";
 import { useUploadProgress } from "@/app/context/ReelUploadContext";
 import axios from "axios";
+import { useSidebar } from "@/app/context/SidebarContext";
+import Image from "next/image";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   // const [hideLayout, setHideLayout] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -95,28 +98,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     // <SessionProvider>
-    <div className="flex min-h-[calc(100vh-56px)]">
-      <button
-        onClick={() => setIsSidebarOpen((open) => !open)}
-        className={cn(
-          "z-[11] h-14 w-18 flex items-center justify-center cursor-pointer transition-all duration-500 text-neutral-600 hover:text-neutral-950 border-b border-r bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-700 dark:text-white dark:hover:text-neutral-200 absolute left-68 top-0",
-          isSidebarOpen
-            ? "left-40 md:left-[184px] md:text-neutral-600"
-            : "left-4 md:left-[0px] text-neutral-600",
-        )}
-        style={{ position: "fixed" }}
-      >
-        {isSidebarOpen ? (
-          <PanelLeftClose size={20} />
-        ) : (
-          <PanelLeftOpen size={20} />
-        )}
-      </button>
-
+    // <div className="bg-zinc-100 dark:bg-zinc-900 py-2 pr-2 flex min-h-[calc(100vh-56px)]">
+    <div className="bg-zinc-100 dark:bg-zinc-900 py-2 pr-2 flex max-h-screen min-h-[calc(100dvh-56px)] overflow-hidden">
       {/* {uploadProgress > -1 && ( */}
 
       <motion.div
-        style={{ top: uploadProgress > -1 ? "56px" : "-32px" }}
+        style={{ top: uploadProgress > -1 ? "64px" : "-32px" }}
         className="w-full transition-all duration-500 bg-transparent fixed top-14 right-0 h-8 flex z-8"
       >
         <div
@@ -159,37 +146,42 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div
         className={cn(
-          "fixed z-[10] max-h-screen min-h-screen left-0 top-0 h-full bg-white dark:bg-neutral-950 flex flex-col border-r md:flex md:relative transition-all duration-500 overflow-hidden",
-          isSidebarOpen ? "w-48 md:w-64" : "w-0 md:w-[72px]",
+          "fixed z-[10] max-h-screen min-h-screen left-2 top-0 h-full flex flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
+          // "fixed z-[10] max-h-screen min-h-screen left-4 top-0 h-full bg-white dark:bg-zinc-900 flex flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
+          isSidebarOpen ? "w-48 md:w-64" : "w-[0px] md:w-[80px]",
         )}
         style={{ position: "sticky" }}
       >
-        <div className="flex h-14 min-h-14 min-w-fit overflow-hidden items-center border-b px-4"></div>
-        <div className="bg-white dark:bg-neutral-950 fixed top-0 left-0 flex h-14 min-h-14 min-w-fit overflow-hidden items-center border-b dark:border-neutral-700 px-4 z-[5] w-[250px]">
-          <AnimatePresence>
-            {isSidebarOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 100 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 font-semibold"
-                >
-                  <div className="h-fit min-w-fit">ScrollnHire</div>
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <Link
+          href="/"
+          className="w-full max-w-fit p-4 pb-2 flex cursor-pointer justify-start overflow-hidden"
+          // add the one for cso too.
+          // onClick={() =>
+          //   router.push(role === "student" ? "/student" : "/employer")
+          // }
+        >
+          <Image
+            alt="logo"
+            width="24"
+            height="24"
+            className="me-1 rounded-[5px] transition-all "
+            // style={{ color: "transparent" }}
+            src="/logo.webp"
+          />
+
+          <span
+            style={{ opacity: isSidebarOpen ? "100" : "0" }}
+            className="transition-all ml-2 duration-300"
+          >
+            ScrollnHire
+          </span>
+        </Link>
         <nav
           className="flex-1 overflow-x-hidden overflow-y-auto py-4"
           style={{ overflowY: isSidebarOpen ? "auto" : "hidden" }}
         >
           {/* MAIN FEATURES */}
-          <div className="px-4 py-2 flex flex-col gap-1">
+          <div className="px-2 py-2 pr-8 flex flex-col gap-1">
             {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
               <span
                 className="transition-all duration-500"
@@ -207,17 +199,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="space-y-1 flex flex-col gap-1">
               <Button
                 variant={pathname === "/student" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  ["/student", "/employer"].includes(pathname)
+                    ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 disabled={role === null}
                 // add the one for cso too.
                 onClick={() =>
                   router.push(role === "student" ? "/student" : "/employer")
                 }
               >
-                <Home className="text-neutral-500 mr-2" />
+                <Home className="text-zinc-500 dark:text-zinc-400 mr-2" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    !["/student", "/employer"].includes(pathname) &&
+                      "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Home
                 </span>
@@ -225,26 +226,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 variant={pathname === "/jobs" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/jobs"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/jobs")}
               >
-                <BriefcaseBusiness className="text-neutral-500 mr-2 h-4 w-4" />
+                <BriefcaseBusiness className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/jobs" && "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Job Profiles
                 </span>
               </Button>
               <Button
                 variant={pathname === "/profile" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/profile"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/profile")}
               >
-                <User2 className="text-neutral-500 mr-2 h-4 w-4" />
+                <User2 className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/profile" &&
+                      "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   My Profile
                 </span>
@@ -252,26 +270,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 variant={pathname === "/interviews" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/interviews"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/interviews")}
               >
-                <Laptop className="text-neutral-500 mr-2 h-4 w-4" />
+                <Laptop className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/interviews" &&
+                      "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Interviews
                 </span>
               </Button>
               <Button
                 variant={pathname === "/chat" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/chat"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/chat")}
               >
-                <MessageCircleMore className="text-neutral-500 mr-2 h-4 w-4" />
+                <MessageCircleMore className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/chat" && "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Chats
                 </span>
@@ -279,13 +314,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 variant={pathname === "/reels" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/reels"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/reels")}
               >
-                <SquarePlay className="text-neutral-500 mr-2 h-4 w-4" />
+                <SquarePlay className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/reels" && "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Reels
                 </span>
@@ -293,13 +336,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 variant={pathname === "/explore" ? "secondary" : "ghost"}
-                className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/explore"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/explore")}
               >
-                <Compass className="text-neutral-500 mr-2 h-4 w-4" />
+                <Compass className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/explore" &&
+                      "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Explore
                 </span>
@@ -308,13 +360,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {role === "student" && (
                 <Button
                   variant={pathname === "/create" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/create"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
                   onClick={() => router.push("/create")}
                 >
-                  <Plus className="text-neutral-500 mr-2 h-4 w-4" />
+                  <Plus className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/create" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
                   >
                     Create
                   </span>
@@ -330,296 +391,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {unreadNotifications > 99 ? "99+" : unreadNotifications}
                   </span>
                 )}
-                <Bell className="text-neutral-500 mr-2 h-4 w-4" />
+                <Bell className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                 <span
                   style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className="transition-all duration-300"
+                  className={cn(
+                    "transition-all duration-300",
+                    pathname !== "/notifications" &&
+                      "text-zinc-500 dark:text-zinc-400",
+                  )}
                 >
                   Notifications
                 </span>
               </Button>
             </div>
           </div>
-
-          {/* CONTACT SECTION */}
-          <div className="px-4 py-2 flex flex-col gap-1">
-            {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
-              <span
-                className="transition-all duration-500"
-                style={{ opacity: isSidebarOpen ? "100" : "0" }}
-              >
-                Configurations
-              </span>
-              <span
-                className="transition-all duration-500 absolute top-0 left-2"
-                style={{ opacity: !isSidebarOpen ? "100" : "0" }}
-              >
-                -----
-              </span>
-            </h2> */}
-            <div className="space-y-1 flex flex-col gap-1">
-              {/* <Button
-                  variant={pathname === "/lists" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/lists")}
-                >
-                  <List className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Lists
-                  </span>
-                </Button> */}
-
-              {/* <Button
-                      variant={
-                        pathname === "/growth-center" ? "secondary" : "ghost"
-                      }
-                      className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                      onClick={() => router.push("/growth-center")}
-                    >
-                      <TrendingUp className="text-neutral-500 mr-2 h-4 w-4" />
-                      <span
-                        style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                        className="transition-all duration-300"
-                      >
-                        Growth Center
-                      </span>
-                    </Button> */}
-            </div>
-          </div>
-
-          {/* MAIBOX SECTION */}
-          {/* <div className="px-4 py-2 flex flex-col gap-1">
-              <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
-                <span
-                  className="transition-all duration-500"
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                >
-                  Mailbox
-                </span>
-                <span
-                  className="transition-all duration-500 absolute top-0 left-2"
-                  style={{ opacity: !isSidebarOpen ? "100" : "0" }}
-                >
-                  -----
-                </span>
-              </h2>
-              <div className="space-y-1 flex flex-col gap-1">
-                <Button
-                  variant={pathname === "/mailbox" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mailbox")}
-                >
-                  <Mails className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Mailboxes
-                  </span>
-                </Button>
-
-                <Button
-                  variant={pathname === "/mail/compose" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/compose")}
-                >
-                  <PlusCircle className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Compose
-                  </span>
-                </Button>
-                <Button
-                  variant={pathname === "/mail/drafts" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/drafts")}
-                >
-                  <FileText className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Drafts
-                  </span>
-                </Button>
-                <Button
-                  variant={pathname === "/mail/sent" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/sent")}
-                >
-                  <Send className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Sent
-                  </span>
-                </Button>
-                <Button
-                  variant={pathname === "/mail/archive" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/archive")}
-                >
-                  <Archive className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Archive
-                  </span>
-                </Button>
-                <Button
-                  variant={pathname === "/mail/spam" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/spam")}
-                >
-                  <AlertTriangle className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Spam
-                  </span>
-                </Button>
-                <Button
-                  variant={pathname === "/mail/deleted" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/mail/deleted")}
-                >
-                  <Trash2 className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Deleted Items
-                  </span>
-                </Button>
-              </div>
-            </div> */}
-
-          {/* ADMINISTRATION */}
-          {/* {true && ( */}
-          {/* {isOrgAdmin && (
-                  <div className="px-4 py-2 flex flex-col gap-1">
-                    <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
-                      <span
-                        className="transition-all duration-500"
-                        style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                      >
-                        Organization
-                      </span>
-                      <span
-                        className="transition-all duration-500 absolute top-0 left-2"
-                        style={{ opacity: !isSidebarOpen ? "100" : "0" }}
-                      >
-                        -----
-                      </span>
-                    </h2>
-                    <div className="space-y-1 flex flex-col gap-1">
-                      <Button
-                        variant={pathname === "/users" ? "secondary" : "ghost"}
-                        className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                        onClick={() => router.push("/users")}
-                      >
-                        <Users className="text-neutral-500 mr-2 h-4 w-4" />
-                        <span
-                          style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                          className="transition-all duration-300"
-                        >
-                          Users
-                        </span>
-                      </Button>
-                      <Button
-                        variant={
-                          pathname === "/departments" ? "secondary" : "ghost"
-                        }
-                        className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                        onClick={() => router.push("/departments")}
-                      >
-                        <Building2 className="text-neutral-500 mr-2 h-4 w-4" />
-                        <span
-                          style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                          className="transition-all duration-300"
-                        >
-                          Departments
-                        </span>
-                      </Button>
-                    </div>
-                  </div>
-                )} */}
-
-          {/* DEVELOPER OPTIONS */}
-          {/* <div className="px-4 py-2 flex flex-col gap-1">
-              <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
-                <span
-                  className="transition-all duration-500"
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                >
-                  Developers
-                </span>
-                <span
-                  className="transition-all duration-500 absolute top-0 left-2"
-                  style={{ opacity: !isSidebarOpen ? "100" : "0" }}
-                >
-                  -----
-                </span>
-              </h2>
-              <div className="space-y-1 flex flex-col gap-1">
-                <Button
-                  variant={pathname === "/api-keys" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/api-keys")}
-                >
-                  <Code2 className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    API Keys
-                  </span>
-                </Button>
-              </div>
-            </div> */}
-
-          {/* PRICING PLAN */}
-          {/* <div className="px-4 py-2 flex flex-col gap-1">
-              <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
-                <span
-                  className="transition-all duration-500"
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                >
-                  Pricing
-                </span>
-                <span
-                  className="transition-all duration-500 absolute top-0 left-2"
-                  style={{ opacity: !isSidebarOpen ? "100" : "0" }}
-                >
-                  -----
-                </span>
-              </h2>
-              <div className="space-y-1 flex flex-col gap-1">
-                <Button
-                  variant={pathname === "/pricing" ? "secondary" : "ghost"}
-                  className="w-full pl-2 cursor-pointer justify-start overflow-hidden"
-                  onClick={() => router.push("/pricing")}
-                >
-                  <Banknote className="text-neutral-500 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                    className="transition-all duration-300"
-                  >
-                    Pricing Plans
-                  </span>
-                </Button>
-              </div>
-            </div> */}
         </nav>
-        <div className="mt-auto border-t p-4 relative">
+        <div className="mt-auto mb-2 p-4 min-h-16 relative">
           <div
             className="flex items-center gap-2"
             // onClick={() => setIsProfileOpen((val) => true)}
@@ -687,7 +474,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm shadow-zinc-300 dark:shadow-zinc-950 overflow-hidden">
+        {/* <div className="flex-1 rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm overflow-auto"> */}
         <AppLayout>{children}</AppLayout>
       </div>
     </div>

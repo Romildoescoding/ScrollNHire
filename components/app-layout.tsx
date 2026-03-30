@@ -3,9 +3,10 @@ import Navbar from "./navbar";
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="w-full h-full flex justify-center relative">
+    // fixed alignment like dudeee...
+    <div className=" ml-2 w-[calc(100%-0.5rem)] h-full flex justify-center relative rounded-t-lg">
       <Navbar />
-      <main className="max-w-[1440px] h-screen w-full pt-18 p-6">
+      <main className="max-w-[1440px] h-[calc(100vh-16px)] w-full pt-18 p-6">
         {children}
       </main>
     </div>

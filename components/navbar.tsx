@@ -9,8 +9,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Gem, LogOut, Mail, Menu, Moon, Sun, User2, X } from "lucide-react";
+import {
+  Gem,
+  LogOut,
+  Mail,
+  Menu,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sun,
+  User2,
+  X,
+} from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   //   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,31 +53,54 @@ const Navbar = () => {
   };
 
   const router = useRouter();
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
 
   return (
-    <nav className="border-b z-[9] fixed top-0 right-0 border-neutral-200 bg-white h-[56px] dark:border-neutral-700 dark:bg-neutral-950 w-full justify-end px-4 min-[1680px]:justify-center flex">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push("/login")}
-          className="rounded-full"
-        >
-          <LogOut className="size-[18px]" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="rounded-full"
-        >
-          {mounted && theme === "dark" ? (
-            <Sun className="size-[18px]" />
-          ) : (
-            <Moon className="size-[18px]" />
+    <nav
+      className={cn(
+        "border-b z-[9] transition-all bg-zinc-100 dark:bg-zinc-900 duration-500 fixed top-2 right-2  h-[56px]",
+        isSidebarOpen
+          ? "w-[calc(100vw-200px)] md:w-[calc(100vw-264px)]"
+          : "w-[100vw] md:w-[calc(100vw-88px)]",
+      )}
+    >
+      <div className="flex justify-between pr-4 dark:bg-neutral-950 transition-all duration-500 h-full w-full rounded-t-lg bg-white">
+        <button
+          onClick={() => setIsSidebarOpen((open) => !open)}
+          className={cn(
+            "z-[11] h-14 w-18 flex items-center justify-center cursor-pointer transition-all duration-500 text-neutral-600 hover:text-neutral-950 dark:text-white dark:hover:text-neutral-200",
+            isSidebarOpen ? " md:text-neutral-600" : " text-neutral-600",
           )}
-        </Button>
-        {/* <Button
+        >
+          {isSidebarOpen ? (
+            <PanelLeftClose size={20} />
+          ) : (
+            <PanelLeftOpen size={20} />
+          )}
+        </button>
+
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/login")}
+            className="rounded-full"
+          >
+            <LogOut className="size-[18px]" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="rounded-full"
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="size-[18px]" />
+            ) : (
+              <Moon className="size-[18px]" />
+            )}
+          </Button>
+          {/* <Button
           variant="ghost"
           size="icon"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -77,6 +113,7 @@ const Navbar = () => {
           )}
           <span className="sr-only">Toggle menu</span>
         </Button> */}
+        </div>
       </div>
     </nav>
   );

@@ -50,20 +50,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { EmailThread } from "@prisma/client";
+
 import { formatDate } from "@/app/lib/utils";
+import { IStudent } from "@/app/hooks/useShortlistedStudents";
 
 interface DataTableProps {
   displayFilter: boolean;
   displayActions: boolean;
   displaySelect?: boolean;
-  data: EmailThread[];
-  selectedEmails: string[];
-  setSelectedEmails: (ids: string[]) => void;
-  openViewModal: (emailThread: EmailThread) => void;
-  openDeleteModal: (emailThread: EmailThread) => void;
-  openEditModal: (emailThread: EmailThread) => void;
+
+  data: IStudent[];
+
+  selectedStudents: string[];
+  setSelectedStudents: React.Dispatch<React.SetStateAction<string[]>>;
+
+  openViewModal: (student: IStudent) => void;
+  openDeleteModal: (student: IStudent) => void;
+  openEditModal: (student: IStudent) => void;
+
   sortedViaSelected: boolean;
+
   pagination: {
     page: number;
     limit: number;
@@ -71,20 +77,21 @@ interface DataTableProps {
     onPageChange: (page: number) => void;
     onPageSizeChange: (limit: number) => void;
   };
+
   setSearch: React.Dispatch<SetStateAction<string>>;
 }
 
-function formatEmailSender(sender: string): string {
-  // Extract the part before "<"
-  const namePart = sender.split("<")[0].trim();
+// function formatStudentsender(sender: string): string {
+//   // Extract the part before "<"
+//   const namePart = sender.split("<")[0].trim();
 
-  // Truncate to max 15 chars
-  if (namePart.length > 15) {
-    return namePart.slice(0, 15) + "...";
-  }
+//   // Truncate to max 15 chars
+//   if (namePart.length > 15) {
+//     return namePart.slice(0, 15) + "...";
+//   }
 
-  return namePart;
-}
+//   return namePart;
+// }
 
 export function DataTable({
   //   lists,
@@ -96,8 +103,8 @@ export function DataTable({
   displayActions = true,
   displaySelect = true,
   data,
-  selectedEmails,
-  setSelectedEmails,
+  selectedStudents,
+  setSelectedStudents,
   openViewModal,
   openDeleteModal,
   openEditModal,
@@ -114,90 +121,113 @@ DataTableProps) {
   //   pageSize: 10,
   // });
 
-  const columns: ColumnDef<EmailThread>[] = [
+  const columns: ColumnDef<IStudent>[] = [
     {
       id: "select",
-      header: ({ table }) => (
+      header: () => (
         <Checkbox
-          checked={selectedEmails.length === data.length && data.length > 0}
+          checked={selectedStudents.length === data.length && data.length > 0}
           onCheckedChange={() => {
-            if (selectedEmails.length === data.length) {
-              setSelectedEmails([]);
+            if (selectedStudents.length === data.length) {
+              setSelectedStudents([]);
             } else {
-              setSelectedEmails(data.map((row) => row.id));
+              setSelectedStudents(data.map((row) => row.id));
             }
           }}
         />
       ),
       cell: ({ row }) => (
         <Checkbox
-          checked={selectedEmails.includes(row.original.id)}
+          checked={selectedStudents.includes(row.original.id)}
           onCheckedChange={() => {
             const id = row.original.id;
-            setSelectedEmails((prev) =>
-              prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+            setSelectedStudents((prev) =>
+              prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
             );
           }}
         />
       ),
     },
+
+    /* 👤 STUDENT */
     {
-      accessorKey: "from",
-      header: () => <div>From</div>,
-      cell: (info) => (
-        <h2 className="font-medium">{formatEmailSender(info.getValue())}</h2>
-      ),
-    },
-    // {
-    //   accessorKey: "subject",
-    //   header: () => <div>Subject</div>,
-    //   cell: (info) => info.getValue() || "-",
-    // },
-    {
-      accessorKey: "summary",
-      header: () => <div>Email</div>,
-      cell: (info) => info.getValue().slice(0, 65) + "..." || "-",
-    },
-    {
-      accessorKey: "isImportant",
-      header: () => <div>Priority</div>,
+      accessorKey: "name",
+      header: () => <div>Student</div>,
       cell: ({ row }) => (
-        <Badge variant={row.original.isImportant ? "default" : "secondary"}>
-          {row.original.isImportant ? "Important" : "Irrelevant"}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <img
+            src={row.original.image}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <div>
+            <p className="font-medium">{row.original.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {row.original.email}
+            </p>
+          </div>
+        </div>
       ),
     },
+
+    /* 🎓 EDUCATION */
     {
-      accessorKey: "receivedAt",
-      header: () => <div>Received At</div>,
+      accessorKey: "degree",
+      header: () => <div>Education</div>,
       cell: ({ row }) => (
-        <Badge variant="outline">
-          {formatDate(row.original.receivedAt) || "-"}
-        </Badge>
+        <div className="text-sm">
+          <p>{row.original.degree || "-"}</p>
+          <p className="text-muted-foreground text-xs">{row.original.branch}</p>
+        </div>
       ),
     },
+
+    /* 📊 CGPA */
     {
-      accessorKey: "actions",
-      header: () => <div>Actions</div>,
+      accessorKey: "cgpa",
+      header: () => <div>CGPA</div>,
+      cell: ({ row }) => row.original.cgpa || "-",
+    },
+
+    /* 🧠 SKILLS */
+    {
+      accessorKey: "skills",
+      header: () => <div>Skills</div>,
       cell: ({ row }) => (
-        <Button
-          variant={"outline"}
-          className="p-0 px-2 h-fit"
-          disabled={!row.original.actions.length}
-          //   variant={row.original.actions.length ? "outline" : "secondary"}
-          style={{
-            cursor: row.original.actions.length ? "pointer" : "not-allowed",
-          }}
-        >
-          Actions
-        </Button>
+        <div className="flex flex-wrap gap-1 max-w-[200px]">
+          {row.original.skills?.slice(0, 3).map((skill) => (
+            <Badge key={skill} variant="secondary">
+              {skill}
+            </Badge>
+          ))}
+          {row.original.skills?.length > 3 && (
+            <Badge variant="outline">+{row.original.skills.length - 3}</Badge>
+          )}
+        </div>
       ),
     },
+
+    /* 🎬 REELS COUNT */
+    {
+      id: "reels",
+      header: () => <div>Reels</div>,
+      cell: ({ row }) => (
+        <Badge variant="outline">{row.original.reels?.length || 0}</Badge>
+      ),
+    },
+
+    /* 📊 STATUS */
+    {
+      accessorKey: "status",
+      header: () => <div>Status</div>,
+      cell: ({ row }) => <Badge variant="default">{row.original.status}</Badge>,
+    },
+
+    /* ⚙️ OPTIONS */
     {
       id: "options",
       header: () => <div className="text-right">Options</div>,
       cell: ({ row }) => {
-        const contact = row.original;
+        const student = row.original;
 
         return (
           <DropdownMenu>
@@ -206,20 +236,23 @@ DataTableProps) {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
-              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              <DropdownMenuItem onClick={() => openEditModal(contact)}>
-                Original Email
+              <DropdownMenuItem onClick={() => openViewModal(student)}>
+                View Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openViewModal(contact)}>
-                Reply
+
+              <DropdownMenuItem onClick={() => openEditModal(student)}>
+                Start Chat
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 className="text-destructive"
-                onClick={() => openDeleteModal(contact)}
+                onClick={() => openDeleteModal(student)}
               >
-                Delete
+                Remove
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -227,7 +260,6 @@ DataTableProps) {
       },
     },
   ].filter((column) => {
-    // Remove the "actions" column if displayActions is false
     if (column.id === "options" && !displayActions) return false;
     if (column.id === "select" && !displaySelect) return false;
     return true;
@@ -242,8 +274,8 @@ DataTableProps) {
 
     if (sortedViaSelected) {
       return filtered.sort((a, b) => {
-        const aSelected = selectedEmails.includes(a.id);
-        const bSelected = selectedEmails.includes(b.id);
+        const aSelected = selectedStudents.includes(a.id);
+        const bSelected = selectedStudents.includes(b.id);
 
         if (aSelected === bSelected) return 0;
         return aSelected ? -1 : 1;
@@ -251,9 +283,10 @@ DataTableProps) {
     }
 
     return filtered;
-  }, [data, , selectedEmails, sortedViaSelected]);
+    // }, [data, selectedStudents, sortedViaSelected]);
+  }, [data, selectedStudents, sortedViaSelected]);
 
-  const table = useReactTable({
+  const table = useReactTable<IStudent>({
     data: sortedData,
     columns,
     state: {
@@ -286,7 +319,7 @@ DataTableProps) {
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
       return Object.values(row.original).some((val) =>
-        String(val).toLowerCase().includes(filterValue.toLowerCase())
+        String(val).toLowerCase().includes(filterValue.toLowerCase()),
       );
     },
     onSortingChange: setSorting,
@@ -312,7 +345,7 @@ DataTableProps) {
         <div className="flex items-center justify-between w-full p-4 ">
           <div className="flex gap-14 items-center">
             <div className="">
-              All Emails (
+              All Students (
               <span className="font-semibold">{pagination.total}</span>)
             </div>
             <div className="flex items-center gap-2">
@@ -351,7 +384,7 @@ DataTableProps) {
                   </Button>
                 )}
                 <Input
-                  placeholder="Search emails..."
+                  placeholder="Search Students..."
                   value={searchQuery}
                   onChange={(event) => {
                     // Reset the search status
@@ -366,7 +399,7 @@ DataTableProps) {
               </form>
             ) : (
               <Input
-                placeholder="Search emails..."
+                placeholder="Search Students..."
                 value={globalFilter}
                 onChange={(event) => setGlobalFilter(event.target.value)}
                 className="max-w-md"
@@ -398,7 +431,7 @@ DataTableProps) {
                     <div className="flex items-center gap-1">
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                       {header.column.getCanSort() && (
                         <>

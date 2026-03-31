@@ -6,6 +6,7 @@ import {
   CheckCheck,
   MoreVertical,
   PhoneMissed,
+  Plus,
   Search,
   Send,
   User2,
@@ -19,6 +20,8 @@ import useConversations, { IConversation } from "@/app/hooks/useConversations";
 import useMessages from "@/app/hooks/useMessages";
 import { useSession } from "next-auth/react";
 import ChatArea from "@/components/chat-area";
+import { Button } from "@/components/ui/button";
+import { ModalAddChat } from "@/components/modal-add-chat";
 
 const AiChatPage = () => {
   const [selectedConversation, setSelectedConversation] =
@@ -49,9 +52,7 @@ const AiChatPage = () => {
         {/* Header */}
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
-          <button className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800">
-            +
-          </button>
+          <ModalAddChat />
         </div>
 
         {/* Search */}

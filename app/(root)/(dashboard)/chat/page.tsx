@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Check,
   CheckCheck,
+  Loader2,
   MoreVertical,
   PhoneMissed,
   Plus,
@@ -23,11 +24,41 @@ import ChatArea from "@/components/chat-area";
 import { Button } from "@/components/ui/button";
 import { ModalAddChat } from "@/components/modal-add-chat";
 
+export function formatMessageTime(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+
+  if (isToday) {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  if (isYesterday) {
+    return "Yesterday";
+  }
+
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
+  });
+}
+
 const AiChatPage = () => {
   const [selectedConversation, setSelectedConversation] =
     useState<IConversation | null>(null);
 
-  const { conversations, loading: convoLoading } = useConversations();
+  const { conversations, refetch, loading: convoLoading } = useConversations();
 
   const { data: session } = useSession();
 
@@ -48,11 +79,13 @@ const AiChatPage = () => {
   return (
     <div className="h-full flex bg-background dark:bg-[#0f0f12] rounded-lg text-black dark:text-white">
       {/* Sidebar */}
-      <div className="w-ful; max-w-xs bg-background dark:bg-zinc-950 rounded-lg border border-border  flex flex-col">
+      <div className="w-full max-w-xs bg-background dark:bg-zinc-950 rounded-lg border border-border  flex flex-col">
         {/* Header */}
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
-          <ModalAddChat />
+          {session?.user?.role === "employer" && (
+            <ModalAddChat refetch={refetch} />
+          )}
         </div>
 
         {/* Search */}
@@ -72,65 +105,70 @@ const AiChatPage = () => {
           </div>
         </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto">
-          {filteredConvos.map((chat, i) => (
-            <div
-              key={i}
-              onClick={() => {
-                setSelectedConversation(chat);
-              }}
-              className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
-            >
-              {/* Avatar */}
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={session?.user?.image ?? undefined}
-                  alt="Avatar"
-                />
-                <AvatarFallback>{chat.sender?.name[0] || "U"}</AvatarFallback>
-              </Avatar>
-              <div className="w-10 h-10 rounded-full bg-zinc-400 flex items-center justify-center text-white">
-                {chat.sender?.image || chat.sender?.name[0] || "U"}
-              </div>
+        {convoLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="h-7 w-7 animate-spin" />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto">
+            {filteredConvos.map((chat, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  setSelectedConversation(chat);
+                }}
+                className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
+              >
+                {/* Avatar */}
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={chat.sender?.image ?? undefined}
+                    alt="Avatar"
+                  />
+                  <AvatarFallback>{chat.sender?.name[0] || "U"}</AvatarFallback>
+                </Avatar>
+                {/* <div className="w-10 h-10 rounded-full bg-zinc-400 flex items-center justify-center text-white">
+                  {chat.sender?.image || chat.sender?.name[0] || "U"}
+                </div> */}
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium truncate">
-                    {chat.sender?.name}
-                  </span>
-                  <span className="text-xs text-zinc-500">
-                    {new Date(
-                      chat.lastMessage?.createdAt ?? new Date(),
-                    ).toLocaleTimeString()}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  {chat.lastMessage?.senderId !== session?.user?.id && (
-                    <span className="mr-1 flex">
-                      {chat.lastMessage?.isRead ? (
-                        <CheckCheck className="text-cyan-500" size={16} />
-                      ) : (
-                        <Check className="text-foreground/40" size={16} />
-                      )}
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium truncate">
+                      {chat.sender?.name}
                     </span>
-                  )}
-                  <p className=" mr-2 flex-1 text-sm text-zinc-500 truncate">
-                    {chat.lastMessage?.message ||
-                      "Click to start conversation."}
-                  </p>
-                  {/* Unread */}
-                  {chat.unreadMessagesCount > 0 && (
-                    <div className="min-w-5 h-5 text-xs flex items-center justify-center bg-cyan-500 text-white rounded-full">
-                      {chat.unreadMessagesCount}
-                    </div>
-                  )}
+                    <span className="text-xs text-zinc-500">
+                      {chat.lastMessage?.createdAt &&
+                        formatMessageTime(chat.lastMessage.createdAt)}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    {chat.lastMessage?.senderId !== session?.user?.id &&
+                      typeof chat.lastMessage?.isRead === "boolean" && (
+                        <span className="mr-1 flex">
+                          {chat.lastMessage?.isRead ? (
+                            <CheckCheck className="text-cyan-500" size={16} />
+                          ) : (
+                            <Check className="text-foreground/40" size={16} />
+                          )}
+                        </span>
+                      )}
+                    <p className=" mr-2 flex-1 text-sm text-zinc-500 truncate">
+                      {chat.lastMessage?.message ||
+                        "Click to start conversation."}
+                    </p>
+                    {/* Unread */}
+                    {chat.unreadMessagesCount > 0 && (
+                      <div className="min-w-5 h-5 text-xs flex items-center justify-center bg-cyan-500 text-white rounded-full">
+                        {chat.unreadMessagesCount}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Chat Area */}

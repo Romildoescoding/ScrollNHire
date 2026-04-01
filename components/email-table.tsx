@@ -52,12 +52,21 @@ import {
 } from "@/components/ui/select";
 
 import { formatDate } from "@/app/lib/utils";
-import { IStudent } from "@/app/hooks/useShortlistedStudents";
+import { IStudent, Reel } from "@/app/hooks/useShortlistedStudents";
+import axios from "axios";
 
 interface DataTableProps {
   displayFilter: boolean;
   displayActions: boolean;
+  displayFooter?: boolean;
   displaySelect?: boolean;
+  handleStartChat?: ({
+    studentId,
+    hiringProcessId,
+  }: {
+    studentId: string;
+    hiringProcessId: string;
+  }) => void;
 
   data: IStudent[];
 
@@ -67,6 +76,7 @@ interface DataTableProps {
   openViewModal: (student: IStudent) => void;
   openDeleteModal: (student: IStudent) => void;
   openEditModal: (student: IStudent) => void;
+  // onRowClick: (arg0: unknown) => void;
 
   sortedViaSelected: boolean;
 
@@ -96,9 +106,9 @@ interface DataTableProps {
 export function DataTable({
   //   lists,
   //   domains,
+  handleStartChat = () => {},
   setSearch,
-  //   selectedList,
-  //   setSelectedList,
+  displayFooter = true,
   displayFilter = true,
   displayActions = true,
   displaySelect = true,
@@ -108,6 +118,7 @@ export function DataTable({
   openViewModal,
   openDeleteModal,
   openEditModal,
+  // onRowClick = () => {},
   sortedViaSelected = false,
   pagination,
 }: // listForSorting,
@@ -152,7 +163,7 @@ DataTableProps) {
     /* 👤 STUDENT */
     {
       accessorKey: "name",
-      header: () => <div>Student</div>,
+      header: () => <div>Name</div>,
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <img
@@ -161,9 +172,9 @@ DataTableProps) {
           />
           <div>
             <p className="font-medium">{row.original.name}</p>
-            <p className="text-xs text-muted-foreground">
+            {/* <p className="text-xs text-muted-foreground">
               {row.original.email}
-            </p>
+            </p> */}
           </div>
         </div>
       ),
@@ -172,12 +183,33 @@ DataTableProps) {
     /* 🎓 EDUCATION */
     {
       accessorKey: "degree",
-      header: () => <div>Education</div>,
+      header: () => <div>Degree</div>,
       cell: ({ row }) => (
         <div className="text-sm">
-          <p>{row.original.degree || "-"}</p>
-          <p className="text-muted-foreground text-xs">{row.original.branch}</p>
+          <p>
+            {row.original.degree || "-"} {row.original.branch || ""}
+          </p>
+          {/* <p className="text-muted-foreground text-xs">{row.original.branch}</p> */}
         </div>
+      ),
+    },
+
+    {
+      accessorKey: "gender",
+      header: () => <div>Gender</div>,
+      cell: ({ row }) => (
+        <Badge
+          className="capitalize"
+          variant={
+            row.original.gender === "male"
+              ? "default"
+              : row.original.gender === "female"
+                ? "secondary"
+                : "outline"
+          }
+        >
+          {row.original.gender}
+        </Badge>
       ),
     },
 
@@ -185,7 +217,9 @@ DataTableProps) {
     {
       accessorKey: "cgpa",
       header: () => <div>CGPA</div>,
-      cell: ({ row }) => row.original.cgpa || "-",
+      cell: ({ row }) => (
+        <Badge variant="outline">{row.original.cgpa || "-"}</Badge>
+      ),
     },
 
     /* 🧠 SKILLS */
@@ -194,13 +228,20 @@ DataTableProps) {
       header: () => <div>Skills</div>,
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {row.original.skills?.slice(0, 3).map((skill) => (
-            <Badge key={skill} variant="secondary">
+          {row.original.skills?.slice(0, 2).map((skill) => (
+            <Badge
+              key={skill}
+              variant="secondary"
+              className="max-w-[80px] truncate justify-start min-w-0"
+            >
               {skill}
             </Badge>
           ))}
-          {row.original.skills?.length > 3 && (
+          {row.original.skills?.length > 2 && (
             <Badge variant="outline">+{row.original.skills.length - 3}</Badge>
+          )}
+          {row.original.skills?.length === 0 && (
+            <Badge variant="outline">-</Badge>
           )}
         </div>
       ),
@@ -211,15 +252,38 @@ DataTableProps) {
       id: "reels",
       header: () => <div>Reels</div>,
       cell: ({ row }) => (
-        <Badge variant="outline">{row.original.reels?.length || 0}</Badge>
+        <div className="flex flex-wrap gap-1 max-w-[200px]">
+          {row.original.reels?.slice(0, 1).map((reel: Reel, i) => (
+            <div
+              key={reel._id || i}
+              className="relative h-12 aspect-[2/3] mr-3"
+            >
+              {/* BACK LAYER (+X) */}
+              {row.original.reels.length > 1 && (
+                <div className="absolute top-0 left-5 w-full h-full rounded-md border bg-transparent flex items-center justify-end pr-[6px] z-0">
+                  +{row.original.reels.length - 1}
+                </div>
+              )}
+
+              {/* FRONT THUMBNAIL */}
+              <div
+                key={reel._id || i}
+                className="relative z-10 h-full w-full rounded-md bg-slate-200 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url("${reel?.thumbnailUrl}")`,
+                }}
+              />
+            </div>
+          ))}
+        </div>
       ),
     },
 
     /* 📊 STATUS */
     {
-      accessorKey: "status",
-      header: () => <div>Status</div>,
-      cell: ({ row }) => <Badge variant="default">{row.original.status}</Badge>,
+      accessorKey: "role",
+      header: () => <div>Role</div>,
+      cell: ({ row }) => <Badge variant="default">{row.original.role}</Badge>,
     },
 
     /* ⚙️ OPTIONS */
@@ -342,13 +406,13 @@ DataTableProps) {
   return (
     <div>
       {displayFilter && (
-        <div className="flex items-center justify-between w-full p-4 ">
+        <div className="flex items-center justify-between w-full p-4 px-0 ">
           <div className="flex gap-14 items-center">
             <div className="">
-              All Students (
+              Total Students (
               <span className="font-semibold">{pagination.total}</span>)
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span className="text-sm">Rows per page:</span>
               {[10, 25, 50].map((size) => (
                 <Button
@@ -365,7 +429,7 @@ DataTableProps) {
                   {size}
                 </Button>
               ))}
-            </div>{" "}
+            </div>{" "} */}
           </div>
           <div className="flex gap-2">
             {setSearch ? (
@@ -454,9 +518,18 @@ DataTableProps) {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className="cursor-pointer"
+                onClick={() =>
+                  handleStartChat({
+                    studentId: row.original.id,
+                    hiringProcessId: row.original.hiringProcessId,
+                  })
+                }
+              >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell className="pr-4" key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -465,32 +538,35 @@ DataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2 py-4">
-        <div className="text-sm text-muted-foreground">
-          Page {pagination.page} of{" "}
-          {Math.max(1, Math.ceil(pagination.total / pagination.limit))}
+      {displayFooter && (
+        <div className="flex items-center justify-between px-2 py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {pagination.page} of{" "}
+            {Math.max(1, Math.ceil(pagination.total / pagination.limit))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.page + 1)}
+              disabled={
+                pagination.page >=
+                Math.ceil(pagination.total / pagination.limit)
+              }
+            >
+              Next
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => pagination.onPageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => pagination.onPageChange(pagination.page + 1)}
-            disabled={
-              pagination.page >= Math.ceil(pagination.total / pagination.limit)
-            }
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

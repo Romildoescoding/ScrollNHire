@@ -30,7 +30,7 @@ export function SignupForm({
     if (err) {
       if (err === "OAuthAccountNotLinked") {
         setErrorMessage(
-          "Account exists with different login provider. Use the correct provider."
+          "Account exists with different login provider. Use the correct provider.",
         );
       } else if (err === "CredentialsSignin") {
         setErrorMessage("Invalid email or password.");
@@ -83,7 +83,7 @@ export function SignupForm({
       }
 
       setLoadingEmail(false);
-      router.push("/dashboard");
+      router.push("/callback");
     } catch (err: any) {
       setLoadingEmail(false);
 

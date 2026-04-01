@@ -91,6 +91,7 @@ export async function GET(req: NextRequest) {
           _id: 0,
 
           id: "$student._id",
+          hiringProcessId: "$_id",
           name: "$student.name",
           email: "$student.email",
           image: "$student.image",

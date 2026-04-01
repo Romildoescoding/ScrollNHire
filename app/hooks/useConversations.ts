@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface IUser {
   _id: string;
@@ -24,32 +24,37 @@ export default function useConversations() {
   const [conversations, setConversations] = useState<IConversation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchConversations() {
-      try {
-        setLoading(true);
+  const fetchConversations = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/conversations`,
-          { credentials: "include" },
-        );
+      const res = await fetch(`/api/conversations`, {
+        credentials: "include",
+      });
 
-        const data: {
-          success: boolean;
-          data: IConversation[];
-        } = await res.json();
+      const data: {
+        success: boolean;
+        data: IConversation[];
+      } = await res.json();
 
-        setConversations(data.data || []);
-      } catch (err) {
-        console.error(err);
-        setConversations([]);
-      } finally {
-        setLoading(false);
-      }
+      setConversations(data.data || []);
+    } catch (err) {
+      console.error(err);
+      setConversations([]);
+    } finally {
+      setLoading(false);
     }
-
-    fetchConversations();
   }, []);
 
-  return { conversations, setConversations, loading };
+  // initial fetch
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  return {
+    conversations,
+    refetch: fetchConversations,
+    setConversations,
+    loading,
+  };
 }

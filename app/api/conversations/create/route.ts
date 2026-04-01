@@ -1,6 +1,7 @@
 // POST /api/conversations
 
 import { Conversation } from "@/app/models/ConversationModel";
+import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { auth } from "@/auth";
 
 export async function POST(req: Request) {
@@ -10,7 +11,7 @@ export async function POST(req: Request) {
     const session = await auth();
     const userId = session?.user?.id;
 
-    if (!userId) {
+    if (!userId || session?.user?.role !== "employer") {
       return Response.json(
         { success: false, error: "Unauthorized" },
         { status: 401 },
@@ -19,10 +20,10 @@ export async function POST(req: Request) {
 
     // 🔥 UPSERT again (same logic, no duplicates)
     const convo = await Conversation.findOneAndUpdate(
-      { employerId, studentId },
+      { employerId: userId, studentId },
       {
         $setOnInsert: {
-          employerId,
+          employerId: userId,
           studentId,
           hiringProcessId,
         },
@@ -31,6 +32,15 @@ export async function POST(req: Request) {
         new: true,
         upsert: true,
       },
+    );
+
+    await HiringProcessModel.findOneAndUpdate(
+      {
+        _id: hiringProcessId,
+        employerId: userId,
+        status: { $ne: "chatting" },
+      },
+      { status: "chatting" },
     );
 
     return Response.json({

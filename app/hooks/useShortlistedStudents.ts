@@ -19,6 +19,7 @@ export type Reel = {
 
 export interface IStudent {
   id: string;
+  hiringProcessId: string;
   name: string;
   email: string;
   image: string;

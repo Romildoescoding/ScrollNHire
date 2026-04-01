@@ -8,6 +8,7 @@ export interface IHiringProcess extends Document {
 
   status:
     | "shortlisted"
+    | "chatting"
     | "interview_scheduled"
     | "interview_completed"
     | "offer_sent"
@@ -46,6 +47,7 @@ const hiringSchema = new Schema<IHiringProcess>(
       type: String,
       enum: [
         "shortlisted",
+        "chatting",
         "interview_scheduled",
         "interview_completed",
         "offer_sent",

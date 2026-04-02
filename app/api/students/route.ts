@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
+    const status = searchParams.get("status"); // "shortlisted", "chatting", etc.
 
     const skip = (page - 1) * limit;
 
@@ -30,7 +31,8 @@ export async function GET(req: NextRequest) {
       {
         $match: {
           employerId: new mongoose.Types.ObjectId(employerId),
-          status: { $ne: "rejected" },
+          // status: { $ne: "rejected" },
+          status,
         },
       },
 
@@ -142,7 +144,7 @@ export async function GET(req: NextRequest) {
     /* 📊 COUNT (separate lightweight query) */
     const total = await HiringProcess.countDocuments({
       employerId,
-      status: { $ne: "rejected" },
+      status,
     });
 
     return NextResponse.json({

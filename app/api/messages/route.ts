@@ -1,35 +1,54 @@
-// POST /api/messages
-
+import dbConnect from "@/app/_lib/dbConnect";
 import { Conversation } from "@/app/models/ConversationModel";
 import { Message } from "@/app/models/Message";
 import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { conversationId, employerId, studentId, text, hiringProcessId } =
+    await dbConnect();
+
+    let { conversationId, employerId, studentId, text, hiringProcessId } =
       await req.json();
 
     const session = await auth();
     const userId = session?.user?.id;
 
     if (!userId) {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 },
       );
     }
 
-    let convo;
-
-    // ✅ If conversationId is provided → trust it
-    if (conversationId) {
-      convo = await Conversation.findById(conversationId);
+    if (!text?.trim()) {
+      return NextResponse.json(
+        { success: false, error: "Message cannot be empty" },
+        { status: 400 },
+      );
     }
 
-    // ✅ Otherwise → UPSERT conversation (atomic 💥)
+    let convo;
+
+    // ✅ Existing conversation
+    if (conversationId) {
+      convo = await Conversation.findById(conversationId);
+
+      if (!convo) {
+        return NextResponse.json(
+          { success: false, error: "Conversation not found" },
+          { status: 404 },
+        );
+      }
+
+      employerId = convo.employerId;
+      studentId = convo.studentId;
+    }
+
+    // ✅ Create if not exists
     if (!convo) {
       convo = await Conversation.findOneAndUpdate(
-        { employerId, studentId }, // unique key
+        { employerId, studentId },
         {
           $setOnInsert: {
             employerId,
@@ -37,18 +56,28 @@ export async function POST(req: Request) {
             hiringProcessId,
           },
         },
-        {
-          new: true,
-          upsert: true,
-        },
+        { new: true, upsert: true },
       );
     }
 
-    // ✅ Decide sender & receiver cleanly
-    const senderId = userId;
-    const receiverId = userId === employerId ? studentId : employerId;
+    // 🔒 Authorization check
+    if (
+      ![convo.employerId.toString(), convo.studentId.toString()].includes(
+        userId,
+      )
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized access" },
+        { status: 403 },
+      );
+    }
 
-    // ✅ Create message
+    const senderId = userId;
+    const receiverId =
+      userId === convo.employerId.toString()
+        ? convo.studentId
+        : convo.employerId;
+
     const message = await Message.create({
       conversationId: convo._id,
       senderId,
@@ -56,18 +85,20 @@ export async function POST(req: Request) {
       text,
     });
 
-    // ✅ Update conversation metadata
     await Conversation.findByIdAndUpdate(convo._id, {
       lastMessage: text,
       lastMessageAt: new Date(),
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       data: message,
       conversationId: convo._id,
     });
   } catch (err: any) {
-    return Response.json({ success: false, error: err.message });
+    return NextResponse.json({
+      success: false,
+      error: err.message,
+    });
   }
 }

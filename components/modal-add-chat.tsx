@@ -15,8 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { DataTable } from "./email-table";
 import { FormEvent, useState } from "react";
-import useShortlistedStudents from "@/app/hooks/useShortlistedStudents";
 import axios from "axios";
+import useStudents from "@/app/hooks/useStudents";
 
 export function ModalAddChat({
   refetch: refetchConversations,
@@ -30,7 +30,7 @@ export function ModalAddChat({
     page,
     limit,
     total,
-  } = useShortlistedStudents();
+  } = useStudents("shortlisted");
 
   async function handleStartChat({
     studentId,

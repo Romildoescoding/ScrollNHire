@@ -52,7 +52,7 @@ import {
 } from "@/components/ui/select";
 
 import { formatDate } from "@/app/lib/utils";
-import { IStudent, Reel } from "@/app/hooks/useShortlistedStudents";
+import { IStudent, Reel } from "@/app/hooks/useStudents";
 import axios from "axios";
 
 interface DataTableProps {

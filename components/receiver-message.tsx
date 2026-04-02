@@ -1,6 +1,13 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { Check, Copy, MoreHorizontal, MoreVertical, Reply } from "lucide-react";
+import {
+  Check,
+  CheckCheck,
+  Copy,
+  MoreHorizontal,
+  MoreVertical,
+  Reply,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -10,8 +17,9 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { formatDate } from "@/app/lib/utils";
 
-const UserMessage = ({ user, text }) => {
+const UserMessage = ({ user, text, createdAt, isRead }) => {
   // console.log(user);
   const [copied, setIsCopied] = useState(false);
   useEffect(() => {
@@ -20,7 +28,15 @@ const UserMessage = ({ user, text }) => {
     }
   }, [copied]);
   return (
-    <div className="h-fit items-center justify-end w-full flex gap-2">
+    <div className="h-fit items-center justify-end w-full flex gap-2 relative mb-10">
+      <span className="absolute -bottom-6 right-0 flex gap-2 items-center text-xs text-accent-foreground">
+        <span>{formatDate(createdAt)}</span>{" "}
+        {isRead ? (
+          <CheckCheck className="text-cyan-500" size={16} />
+        ) : (
+          <Check className="text-foreground/40" size={16} />
+        )}
+      </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -60,7 +76,7 @@ const UserMessage = ({ user, text }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <span className="h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] user-message text-sm min-[600px]:text-base bg-cyan-600 border-cyan-600 text-white">
+      <span className="h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] user-message text-sm min-[600px]:text-base bg-zinc-800 border-none text-white">
         {text}
       </span>
     </div>

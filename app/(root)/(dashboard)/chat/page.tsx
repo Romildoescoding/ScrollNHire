@@ -77,7 +77,7 @@ const AiChatPage = () => {
   }, [conversations, searchQuery]);
 
   return (
-    <div className="h-full flex bg-background dark:bg-[#0f0f12] rounded-lg text-black dark:text-white">
+    <div className="h-full flex bg-background dark:bg-[#0f0f12] pl-2 pb-4 rounded-lg text-black dark:text-white">
       {/* Sidebar */}
       <div className="w-full max-w-xs bg-background dark:bg-zinc-950 rounded-lg border border-border  flex flex-col">
         {/* Header */}
@@ -143,7 +143,7 @@ const AiChatPage = () => {
                     </span>
                   </div>
                   <div className="flex items-center">
-                    {chat.lastMessage?.senderId !== session?.user?.id &&
+                    {chat.lastMessage?.senderId === session?.user?.id &&
                       typeof chat.lastMessage?.isRead === "boolean" && (
                         <span className="mr-1 flex">
                           {chat.lastMessage?.isRead ? (

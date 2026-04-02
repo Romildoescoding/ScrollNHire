@@ -49,7 +49,16 @@ export interface IStudent {
   createdAt: string;
 }
 
-const useShortlistedStudents = () => {
+export type Status =
+  | "shortlisted"
+  | "chatting"
+  | "interview_scheduled"
+  | "interview_completed"
+  | "offer_sent"
+  | "rejected"
+  | "hired";
+
+const useStudents = (status: Status) => {
   const [students, setStudents] = useState<IStudent[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -63,7 +72,7 @@ const useShortlistedStudents = () => {
       //   const userId = session?.user?.id;
       try {
         const res = await axios.get(
-          `/api/students?page=${page}&limit=${limit}&search=${search}`,
+          `/api/students?page=${page}&limit=${limit}&search=${search}&status=${status}`,
         );
         setStudents(res.data.students);
         setTotal(res.data.total);
@@ -91,4 +100,4 @@ const useShortlistedStudents = () => {
   };
 };
 
-export default useShortlistedStudents;
+export default useStudents;

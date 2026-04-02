@@ -6,7 +6,7 @@ import {
   User2,
   Video,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import UserMessage from "./receiver-message";
 import SenderMessage from "./sender-message";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -14,6 +14,8 @@ import { useSession } from "next-auth/react";
 import { IConversation } from "@/app/hooks/useConversations";
 import useMessages from "@/app/hooks/useMessages";
 import Image from "next/image";
+import ChatInputForm from "./chat-input-form";
+import useSendMessage from "@/app/hooks/useSendMessage";
 
 const ChatArea = ({
   selectedConversation,
@@ -27,6 +29,63 @@ const ChatArea = ({
     setMessages,
     loading: messagesLoading,
   } = useMessages(selectedConversation?._id || null);
+
+  const { sendMessage } = useSendMessage();
+
+  async function handleSendMessage(message: string) {
+    if (!selectedConversation) return;
+    const msg = await sendMessage({
+      conversationId: selectedConversation._id,
+      receiverId: selectedConversation.sender._id,
+      text: message,
+    });
+
+    setMessages((prev) => [...prev, msg]);
+    // scrollToBottomWhenMessageSent();
+  }
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  };
+
+  const scrollToBottomSmooth = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [selectedConversation]);
+  useEffect(() => {
+    scrollToBottomSmooth();
+  }, [messages]);
+
+  // const hasMounted = useRef(false);
+  // const hasScrolledAfterLoad = useRef(false);
+
+  // useEffect(() => {
+  //   // 1️⃣ Run once on mount
+  //   if (!hasMounted.current) {
+  //     scrollToBottom();
+  //     hasMounted.current = true;
+  //     return;
+  //   }
+
+  //   // 2️⃣ Run once when messages FIRST load
+  //   if (!hasScrolledAfterLoad.current && messages.length > 0) {
+  //     scrollToBottom();
+  //     hasScrolledAfterLoad.current = true;
+  //   }
+  // }, [messages]);
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <>
@@ -107,34 +166,35 @@ const ChatArea = ({
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div
+            ref={containerRef}
+            className="flex-1 overflow-y-auto p-6 space-y-4"
+          >
             {/* Incoming */}
             {messages.map((msg) =>
               msg.senderId !== session?.user?.id ? (
                 <SenderMessage
                   key={msg._id}
                   text={msg.text}
+                  createdAt={msg.createdAt}
                   user={{}}
                   setReply={() => {}}
                 />
               ) : (
-                <UserMessage key={msg._id} text={msg.text} user={{}} />
+                <UserMessage
+                  key={msg._id}
+                  createdAt={msg.createdAt}
+                  isRead={msg.seen}
+                  text={msg.text}
+                  user={{}}
+                />
               ),
             )}
+            <div ref={bottomRef} className="h-1 w-full" />
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-zinc-700 flex gap-3">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 outline-none"
-            />
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2 hover:bg-blue-600">
-              <Send size={16} />
-              Send
-            </button>
-          </div>
+          <ChatInputForm sendMessage={handleSendMessage} />
         </div>
       )}
     </>

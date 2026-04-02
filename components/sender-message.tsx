@@ -9,9 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useEffect, useState } from "react";
+import { formatDate } from "@/app/lib/utils";
 
 // SET REPLY would set the id of the message to be replied to. ADDING LATER ON.
-const SenderMessage = ({ user, text, setReply }) => {
+const SenderMessage = ({ user, text, setReply, createdAt }) => {
   const [copied, setIsCopied] = useState(false);
   useEffect(() => {
     if (copied) {
@@ -19,7 +20,10 @@ const SenderMessage = ({ user, text, setReply }) => {
     }
   }, [copied]);
   return (
-    <div className="h-fit items-center w-full flex gap-2">
+    <div className="h-fit items-center w-full flex gap-2 relative mb-10">
+      <span className="absolute -bottom-6 left-0 flex gap-2 items-center text-xs text-accent-foreground">
+        {formatDate(createdAt)}
+      </span>
       <span className="h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] sender-message text-sm min-[600px]:text-base">
         <span>{text}</span>
       </span>

@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 
+export interface IMessage {
+  _id: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  text?: string;
+  seen: boolean;
+  createdAt: string;
+}
+
 export default function useMessages(conversationId: string | null) {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -13,10 +23,9 @@ export default function useMessages(conversationId: string | null) {
 
         if (!conversationId) return;
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/messages/${conversationId}`,
-          { credentials: "include" },
-        );
+        const res = await fetch(`/api/messages/${conversationId}`, {
+          credentials: "include",
+        });
 
         const data = await res.json();
         setMessages(data.data || []);

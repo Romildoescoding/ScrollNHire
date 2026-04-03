@@ -1,8 +1,16 @@
-import { ArrowDown, File, FileText, Send, X } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { ArrowDown, CalendarPlus, File, FileText, Send, X } from "lucide-react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 // import { deleteFileFromSupabase } from "../(root)/notes/upload/uploadFile";
 // import { useSidebar } from "../context/SidebarContext";
 import { motion } from "motion/react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Button } from "./ui/button";
 
 const ChatInputForm = ({
   // scrollToBottom,
@@ -11,6 +19,7 @@ const ChatInputForm = ({
   // setChats,
   // setIsGeminiLoading,
   sendMessage,
+  setOpenInterviewModal,
   // conversationId,
   // setShowModal,
   // selectedPDfFile,
@@ -18,6 +27,7 @@ const ChatInputForm = ({
   // sendPDfMessageAI,
 }: {
   sendMessage: (message: string) => void;
+  setOpenInterviewModal: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [message, setMessage] = useState("");
   //   const { collapsed } = useSidebar();
@@ -188,12 +198,32 @@ const ChatInputForm = ({
           e.target.style.height = `${e.target.scrollHeight}px`;
         }}
       />
-      <button
-        className="min-w-fit h-9 w-9 rounded-full bg-foreground text-background flex items-center justify-center"
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="min-w-fit h-9 w-9 p-0 rounded-full bg-foreground text-background flex items-center justify-center"
+            onClick={(e) => {
+              e.preventDefault();
+              setOpenInterviewModal(true);
+            }}
+            style={{ padding: 0 }}
+          >
+            <CalendarPlus size={15} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Schedule Interview</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <Button
+        className="min-w-fit h-9 w-9 p-0 rounded-full bg-foreground text-background flex items-center justify-center"
         type="submit"
+        style={{ padding: 0 }}
       >
         <Send size={15} />
-      </button>
+      </Button>
 
       <div className="relative"></div>
 

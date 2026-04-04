@@ -2,15 +2,16 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IMessage extends Document {
   conversationId: Types.ObjectId;
-
   senderId: Types.ObjectId;
   receiverId: Types.ObjectId;
-
   text?: string;
-
+  type: "message" | "interview";
   seen: boolean;
-
   createdAt: Date;
+  interviewMeta?: {
+    date: Date;
+    link: string;
+  };
 }
 
 const messageSchema = new Schema<IMessage>(
@@ -38,6 +39,25 @@ const messageSchema = new Schema<IMessage>(
       type: String,
     },
 
+    type: {
+      type: String,
+      enum: ["message", "interview"],
+      default: "message",
+    },
+    interviewMeta: {
+      date: {
+        type: Date,
+        required: function () {
+          return this.type === "interview";
+        },
+      },
+      link: {
+        type: String,
+        required: function () {
+          return this.type === "interview";
+        },
+      },
+    },
     seen: {
       type: Boolean,
       default: false,

@@ -35,6 +35,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
+import axios from "axios";
 
 type Platform = "google_meet" | "zoom" | "calendly" | "teams" | "unknown";
 
@@ -118,7 +119,7 @@ const ChatArea = ({
   // }, [messages]);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const [openPopover, setOpenPopover] = useState(false);
 
   const [interviewLink, setInterviewLink] = useState("");
@@ -138,8 +139,26 @@ const ChatArea = ({
   };
 
   const handleScheduleInterview = async () => {
+    if (!selectedConversation || !interviewLink) return;
     const interviewTime = getFinalDateTime();
     if (!interviewTime) return;
+    try {
+      const res = await axios.post("/api/interview", {
+        interviewTime,
+        interviewLink,
+        conversationId: selectedConversation._id,
+        receiverId: selectedConversation.sender._id,
+      });
+
+      const message = res.data?.data;
+      setMessages((prev) => [...prev, message]);
+      setOpen(false);
+
+      // example:
+      // router.push(`/chat/${convo._id}`);
+    } catch (err) {
+      console.error("Error scheduling interview:", err);
+    }
 
     // await updateInterview({
     //   interviewTime,
@@ -149,11 +168,10 @@ const ChatArea = ({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen} defaultOpen={true}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleScheduleInterview();
           }}
         >
           {/* <DialogTrigger asChild>
@@ -358,10 +376,9 @@ const ChatArea = ({
                       selected={date}
                       captionLayout="dropdown"
                       defaultMonth={date}
-                      setOpenPopover
                       onSelect={(date) => {
                         setDate(date);
-                        setOpen(false);
+                        setOpenPopover(false);
                       }}
                     />
                   </PopoverContent>
@@ -383,7 +400,9 @@ const ChatArea = ({
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">Schedule</Button>
+              <Button onClick={handleScheduleInterview} type="submit">
+                Schedule
+              </Button>
             </DialogFooter>
           </DialogContent>
         </form>
@@ -477,18 +496,21 @@ const ChatArea = ({
               msg.senderId !== session?.user?.id ? (
                 <SenderMessage
                   key={msg._id}
-                  text={msg.text}
-                  createdAt={msg.createdAt}
-                  user={{}}
-                  setReply={() => {}}
+                  msg={msg}
+                  // text={msg.text}
+                  // createdAt={msg.createdAt}
+                  // user={{}}
+                  // setReply={() => {}}
                 />
               ) : (
                 <UserMessage
                   key={msg._id}
-                  createdAt={msg.createdAt}
-                  isRead={msg.seen}
-                  text={msg.text}
-                  user={{}}
+                  msg={msg}
+                  role={session.user?.role || ""}
+                  // createdAt={msg.createdAt}
+                  // isRead={msg.seen}
+                  // text={msg.text}
+                  // user={{}}
                 />
               ),
             )}

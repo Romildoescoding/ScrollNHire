@@ -179,8 +179,8 @@ const ChatInputForm = ({
 
       <textarea
         ref={inputRef}
-        // placeholder="Enter Message.."
-        className=" flex-1 w-full h-auto max-h-[150px] bg-zinc-200 dark:bg-zinc-800 outline-none resize-none overflow-y-auto text-foreground rounded-lg p-2 scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent"
+        placeholder="Enter Message.."
+        className=" flex-1 w-full h-auto max-h-[150px] bg-zinc-200 dark:bg-zinc-800 outline-none resize-none overflow-y-auto text-foreground rounded-lg pl-3 p-2 scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent"
         rows={1}
         value={message}
         onKeyDown={(e) => {

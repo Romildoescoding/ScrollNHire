@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -23,6 +23,8 @@ import { useSession } from "next-auth/react";
 import ChatArea from "@/components/chat-area";
 import { Button } from "@/components/ui/button";
 import { ModalAddChat } from "@/components/modal-add-chat";
+import { socket } from "@/app/_lib/socket";
+import axios from "axios";
 
 export function formatMessageTime(dateString) {
   if (!dateString) return "";
@@ -58,7 +60,12 @@ const AiChatPage = () => {
   const [selectedConversation, setSelectedConversation] =
     useState<IConversation | null>(null);
 
-  const { conversations, refetch, loading: convoLoading } = useConversations();
+  const {
+    conversations,
+    setConversations,
+    refetch,
+    loading: convoLoading,
+  } = useConversations();
 
   const { data: session } = useSession();
 
@@ -76,6 +83,69 @@ const AiChatPage = () => {
     );
   }, [conversations, searchQuery]);
 
+  useEffect(() => {
+    socket.on("conversation_updated", async ({ conversationId, message }) => {
+      let found = false;
+
+      setConversations((prev) => {
+        const index = prev.findIndex((c) => c._id === conversationId);
+
+        if (index !== -1) {
+          found = true;
+
+          const updated = [...prev];
+          const convo = updated[index];
+
+          const updatedConvo = {
+            ...convo,
+            lastMessage: {
+              message: message.text,
+              createdAt: message.createdAt,
+              senderId: message.senderId,
+              isRead: false,
+            },
+          };
+
+          updated.splice(index, 1);
+          return [updatedConvo, ...updated];
+        }
+
+        return prev;
+      });
+
+      if (!found) {
+        try {
+          const res = await axios.get(`/api/conversations/${conversationId}`);
+          const newConvo = res.data?.data;
+
+          setConversations((prev) => {
+            if (prev.some((c) => c._id === newConvo._id)) return prev;
+            return [newConvo, ...prev];
+          });
+        } catch (err) {
+          console.error("Error fetching new conversation:", err);
+        }
+      }
+
+      return () => {
+        socket.off("conversation_updated");
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("conversation_created", async ({ conversationId }) => {
+      const res = await axios.get(`/api/conversations/${conversationId}`);
+      const convo = res.data.data;
+
+      setConversations((prev) => {
+        if (prev.some((c) => c._id === convo._id)) return prev;
+        return [convo, ...prev];
+      });
+    });
+    return () => socket.off("conversation_created");
+  }, []);
+
   return (
     <div className="h-full flex bg-background dark:bg-[#0f0f12] pl-2 pb-4 rounded-lg text-black dark:text-white">
       {/* Sidebar */}
@@ -84,7 +154,10 @@ const AiChatPage = () => {
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
           {session?.user?.role === "employer" && (
-            <ModalAddChat refetch={refetch} />
+            <ModalAddChat
+              refetch={refetch}
+              setConversations={setConversations}
+            />
           )}
         </div>
 
@@ -172,7 +245,10 @@ const AiChatPage = () => {
       </div>
 
       {/* Chat Area */}
-      <ChatArea selectedConversation={selectedConversation} />
+      <ChatArea
+        selectedConversation={selectedConversation}
+        setConversations={setConversations}
+      />
     </div>
   );
 };

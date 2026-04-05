@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "socket": "ts-node-dev --respawn socket-server.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0"
+  }
+}

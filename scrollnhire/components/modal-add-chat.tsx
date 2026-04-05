@@ -17,11 +17,15 @@ import { DataTable } from "./email-table";
 import { FormEvent, useState } from "react";
 import axios from "axios";
 import useStudents from "@/app/hooks/useStudents";
+import { IConversation } from "@/app/hooks/useConversations";
+import { socket } from "@/app/_lib/socket";
 
 export function ModalAddChat({
   refetch: refetchConversations,
+  setConversations,
 }: {
   refetch: () => Promise<void>;
+  setConversations: React.Dispatch<React.SetStateAction<IConversation[]>>;
 }) {
   const {
     students: shortlistedStudents,
@@ -53,6 +57,22 @@ export function ModalAddChat({
         students.filter((stu) => stu.id !== studentId),
       );
       refetchConversations();
+
+      // 🔥 instantly update UI
+      setConversations((prev) => {
+        if (prev.some((c) => c._id === convo._id)) return prev;
+        return [convo, ...prev];
+      });
+
+      socket.emit("conversation_created", {
+        conversationId: convo._id,
+      });
+
+      socket.emit("create_conversation", {
+        studentId,
+        conversationId: convo._id,
+      });
+
       setOpen(false);
 
       // example:

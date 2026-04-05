@@ -1,9 +1,7 @@
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
 import {
+  Calendar,
   CalendarDays,
   Check,
-  CheckCheck,
   Copy,
   MoreHorizontal,
   MoreVertical,
@@ -19,11 +17,19 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useEffect, useState } from "react";
 import { formatDate } from "@/app/lib/utils";
+import { IMessage } from "./chat-area";
+import { formatInterviewDate } from "@/app/_lib/actions";
 
-const UserMessage = ({ msg, role }) => {
-  // const UserMessage = ({ user, text, createdAt, isRead }) => {
-  // console.log(user);
+// SET REPLY would set the id of the message to be replied to. ADDING LATER ON.
+const SenderMessage = ({
+  msg,
+  handleOpenInterview,
+}: {
+  msg: IMessage;
+  handleOpenInterview: (msg: IMessage) => void;
+}) => {
   const [copied, setIsCopied] = useState(false);
   useEffect(() => {
     if (copied) {
@@ -32,99 +38,31 @@ const UserMessage = ({ msg, role }) => {
   }, [copied]);
   return (
     <>
-      {msg.type === "interview" ? (
-        <div className="h-fit items-center justify-end w-full flex gap-2 relative mb-10">
-          <span className="absolute -bottom-6 right-0 flex gap-2 items-center text-xs text-accent-foreground">
-            <span>{formatDate(msg.createdAt)}</span>{" "}
-            {msg.seen ? (
-              <CheckCheck className="text-cyan-500" size={16} />
-            ) : (
-              <Check className="text-foreground/40" size={16} />
-            )}
+      {msg.type === "interview" && msg.interviewMeta ? (
+        <div className="h-fit items-center w-full flex gap-2 relative mb-10">
+          <span className="absolute -bottom-6 left-0 flex gap-2 items-center text-xs text-accent-foreground">
+            {formatDate(msg.createdAt)}
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-[20px] w-[20px] p-1 rounded-sm"
-                style={{ marginLeft: "auto" }}
-              >
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40" align="start">
-              <DropdownMenuGroup>
-                {role === "employer" && (
-                  <DropdownMenuItem
-                  // onClick={() => {
-                  //   navigator.clipboard.writeText(text);
-                  //   setIsCopied(true);
-                  // }}
-                  >
-                    Edit
-                    <DropdownMenuShortcut>
-                      <Pencil />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={() => {
-                    navigator.clipboard.writeText(msg.text);
-                    setIsCopied(true);
-                  }}
-                >
-                  {copied ? "Copied" : "Copy"}
-                  <DropdownMenuShortcut>
-                    {copied ? <Check size={15} /> : <Copy />}
-                  </DropdownMenuShortcut>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                // onClick={() => {
-                //   navigator.clipboard.writeText(text);
-                //   setIsCopied(true);
-                // }}
-                >
-                  Reply
-                  <DropdownMenuShortcut>
-                    <Reply />
-                  </DropdownMenuShortcut>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <span
-            onClick={() => {}}
-            className=" cursor-pointer h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] user-message text-sm min-[600px]:text-base bg-zinc-800 border-none text-white"
+            onClick={() => handleOpenInterview(msg)}
+            className=" cursor-pointer h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] sender-message text-sm min-[600px]:text-base"
           >
-            <div className="bg-zinc-700  mb-1 rounded-md flex gap-2 p-2 items-center">
+            <div className="bg-zinc-200 dark:bg-zinc-300 mb-1 rounded-md flex gap-2 p-2 items-center">
               <CalendarDays />
               <span className="text-sm">
-                {new Date(msg.interviewMeta.date).toLocaleString()}
+                {formatInterviewDate(msg.interviewMeta.date)}
               </span>
               {/* {msg.interviewMeta.link} */}
             </div>
             <span>Interview Scheduled</span>
           </span>
-        </div>
-      ) : (
-        <div className="h-fit items-center justify-end w-full flex gap-2 relative mb-10">
-          <span className="absolute -bottom-6 right-0 flex gap-2 items-center text-xs text-accent-foreground">
-            <span>{formatDate(msg.createdAt)}</span>{" "}
-            {msg.seen ? (
-              <CheckCheck className="text-cyan-500" size={16} />
-            ) : (
-              <Check className="text-foreground/40" size={16} />
-            )}
-          </span>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
                 className="h-[20px] w-[20px] p-1 rounded-sm"
-                style={{ marginLeft: "auto" }}
               >
                 <MoreHorizontal />
               </Button>
@@ -133,7 +71,55 @@ const UserMessage = ({ msg, role }) => {
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   onClick={() => {
-                    navigator.clipboard.writeText(msg.text);
+                    navigator.clipboard.writeText(msg.text || "");
+                    setIsCopied(true);
+                  }}
+                >
+                  {copied ? "Copied" : "Copy"}
+                  <DropdownMenuShortcut>
+                    {copied ? <Check size={15} /> : <Copy />}
+                  </DropdownMenuShortcut>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                // onClick={() => {
+                //   navigator.clipboard.writeText(text);
+                //   setIsCopied(true);
+                // }}
+                >
+                  Reply
+                  <DropdownMenuShortcut>
+                    <Reply />
+                  </DropdownMenuShortcut>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : (
+        <div className="h-fit items-center w-full flex gap-2 relative mb-10">
+          <span className="absolute -bottom-6 left-0 flex gap-2 items-center text-xs text-accent-foreground">
+            {formatDate(msg.createdAt)}
+          </span>
+          <span className="h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] sender-message text-sm min-[600px]:text-base">
+            <span>{msg.text}</span>
+          </span>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-[20px] w-[20px] p-1 rounded-sm"
+              >
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40" align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    navigator.clipboard.writeText(msg.text || "");
                     setIsCopied(true);
                   }}
                 >
@@ -156,14 +142,10 @@ const UserMessage = ({ msg, role }) => {
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <span className="h-fit w-full max-w-[60vw] min-[600px]:max-w-[55vw] min-[1000px]:max-w-[40vw] user-message text-sm min-[600px]:text-base bg-zinc-800 border-none text-white">
-            {msg.text}
-          </span>
         </div>
       )}
     </>
   );
 };
 
-export default UserMessage;
+export default SenderMessage;

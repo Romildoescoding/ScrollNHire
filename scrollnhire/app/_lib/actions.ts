@@ -85,3 +85,19 @@ export function formatNotificationTime(date: Date | string) {
     year: "numeric",
   });
 }
+
+import { isToday, isTomorrow, format } from "date-fns";
+
+export function formatInterviewDate(dateString: string) {
+  const date = new Date(dateString);
+
+  if (isToday(date)) {
+    return `Today, ${format(date, "hh:mm a")}`;
+  }
+
+  if (isTomorrow(date)) {
+    return `Tomorrow, ${format(date, "hh:mm a")}`;
+  }
+
+  return format(date, "MMM d, yyyy, hh:mm a");
+}

@@ -69,6 +69,17 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("messages_seen", ({ conversationId, messageIds, senderId }) => {
+    const senderSocketId = onlineUsers.get(senderId);
+
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messages_seen_update", {
+        conversationId,
+        messageIds,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     for (const [userId, id] of onlineUsers.entries()) {
       if (id === socket.id) {

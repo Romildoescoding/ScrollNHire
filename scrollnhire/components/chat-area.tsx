@@ -45,6 +45,7 @@ import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
 import axios from "axios";
 import { socket } from "@/app/_lib/socket";
+import { useSeenObserver } from "@/app/hooks/useSeenObserver";
 
 export type MessageType = "message" | "interview";
 
@@ -366,6 +367,80 @@ const ChatArea = ({
       const timeout = setTimeout(() => setIsCopied(false), 500);
     }
   }, [copied]);
+
+  async function handleSeenMessages(messageIds: string[]) {
+    // 🔥 1. Update UI instantly
+    setMessages((prev) =>
+      prev.map((msg) =>
+        messageIds.includes(msg._id) ? { ...msg, seen: true } : msg,
+      ),
+    );
+
+    if (!selectedConversation) return;
+
+    // 🔥 2. Update conversation sidebar
+    setConversations((prev) =>
+      prev.map((convo) => {
+        if (convo._id !== selectedConversation._id) return convo;
+
+        return {
+          ...convo,
+          unreadMessagesCount: 0,
+          lastMessage: {
+            ...convo.lastMessage!,
+            isRead: true,
+          },
+        };
+      }),
+    );
+
+    // 🔥 3. API call
+    await axios.patch("/api/messages/seen", {
+      messageIds,
+      conversationId: selectedConversation._id,
+    });
+
+    // 🔥 4. socket emit
+    socket.emit("messages_seen", {
+      conversationId: selectedConversation._id,
+      messageIds,
+      senderId: selectedConversation.sender._id,
+    });
+  }
+
+  const { observe } = useSeenObserver({
+    messages,
+    currentUserId: session.user.id,
+    conversationId: selectedConversation._id,
+    onSeen: handleSeenMessages,
+  });
+
+  useEffect(() => {
+    socket.on("messages_seen_update", ({ messageIds }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          messageIds.includes(msg._id) ? { ...msg, seen: true } : msg,
+        ),
+      );
+
+      // 🔥 update sidebar
+      setConversations((prev) =>
+        prev.map((convo) => {
+          if (convo._id !== selectedConversation?._id) return convo;
+
+          return {
+            ...convo,
+            lastMessage: {
+              ...convo.lastMessage!,
+              isRead: true,
+            },
+          };
+        }),
+      );
+    });
+
+    return () => socket.off("messages_seen_update");
+  }, [selectedConversation]);
 
   return (
     <>
@@ -1166,6 +1241,7 @@ const ChatArea = ({
                 <SenderMessage
                   key={msg._id}
                   msg={msg}
+                  observe={observe}
                   handleOpenInterview={handleOpenInterview}
                   // text={msg.text}
                   // createdAt={msg.createdAt}

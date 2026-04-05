@@ -26,9 +26,11 @@ import { formatInterviewDate } from "@/app/_lib/actions";
 const SenderMessage = ({
   msg,
   handleOpenInterview,
+  observe,
 }: {
   msg: IMessage;
   handleOpenInterview: (msg: IMessage) => void;
+  observe: (el: HTMLElement | null) => void;
 }) => {
   const [copied, setIsCopied] = useState(false);
   useEffect(() => {
@@ -39,7 +41,12 @@ const SenderMessage = ({
   return (
     <>
       {msg.type === "interview" && msg.interviewMeta ? (
-        <div className="h-fit items-center w-full flex gap-2 relative mb-10">
+        <div
+          ref={observe} // 👈 THIS is the important part
+          data-id={msg._id}
+          data-sender={msg.senderId}
+          className="h-fit items-center w-full flex gap-2 relative mb-10"
+        >
           <span className="absolute -bottom-6 left-0 flex gap-2 items-center text-xs text-accent-foreground">
             {formatDate(msg.createdAt)}
           </span>
@@ -97,7 +104,12 @@ const SenderMessage = ({
           </DropdownMenu>
         </div>
       ) : (
-        <div className="h-fit items-center w-full flex gap-2 relative mb-10">
+        <div
+          ref={observe} // 👈 THIS is the important part
+          data-id={msg._id}
+          data-sender={msg.senderId}
+          className="h-fit items-center w-full flex gap-2 relative mb-10"
+        >
           <span className="absolute -bottom-6 left-0 flex gap-2 items-center text-xs text-accent-foreground">
             {formatDate(msg.createdAt)}
           </span>

@@ -346,6 +346,8 @@ const ChatArea = ({
   const [openInterview, setOpenInterview] = useState(false);
 
   function handleOpenInterview(msg: IMessage) {
+    // TO be able to edit after clicking edit interview for the employer
+    setMessageId(msg._id);
     if (!msg.interviewMeta) return;
     const dateObj = new Date(msg.interviewMeta.date);
 
@@ -410,8 +412,8 @@ const ChatArea = ({
 
   const { observe } = useSeenObserver({
     messages,
-    currentUserId: session.user.id,
-    conversationId: selectedConversation._id,
+    currentUserId: session?.user.id,
+    conversationId: selectedConversation?._id,
     onSeen: handleSeenMessages,
   });
 
@@ -1144,6 +1146,17 @@ const ChatArea = ({
               <DialogClose asChild>
                 <Button variant="outline">Close</Button>
               </DialogClose>
+              {session?.user?.role === "employer" && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setOpenEditInterview(true);
+                    setOpenInterview(false);
+                  }}
+                >
+                  Edit Interview
+                </Button>
+              )}
               <Button onClick={() => window.open(interviewLink, "_blank")}>
                 Join Interview
               </Button>

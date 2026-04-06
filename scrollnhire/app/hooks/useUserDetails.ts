@@ -2,6 +2,8 @@ import { useSession } from "next-auth/react";
 import { getUserDetails } from "../_lib/actions";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Gender, UserRole } from "../models/UserModel";
+import { IStudentProfile } from "../models/StudentProfileModel";
+import { IEmployerProfile } from "../models/EmployerProfileModel";
 
 interface User {
   name?: string | null;
@@ -13,6 +15,8 @@ interface User {
   role: UserRole | null;
   isOnboarded: boolean;
   gender: Gender | null;
+  studentProfile?: IStudentProfile | null;
+  employerProfile?: IEmployerProfile | null;
 }
 
 export function useUserDetails() {
@@ -27,6 +31,8 @@ export function useUserDetails() {
     isOnboarded: false,
     role: null,
     gender: null,
+    studentProfile: null,
+    employerProfile: null,
   });
   // Can be used to check if the session came right and the user got fetched or not.
   const [status, setStatus] = useState<"loading" | "authenticated" | "error">(
@@ -52,7 +58,7 @@ export function useUserDetails() {
     if (session?.user?.email) {
       console.log(session?.user?.email);
       fetchUser(session.user.email);
-      setStatus("authenticated");
+      // setStatus("authenticated");
     } else {
       // no need to fetch the user with no email yk as it is just not there.
       // fetchUser(null);

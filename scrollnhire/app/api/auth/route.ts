@@ -1,4 +1,6 @@
 import dbConnect from "@/app/_lib/dbConnect";
+import EmployerProfile from "@/app/models/EmployerProfileModel";
+import StudentProfile from "@/app/models/StudentProfileModel";
 // import { verifySession } from "@/app/_lib/session";
 import { User } from "@/app/models/UserModel";
 // import { cookies } from "next/headers";
@@ -17,6 +19,22 @@ export async function POST(req) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    let studentProfile = null;
+    let employerProfile = null;
+
+    // 🎯 Role-based fetch
+    if (user.role === "student") {
+      studentProfile = await StudentProfile.findOne({
+        userId: user._id,
+      }).lean();
+    }
+
+    if (user.role === "employer") {
+      employerProfile = await EmployerProfile.findOne({
+        userId: user._id,
+      }).lean();
+    }
+
     return NextResponse.json({
       user: {
         name: user.name,
@@ -28,6 +46,10 @@ export async function POST(req) {
         gender: user.gender,
         profession: user.profession,
         professionalTitle: user.professionalTitle,
+
+        // Profile object
+        studentProfile: studentProfile || null,
+        employerProfile: employerProfile || null,
       },
     });
   } catch (error) {

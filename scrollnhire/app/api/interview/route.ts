@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { Message } from "@/app/models/Message";
 import { Conversation } from "@/app/models/ConversationModel";
+import { Notification } from "@/app/models/NotificationModel";
 
 export async function POST(req: Request) {
   try {
@@ -55,6 +56,18 @@ export async function POST(req: Request) {
         link: interviewLink,
       },
       seen: false,
+    });
+
+    await Notification.create({
+      recipientId: receiverId,
+      senderId: userId,
+      type: "interview",
+      message: `Interview scheduled on ${new Date(
+        interviewTime,
+      ).toLocaleString()}`,
+      // meta: {
+      //   role: convo.role, // optional if useful
+      // },
     });
 
     return Response.json({
@@ -139,6 +152,15 @@ export async function PATCH(req: Request) {
         { status: 404 },
       );
     }
+
+    await Notification.create({
+      recipientId: convo.studentId,
+      senderId: userId,
+      type: "interview",
+      message: `Interview rescheduled to ${new Date(
+        interviewTime,
+      ).toLocaleString()}`,
+    });
 
     return Response.json({
       success: true,

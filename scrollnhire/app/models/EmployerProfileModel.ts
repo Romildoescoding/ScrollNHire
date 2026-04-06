@@ -4,6 +4,8 @@ export interface IEmployerProfile extends Document {
   userId: mongoose.Types.ObjectId;
   companyId?: mongoose.Types.ObjectId;
   designation: string;
+  linkedin?: string;
+  bio?: string;
   createdAt: Date;
 }
 
@@ -22,6 +24,10 @@ const employerProfileSchema = new Schema<IEmployerProfile>({
     type: String,
     default: "",
   },
+  linkedin: {
+    type: String,
+  },
+  bio: { type: String },
   createdAt: {
     type: Date,
     default: Date.now,

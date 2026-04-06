@@ -38,6 +38,8 @@ const SenderMessage = ({
       const timeout = setTimeout(() => setIsCopied(false), 500);
     }
   }, [copied]);
+  // Making sure this is done on
+
   return (
     <>
       {msg.type === "interview" && msg.interviewMeta ? (

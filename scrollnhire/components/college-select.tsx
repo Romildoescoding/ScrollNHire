@@ -30,8 +30,17 @@ export default function CollegeSelect({
   const [showDropdown, setShowDropdown] = useState(false);
   const [selected, setSelected] = useState(false);
 
+  // setting if it already exists you know.
+  useEffect(() => {
+    if (value !== query) {
+      setSelected(!!value);
+      setQuery(value || "");
+    }
+  }, [value]);
+
   // 🔥 Debounce
   useEffect(() => {
+    if (selected) return; // 🛑 stop re-fetch after selecting
     const timer = setTimeout(() => {
       if (query.length >= 3) {
         fetchColleges(query);
@@ -41,7 +50,7 @@ export default function CollegeSelect({
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, selected]);
 
   const fetchColleges = async (search: string) => {
     try {
@@ -49,7 +58,7 @@ export default function CollegeSelect({
       const data = await res.json();
 
       setResults(data);
-      setShowDropdown(true);
+      if (!selected) setShowDropdown(true);
     } catch (err) {
       console.error(err);
     }
@@ -91,12 +100,12 @@ export default function CollegeSelect({
 
       {/* DROPDOWN */}
       {showDropdown && results.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#16161A] border rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {results.map((college) => (
             <div
               key={college._id}
               onClick={() => handleSelect(college)}
-              className="px-4 py-2 cursor-pointer hover:bg-primary/10 flex gap-4"
+              className="transition-all px-4 py-2 cursor-pointer flex gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 items-center"
             >
               <Image
                 src={`https://img.logo.dev/${college.domain}?token=${LOGO_DEV_KEY}`}

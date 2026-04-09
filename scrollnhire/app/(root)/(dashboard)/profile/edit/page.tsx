@@ -128,7 +128,7 @@ const ProfilePage = () => {
     formData.append("upload_preset", "resume_upload");
 
     const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/dyvlnnly8/raw/upload",
+      "https://api.cloudinary.com/v1_1/dyvlnnly8/auto/upload",
       formData,
     );
 

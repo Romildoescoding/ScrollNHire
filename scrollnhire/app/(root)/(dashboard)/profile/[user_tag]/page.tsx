@@ -23,13 +23,15 @@ import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useUserProfileDetails } from "@/app/hooks/useUserProfileDetails";
 
 const LOGO_DEV_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLIC_KEY!;
 
 const ProfilePage = () => {
-  const { user } = useUserProfileDetails();
+  const params = useParams<{ user_tag: string }>();
+
+  const { user } = useUserProfileDetails(params.user_tag);
 
   const [form, setForm] = useState<any>({
     name: "",
@@ -59,9 +61,6 @@ const ProfilePage = () => {
       companyName: "",
     },
   });
-
-  const [errors, setErrors] = useState<any>({});
-  const [submitted, setSubmitted] = useState(false);
 
   const [initialForm, setInitialForm] = useState<any>(null);
 
@@ -141,9 +140,6 @@ const ProfilePage = () => {
               </div>
             )}
           </div>
-          <Button className="" onClick={() => router.push("/profile/edit")}>
-            Edit Profile
-          </Button>
         </div>
         <div className="w-full h-fit text-muted-foreground">{form.bio}</div>
 
@@ -364,20 +360,6 @@ const ProfilePage = () => {
               </div>
             </div>
           )}
-
-          {/* DELETE ACCOUNT */}
-          <div className="space-y-2 mt-2">
-            <div className="flex gap-4 items-center border rounded-md p-4 justify-between">
-              <div className="flex-1 flex flex-col gap-1 justify-center">
-                <h1 className=" font-medium text-sm">Delete my Account</h1>
-                <p className="text-foreground/50 text-xs">
-                  Permanently delete account and all the information linked to
-                  this account.
-                </p>
-              </div>
-              <Button variant="destructive">Delete Account</Button>
-            </div>
-          </div>
         </div>
       </div>
     </>

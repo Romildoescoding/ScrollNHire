@@ -15,7 +15,7 @@ export interface IProject extends Document {
 
   thumbnail?: string;
   images?: string[];
-  videoDemo?: string;
+  videoUrl?: string;
 
   category?: string;
 
@@ -61,7 +61,7 @@ const projectSchema = new Schema<IProject>(
 
     images: [String],
 
-    videoDemo: String,
+    videoUrl: String,
 
     category: String,
 

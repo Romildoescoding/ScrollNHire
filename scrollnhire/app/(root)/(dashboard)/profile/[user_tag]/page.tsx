@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useUserProfileDetails } from "@/app/hooks/useUserProfileDetails";
+import { cn } from "@/lib/utils";
 
 const LOGO_DEV_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLIC_KEY!;
 
@@ -228,35 +229,89 @@ const ProfilePage = () => {
                   Reels
                 </TabsTrigger>
               </TabsList>
-              <TabsContent className="grid grid-cols-4" value="projects">
-                {(form.studentProfile.projects ?? [])?.map((project) => (
-                  <Card key={project._id}>
-                    <CardContent className="text-sm flex flex-col text-muted-foreground">
+              <TabsContent className="grid grid-cols-4 gap-4" value="projects">
+                {(form.studentProfile.projects ?? [])?.map((project, i) => (
+                  <Card
+                    className="relative py-2 flex flex-col justify-between"
+                    key={i}
+                  >
+                    <CardContent className="text-sm flex flex-col gap-2 px-2">
                       <div className="w-full h-fit">
                         <Image
-                          src={project.image}
-                          className="w-full aspect-auto"
-                          alt={"project_image"}
-                          height={1200}
-                          width={1200}
+                          src={project.thumbnail || "/placeholder.png"}
+                          className="w-full rounded-md"
+                          alt="project_image"
+                          height={500}
+                          width={500}
                         />
                       </div>
-                      <div className="flex gap-2">
-                        <div className=" flex-1 w-full flex flex-col">
-                          <div className="text-md text-semibold">
+
+                      <div className="flex flex-col">
+                        <span></span>
+                        <div className="flex justify-between w-full">
+                          <div className="font-semibold flex-1 max-w-[80%] text-base">
                             {project.title}
                           </div>
-                          <div className="text-muted-foreground">
-                            {project.desc}
-                          </div>
+                          {/* {project.liveUrl && ( */}
+                          <Button
+                            variant="outline"
+                            className="rounded-full h-8 min-w-8 w-8 flex items-center justify-center"
+                            style={{ padding: 0 }}
+                            disabled={!project.liveUrl}
+                          >
+                            <Link
+                              href={project.liveUrl ?? "/projects"}
+                              target="_blank"
+                              className="min-w-fit"
+                            >
+                              <ExternalLink size={18} />
+                            </Link>
+                          </Button>
+                          {/* )} */}
                         </div>
-                        <Link href={project.link} className="">
-                          <ExternalLink />
-                        </Link>
+                        <div className="text-muted-foreground">
+                          {project.description}
+                        </div>
                       </div>
 
-                      <div className=""> {project.description}</div>
+                      {/* Tech stack badges */}
+                      <div className="flex flex-wrap gap-2">
+                        {(project.techStack || []).map(
+                          (tech: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-muted px-2 py-1 rounded-full"
+                            >
+                              {tech}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </CardContent>
+                    <p className="flex w-full justify-end p-2 pb-0">
+                      <Badge
+                        className={cn(
+                          "flex rounded-full items-center gap-2 p-1 capitalize",
+                          project.difficultyLevel === "advanced"
+                            ? "bg-red-300 text-red-600"
+                            : project.difficultyLevel === "intermediate"
+                              ? "bg-blue-300 text-blue-600"
+                              : "bg-green-300 text-green-600",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "flex w-3 h-3 rounded-full",
+                            project.difficultyLevel === "advanced"
+                              ? "bg-red-500"
+                              : project.difficultyLevel === "intermediate"
+                                ? "bg-blue-500"
+                                : "bg-green-500",
+                          )}
+                        ></span>
+                        {project.difficultyLevel ?? "Beginner"}
+                      </Badge>
+                    </p>
                   </Card>
                 ))}
               </TabsContent>
@@ -276,7 +331,7 @@ const ProfilePage = () => {
                           src={reel.thumbnailUrl}
                           alt="reel"
                           loading="lazy"
-                          className={`w-full object-cover transition duration-500 blur-sm group-hover:blur-0 ${
+                          className={`w-full object-cover transition duration-500  ${
                             isSquare ? "aspect-square" : "aspect-[2/3]"
                           }`}
                         />
@@ -298,7 +353,7 @@ const ProfilePage = () => {
                         )}
 
                         {/* overlay */}
-                        <div className="absolute bottom-2 left-2 right-2 text-white text-xs z-10">
+                        <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10">
                           {/* <p className="font-semibold truncate">{reel.user.name}</p> */}
                           <p className="truncate opacity-70">{reel.caption}</p>
                         </div>

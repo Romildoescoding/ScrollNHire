@@ -30,9 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import axios from "axios";
 
-import { ExternalLink, Pencil } from "lucide-react";
+import { ExternalLink, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useRef, useState } from "react";
@@ -377,19 +378,26 @@ const ProjectPage = () => {
   };
 
   return (
-    <>
-      {/* CREATE PROJECT BUTTON */}
-      <div className="mb-4">
-        <Button
-          onClick={() => {
-            resetForm();
-            setVideo(null);
-            setPreview("");
-            setOpenCreateProject(true);
-          }}
-        >
-          + Create Project
-        </Button>
+    <div className="px-4 pb-6 flex flex-col gap-6">
+      <h1 className="font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2">
+        Projects
+      </h1>
+      <div
+        onClick={() => {
+          resetForm();
+          setVideo(null);
+          setPreview("");
+          setOpenCreateProject(true);
+        }}
+        className=" cursor-pointer w-full h-44 p-4 border rounded-md flex gap-2 flex-col items-center bg-background/90"
+      >
+        <p className="w-14 h-14 border rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center">
+          <Plus size={24} />
+        </p>
+        <span className="text-muted-foreground">
+          Click to begin the process of showcasing your new project
+        </span>
+        <Button className="rounded-full max-w-fit">Create Project</Button>
       </div>
 
       {/* ================= CREATE MODAL ================= */}
@@ -707,55 +715,104 @@ const ProjectPage = () => {
       </Dialog>
 
       {/* ================= PROJECT LIST ================= */}
-      <div className="grid grid-cols-4 gap-4">
-        {(projects ?? []).map((project: any, i: number) => (
-          <Card key={i}>
-            <CardContent className="text-sm flex flex-col gap-2">
-              <div className="w-full h-fit">
-                <Image
-                  src={project.thumbnail || "/placeholder.png"}
-                  className="w-full rounded-md"
-                  alt="project_image"
-                  height={500}
-                  width={500}
-                />
-              </div>
+      <div className="flex flex-col gap-2">
+        <span>{`All Projects (${projects.length})`}</span>
+        <div className="grid grid-cols-3 gap-4">
+          {(projects ?? []).map((project: any, i: number) => (
+            <Card
+              className="relative py-2 flex flex-col justify-between"
+              key={i}
+            >
+              <CardContent className="text-sm flex flex-col gap-2 px-2">
+                <div className="w-full h-fit">
+                  <Image
+                    src={project.thumbnail || "/placeholder.png"}
+                    className="w-full rounded-md"
+                    alt="project_image"
+                    height={500}
+                    width={500}
+                  />
+                </div>
 
-              <Badge onClick={() => handleOpenEditProject(project)}>
-                <Pencil />
-              </Badge>
+                <Button
+                  className="absolute top-4 right-4 rounded-full h-8 w-8 flex items-center justify-center"
+                  style={{ padding: 0 }}
+                  onClick={() => handleOpenEditProject(project)}
+                >
+                  <Pencil />
+                </Button>
 
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="font-semibold text-base">{project.title}</div>
+                <div className="flex flex-col">
+                  <span></span>
+                  <div className="flex justify-between w-full">
+                    <div className="font-semibold flex-1 max-w-[80%] text-base">
+                      {project.title}
+                    </div>
+                    {/* {project.liveUrl && ( */}
+                    <Button
+                      variant="outline"
+                      className="rounded-full h-8 min-w-8 w-8 flex items-center justify-center"
+                      style={{ padding: 0 }}
+                      disabled={!project.liveUrl}
+                    >
+                      <Link
+                        href={project.liveUrl ?? "/projects"}
+                        target="_blank"
+                        className="min-w-fit"
+                      >
+                        <ExternalLink size={18} />
+                      </Link>
+                    </Button>
+                    {/* )} */}
+                  </div>
                   <div className="text-muted-foreground">
                     {project.description}
                   </div>
                 </div>
 
-                {project.liveUrl && (
-                  <Link href={project.liveUrl} target="_blank">
-                    <ExternalLink size={18} />
-                  </Link>
-                )}
-              </div>
-
-              {/* Tech stack badges */}
-              <div className="flex flex-wrap gap-2">
-                {(project.techStack || []).map((tech: string, idx: number) => (
+                {/* Tech stack badges */}
+                <div className="flex flex-wrap gap-2">
+                  {(project.techStack || []).map(
+                    (tech: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="text-xs bg-muted px-2 py-1 rounded-full"
+                      >
+                        {tech}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </CardContent>
+              <p className="flex w-full justify-end p-2 pb-0">
+                <Badge
+                  className={cn(
+                    "flex rounded-full items-center gap-2 p-1 capitalize",
+                    project.difficultyLevel === "advanced"
+                      ? "bg-red-300 text-red-600"
+                      : project.difficultyLevel === "intermediate"
+                        ? "bg-blue-300 text-blue-600"
+                        : "bg-green-300 text-green-600",
+                  )}
+                >
                   <span
-                    key={idx}
-                    className="text-xs bg-muted px-2 py-1 rounded-full"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                    className={cn(
+                      "flex w-3 h-3 rounded-full",
+                      project.difficultyLevel === "advanced"
+                        ? "bg-red-500"
+                        : project.difficultyLevel === "intermediate"
+                          ? "bg-blue-500"
+                          : "bg-green-500",
+                    )}
+                  ></span>
+                  {project.difficultyLevel ?? "Beginner"}
+                </Badge>
+              </p>
+            </Card>
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

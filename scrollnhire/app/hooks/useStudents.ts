@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Gender } from "../models/UserModel";
+import { IProject } from "../models/ProjectModel";
 
 export type HiringStatus =
   | "shortlisted"
@@ -32,6 +33,7 @@ export interface IStudent {
   branch?: string;
   yearOfPassing?: number;
   cgpa?: number;
+  resumeUrl?: string;
   skills: string[];
   github?: string;
   linkedin?: string;
@@ -40,6 +42,7 @@ export interface IStudent {
 
   /* 🎬 REELS */
   reels: Reel[];
+  projects: IProject[];
 
   /* 📊 HIRING */
   status: HiringStatus;
@@ -58,7 +61,8 @@ export type Status =
   | "rejected"
   | "hired";
 
-const useStudents = (status: Status) => {
+const useStudents = (status?: Status) => {
+  const [studentStatus, setStudentStatus] = useState(status ?? "all");
   const [students, setStudents] = useState<IStudent[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -72,7 +76,7 @@ const useStudents = (status: Status) => {
       //   const userId = session?.user?.id;
       try {
         const res = await axios.get(
-          `/api/students?page=${page}&limit=${limit}&search=${search}&status=${status}`,
+          `/api/students?page=${page}&limit=${limit}&search=${search}&status=${studentStatus}`,
         );
         setStudents(res.data.students);
         setTotal(res.data.total);
@@ -84,7 +88,7 @@ const useStudents = (status: Status) => {
     };
 
     fetchemails();
-  }, [page, limit, search]);
+  }, [page, limit, search, studentStatus]);
 
   return {
     students,
@@ -97,6 +101,7 @@ const useStudents = (status: Status) => {
     limit,
     setLimit,
     isLoading,
+    setStudentStatus,
   };
 };
 

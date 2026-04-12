@@ -27,13 +27,18 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    const matchStage: any = {
+      employerId: new mongoose.Types.ObjectId(employerId),
+    };
+
+    // only add status filter if it's NOT "all"
+    if (status && status !== "all") {
+      matchStage.status = status;
+    }
+
     const pipeline: any[] = [
       {
-        $match: {
-          employerId: new mongoose.Types.ObjectId(employerId),
-          // status: { $ne: "rejected" },
-          status,
-        },
+        $match: matchStage,
       },
 
       /* 👤 JOIN USER */
@@ -60,6 +65,15 @@ export async function GET(req: NextRequest) {
         $unwind: {
           path: "$profile",
           preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $lookup: {
+          from: "projects",
+          localField: "profile._id", // 🔥 important
+          foreignField: "studentId",
+          as: "projects",
         },
       },
 
@@ -106,6 +120,7 @@ export async function GET(req: NextRequest) {
           branch: "$profile.branch",
           yearOfPassing: "$profile.yearOfPassing",
           cgpa: "$profile.cgpa",
+          resumeUrl: "$profile.resumeUrl",
           skills: "$profile.skills",
           github: "$profile.github",
           linkedin: "$profile.linkedin",
@@ -126,6 +141,27 @@ export async function GET(req: NextRequest) {
             },
           },
 
+          projects: {
+            $map: {
+              input: "$projects",
+              as: "p",
+              in: {
+                _id: "$$p._id",
+                title: "$$p.title",
+                description: "$$p.description",
+                techStack: "$$p.techStack",
+                githubUrl: "$$p.githubUrl",
+                liveUrl: "$$p.liveUrl",
+                category: "$$p.category",
+                difficultyLevel: "$$p.difficultyLevel",
+                thumbnail: "$$p.thumbnail",
+                likesCount: "$$p.likesCount",
+                viewsCount: "$$p.viewsCount",
+                isVerified: "$$p.isVerified",
+              },
+            },
+          },
+
           /* 📊 HIRING META */
           status: 1,
           role: 1,
@@ -141,11 +177,16 @@ export async function GET(req: NextRequest) {
 
     const students = await HiringProcess.aggregate(pipeline);
 
-    /* 📊 COUNT (separate lightweight query) */
-    const total = await HiringProcess.countDocuments({
+    const countQuery: any = {
       employerId,
-      status,
-    });
+    };
+
+    if (status && status !== "all") {
+      countQuery.status = status;
+    }
+
+    /* 📊 COUNT (separate lightweight query) */
+    const total = await HiringProcess.countDocuments(countQuery);
 
     return NextResponse.json({
       success: true,

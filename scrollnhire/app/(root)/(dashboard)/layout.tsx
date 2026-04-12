@@ -34,6 +34,7 @@ import {
   Plus,
   MessageCircleMore,
   Folders,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -290,6 +291,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     )}
                   >
                     Projects
+                  </span>
+                </Button>
+              )}
+              {user.role === "employer" && (
+                <Button
+                  variant={pathname === "/manage" ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/manage"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  onClick={() => router.push("/manage")}
+                >
+                  <GraduationCap className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/manage" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Manage Students
                   </span>
                 </Button>
               )}

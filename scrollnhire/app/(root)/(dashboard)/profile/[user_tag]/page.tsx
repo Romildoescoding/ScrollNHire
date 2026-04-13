@@ -27,6 +27,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useUserProfileDetails } from "@/app/hooks/useUserProfileDetails";
 import { cn } from "@/lib/utils";
 
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+
 const LOGO_DEV_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLIC_KEY!;
 
 const ProfilePage = () => {
@@ -170,12 +172,19 @@ const ProfilePage = () => {
                 onClick={() =>
                   window.open(form.studentProfile.resumeUrl, "_blank")
                 }
-                className="w-full h-64 border rounded-md overflow-hidden cursor-pointer hover:shadow-md transition"
+                className="w-full max-h-96 border rounded-md overflow-hidden cursor-pointer hover:shadow-md transition flex justify-center"
               >
-                <iframe
-                  src={`${form.studentProfile.resumeUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                  className="w-full h-full pointer-events-none"
-                />
+                <div className="relative  w-[644px] h-full overflow-hidden border-b-2 px-4">
+                  {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js"> */}
+                  <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js">
+                    <div>
+                      <Viewer
+                        defaultScale={1}
+                        fileUrl={form.studentProfile.resumeUrl}
+                      />
+                    </div>
+                  </Worker>
+                </div>
               </div>
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg  transition">

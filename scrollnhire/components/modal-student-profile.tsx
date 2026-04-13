@@ -85,14 +85,14 @@ const ModalProfile = ({
             {student?.resumeUrl ? (
               <div
                 onClick={() => window.open(student?.resumeUrl, "_blank")}
-                className="w-full h-64 border rounded-md overflow-hidden cursor-pointer hover:shadow-md transition"
+                className="w-full h-64 border rounded-md overflow-hidden cursor-pointer hover:shadow-md transition flex justify-center"
               >
-                <div className="relative w-full h-56 overflow-hidden border-b-2 px-4">
+                <div className="relative w-[324px] h-full overflow-hidden border-b-2 px-4">
                   {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js"> */}
                   <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js">
                     <div>
                       <Viewer
-                        defaultScale={0.475}
+                        defaultScale={0.75}
                         fileUrl={student?.resumeUrl}
                       />
                     </div>

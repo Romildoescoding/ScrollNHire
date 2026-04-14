@@ -52,10 +52,10 @@ import {
 } from "@/components/ui/select";
 
 import { formatDate } from "@/app/lib/utils";
-import { IStudent, Reel, Status } from "@/app/hooks/useStudents";
+import { HiringStatus, IStudent, Reel, Status } from "@/app/hooks/useStudents";
 import axios from "axios";
 import { cn } from "@/lib/utils";
-
+import { useRouter } from "next/navigation";
 interface DataTableProps {
   displayFilter: boolean;
   displayActions: boolean;
@@ -68,6 +68,7 @@ interface DataTableProps {
     studentId: string;
     hiringProcessId: string;
   }) => void;
+  updateStatus?: (student: IStudent, status: HiringStatus) => void;
   onClick?: (student: IStudent) => void;
 
   data: IStudent[];
@@ -110,6 +111,7 @@ export function DataTable({
   //   domains,
   onClick = () => {},
   handleStartChat = () => {},
+  updateStatus = () => {},
   setSearch,
   displayFooter = true,
   displayFilter = true,
@@ -130,6 +132,7 @@ DataTableProps) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const router = useRouter();
   // const [pagination, setPagination] = useState({
   //   pageIndex: 0,
   //   pageSize: 10,
@@ -152,13 +155,15 @@ DataTableProps) {
       ),
       cell: ({ row }) => (
         <Checkbox
-          checked={selectedStudents.includes(row.original.id)}
-          onCheckedChange={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             const id = row.original.id;
             setSelectedStudents((prev) =>
               prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
             );
           }}
+          checked={selectedStudents.includes(row.original.id)}
+          // onCheckedChange={}
         />
       ),
     },
@@ -219,6 +224,91 @@ DataTableProps) {
       accessorKey: "status",
       header: () => <div>Status</div>,
       cell: ({ row }) => (
+        // e.stopPropagation();
+        // <DropdownMenu>
+        //   <DropdownMenuTrigger asChild>
+        //     <Badge
+        //       className={cn(
+        //         "capitalize rounded-full",
+        //         getStatusBadge(row.original.status),
+        //       )}
+        //     >
+        //       {row.original.status === "interview_scheduled"
+        //         ? "Interview Scheduled"
+        //         : row.original.status === "interview_completed"
+        //           ? "Interview Completed"
+        //           : row.original.status === "offer_sent"
+        //             ? "Offer Sent"
+        //             : row.original.status}
+        //     </Badge>
+        //   </DropdownMenuTrigger>
+
+        //   <DropdownMenuContent align="end">
+        //     <DropdownMenuItem onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge(row.original.status),
+        //         )}
+        //       >
+        //         {row.original.status}
+        //       </Badge>
+        //     </DropdownMenuItem>
+        //     <DropdownMenuItem onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge("interview_scheduled"),
+        //         )}
+        //       >
+        //         Interview Scheduled
+        //       </Badge>
+        //     </DropdownMenuItem>
+        //     <DropdownMenuItem onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge("interview_completed"),
+        //         )}
+        //       >
+        //         Interview Completed
+        //       </Badge>
+        //     </DropdownMenuItem>
+        //     <DropdownMenuItem onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge("offer_sent"),
+        //         )}
+        //       >
+        //         Offer Sent
+        //       </Badge>
+        //     </DropdownMenuItem>
+        //     <DropdownMenuItem onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge("hired"),
+        //         )}
+        //       >
+        //         Hired
+        //       </Badge>
+        //     </DropdownMenuItem>
+
+        //     <DropdownMenuSeparator />
+
+        //     <DropdownMenuItem className="text-destructive" onClick={() => {}}>
+        //       <Badge
+        //         className={cn(
+        //           "capitalize rounded-full",
+        //           getStatusBadge("rejected"),
+        //         )}
+        //       >
+        //         Rejected
+        //       </Badge>
+        //     </DropdownMenuItem>
+        //   </DropdownMenuContent>
+        // </DropdownMenu>
         <Badge
           className={cn(
             "capitalize rounded-full",
@@ -314,7 +404,7 @@ DataTableProps) {
       id: "options",
       header: () => <div className="text-right">Options</div>,
       cell: ({ row }) => {
-        const student = row.original;
+        const student: IStudent = row.original;
 
         return (
           <DropdownMenu>
@@ -329,20 +419,43 @@ DataTableProps) {
                 View Profile
               </DropdownMenuItem>
 
-              {student.status === "shortlisted" && (
-                <DropdownMenuItem onClick={() => openEditModal(student)}>
+              {student.status === "shortlisted" ? (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleStartChat({
+                      studentId: student.id,
+                      hiringProcessId: student.hiringProcessId,
+                    })
+                  }
+                >
                   Start Chat
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => router.push("/chat")}>
+                  Chat
+                </DropdownMenuItem>
+              )}
+              {student.status !== "hired" && (
+                <DropdownMenuItem
+                  className="text-green-600 dark:text-green-500"
+                  onClick={() => updateStatus(student, "hired")}
+                >
+                  Hire Candidate
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuSeparator />
+              {student.status !== "rejected" && (
+                <>
+                  <DropdownMenuSeparator />
 
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => openDeleteModal(student)}
-              >
-                Remove
-              </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => updateStatus(student, "rejected")}
+                  >
+                    Reject Candidate
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

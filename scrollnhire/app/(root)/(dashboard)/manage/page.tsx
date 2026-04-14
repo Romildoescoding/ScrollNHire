@@ -16,17 +16,18 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
 import axios from "axios";
-import useStudents, { IStudent } from "@/app/hooks/useStudents";
+import useStudents, { HiringStatus, IStudent } from "@/app/hooks/useStudents";
 import { IConversation } from "@/app/hooks/useConversations";
 import { socket } from "@/app/_lib/socket";
 import { DataTable } from "@/components/manage-students-table";
 import { useRouter } from "next/navigation";
 import ModalProfile from "@/components/modal-student-profile";
+import useUpdateStatus from "@/app/hooks/useUpdateStatus";
 
 export default function ManageStudents() {
   const {
-    students: shortlistedStudents,
-    setStudents: setShortlistedStudents,
+    students,
+    setStudents,
     setSearch,
     page,
     limit,
@@ -34,60 +35,71 @@ export default function ManageStudents() {
     setStudentStatus,
   } = useStudents();
 
-  // async function handleStartChat({
-  //   studentId,
-  // }: {
-  //   studentId: string;
-  //   hiringProcessId: string;
-  // }) {
-  //   try {
-  //     const res = await axios.post("/api/conversations/create", {
-  //       studentId,
-  //       hiringProcessId,
-  //     });
+  async function handleStartChat({
+    studentId,
+    hiringProcessId,
+  }: {
+    studentId: string;
+    hiringProcessId: string;
+  }) {
+    try {
+      const res = await axios.post("/api/conversations/create", {
+        studentId,
+        hiringProcessId,
+      });
 
-  //     const convo = res.data?.data;
+      const convo = res.data?.data;
 
-  //     // 👉 you can redirect to chat page here
-  //     console.log("Conversation:", convo);
-  //     setShortlistedStudents((students) =>
-  //       students.filter((stu) => stu.id !== studentId),
-  //     );
-  //     refetchConversations();
+      // 👉 you can redirect to chat page here
+      router.push("/chat");
+      console.log("Conversation:", convo);
+      setStudents((students) =>
+        students.map((stu) =>
+          stu.id === studentId ? { ...stu, status: "chatting" } : stu,
+        ),
+      );
+      // refetchConversations();
 
-  //     // 🔥 instantly update UI
-  //     setConversations((prev) => {
-  //       if (prev.some((c) => c._id === convo._id)) return prev;
-  //       return [convo, ...prev];
-  //     });
+      // 🔥 instantly update UI
+      // setConversations((prev) => {
+      //   if (prev.some((c) => c._id === convo._id)) return prev;
+      //   return [convo, ...prev];
+      // });
 
-  //     socket.emit("conversation_created", {
-  //       conversationId: convo._id,
-  //     });
+      socket.emit("conversation_created", {
+        conversationId: convo._id,
+      });
 
-  //     socket.emit("create_conversation", {
-  //       studentId,
-  //       conversationId: convo._id,
-  //     });
+      socket.emit("create_conversation", {
+        studentId,
+        conversationId: convo._id,
+      });
 
-  //     setOpen(false);
+      setOpen(false);
 
-  //     // example:
-  //     // router.push(`/chat/${convo._id}`);
-  //   } catch (err) {
-  //     console.error("Error starting chat:", err);
-  //   }
-  // }
+      // example:
+      // router.push(`/chat/${convo._id}`);
+    } catch (err) {
+      console.error("Error starting chat:", err);
+    }
+  }
 
   const router = useRouter();
-  function routeToProfile({ studentId }) {
-    router.push(`/profile/${studentId}`);
-  }
 
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
   const [open, setOpen] = useState(false);
   const [clickedStudent, setClickedStudent] = useState<IStudent | null>(null);
+
+  const { updateStatus, isUpdating } = useUpdateStatus();
+
+  async function handleUpdateStatus(student: IStudent, status: HiringStatus) {
+    if (!student.hiringProcessId) return;
+    await updateStatus({ hiringProcessId: student.hiringProcessId, status });
+    setStudents((students) =>
+      students.map((stu) => (stu.id === student.id ? { ...stu, status } : stu)),
+    );
+  }
 
   // function handleOpenProfile() {}
 
@@ -102,14 +114,15 @@ export default function ManageStudents() {
             setClickedStudent(student);
             setOpen(true);
           }}
-          handleStartChat={() => {}}
-          // handleStartChat={handleStartChat}
+          // handleStartChat={() => {}}
+          handleStartChat={handleStartChat}
+          updateStatus={handleUpdateStatus}
           displayFooter={true}
           setSearch={setSearch}
           displayFilter={true}
           displayActions={true}
           displaySelect={true}
-          data={shortlistedStudents}
+          data={students}
           selectedStudents={selectedStudents}
           setSelectedStudents={setSelectedStudents}
           openViewModal={() => {}}

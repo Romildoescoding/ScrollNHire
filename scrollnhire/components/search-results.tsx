@@ -137,7 +137,7 @@ const SearchResults = ({
 
       {reels.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">Reels</h2>
+          <h2 className=" font-semibold mb-3">Reels</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {reels.map((reel) => (
@@ -155,7 +155,7 @@ const SearchResults = ({
 
       {profiles.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">Profiles</h2>
+          <h2 className="font-semibold mb-3">Profiles</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {profiles.map((profile) => (
@@ -185,7 +185,7 @@ const SearchResults = ({
 
       {projects.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">Projects</h2>
+          <h2 className="font-semibold mb-3">Projects</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {projects.map((project) => (

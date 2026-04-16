@@ -21,6 +21,8 @@ export interface IReel extends Document {
 
   isFeatured: boolean;
 
+  embedding: number[];
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -83,6 +85,19 @@ const reelSchema = new Schema<IReel>(
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+
+    // EMBEDDING
+    embedding: {
+      type: [Number],
+      required: true,
+      default: [],
+      validate: {
+        validator: function (val: number[]) {
+          return val.length === 1536;
+        },
+        message: "Embedding must be 1536 dimensions",
+      },
     },
   },
   { timestamps: true },

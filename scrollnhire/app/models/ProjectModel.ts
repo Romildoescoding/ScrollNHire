@@ -26,6 +26,8 @@ export interface IProject extends Document {
 
   isVerified: boolean;
 
+  embedding: number[];
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -83,6 +85,19 @@ const projectSchema = new Schema<IProject>(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    // EMBEDDING
+    embedding: {
+      type: [Number],
+      required: true,
+      default: [],
+      validate: {
+        validator: function (val: number[]) {
+          return val.length === 1536;
+        },
+        message: "Embedding must be 1536 dimensions",
+      },
     },
   },
   { timestamps: true },

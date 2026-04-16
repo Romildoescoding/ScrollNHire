@@ -14,6 +14,9 @@ export interface IStudentProfile extends Document {
   linkedin?: string;
   bio?: string;
   verified: boolean;
+
+  embedding: number[];
+
   createdAt: Date;
 }
 
@@ -46,6 +49,20 @@ const studentProfileSchema = new Schema<IStudentProfile>({
     type: Boolean,
     default: false,
   },
+
+  // EMBEDDING
+  embedding: {
+    type: [Number],
+    required: true,
+    default: [],
+    validate: {
+      validator: function (val: number[]) {
+        return val.length === 1536;
+      },
+      message: "Embedding must be 1536 dimensions",
+    },
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

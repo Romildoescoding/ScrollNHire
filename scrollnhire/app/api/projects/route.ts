@@ -1,6 +1,7 @@
 // GET /api/projects
 
 import dbConnect from "@/app/_lib/dbConnect";
+import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 import { Project } from "@/app/models/ProjectModel";
 import StudentProfile from "@/app/models/StudentProfileModel";
 import { auth } from "@/auth";
@@ -76,6 +77,20 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🧠 Build embedding text
+    const embeddingText = `
+This is a software project.
+
+Title: ${body.title}
+Description: ${body.description || ""}
+Tech Stack: ${(body.techStack || []).join(", ")}
+Category: ${body.category || ""}
+`.trim();
+    // Difficulty: ${body.difficultyLevel || ""}
+
+    // 🚀 Generate embedding
+    const embedding = await createEmbedding(embeddingText, "document");
+
     const newProject = await Project.create({
       studentId: student._id,
 
@@ -93,6 +108,8 @@ export async function POST(req: Request) {
 
       category: body.category || "",
       difficultyLevel: body.difficultyLevel,
+
+      embedding, // THE IMPORTANT LINE
 
       // defaults handled by schema
     });

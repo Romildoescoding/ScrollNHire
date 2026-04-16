@@ -8,6 +8,7 @@ import "@/app/models/CompanyModel";
 // import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 
 export async function POST(req) {
   const { email } = await req.json();
@@ -139,11 +140,50 @@ export async function PATCH(req: Request) {
         }
       }
 
-      await StudentProfile.findOneAndUpdate(
+      // 🧠 fields that affect embedding
+      const embeddingRelevantFields = [
+        "bio",
+        "skills",
+        "degree",
+        "branch",
+        "cgpa",
+      ];
+
+      const shouldUpdateEmbedding =
+        Object.keys(studentUpdates).some((key) =>
+          embeddingRelevantFields.includes(key),
+        ) ||
+        // user name changed
+        Object.keys(userUpdates).includes("name");
+
+      //  update profile
+      const profile = await StudentProfile.findOneAndUpdate(
         { userId: user._id },
         { $set: studentUpdates },
         { upsert: true, new: true },
-      );
+      ).lean();
+
+      //  generate embedding if needed
+      if (shouldUpdateEmbedding || !profile?.embedding?.length) {
+        const updatedName = userUpdates.name || user.name;
+        const embeddingText = `
+This is a student profile.
+
+Name: ${updatedName || ""}
+Bio: ${profile.bio || ""}
+Skills: ${(profile.skills || []).join(", ")}
+Degree: ${profile.degree || ""}
+Branch: ${profile.branch || ""}
+CGPA: ${profile.cgpa || ""}
+    `.trim();
+
+        const embedding = await createEmbedding(embeddingText, "document");
+
+        await StudentProfile.findOneAndUpdate(
+          { userId: user._id },
+          { $set: { embedding } },
+        );
+      }
     }
 
     // ================= EMPLOYER PROFILE =================

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/app/_lib/dbConnect";
 import StudentProfile from "@/app/models/StudentProfileModel";
+import { User } from "@/app/models/UserModel";
+import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -23,19 +25,62 @@ export async function PATCH(req: NextRequest) {
       ),
     );
 
-    // 🔥 Core logic: create if not exists, update if exists
-    const profile = await StudentProfile.findOneAndUpdate(
+    // 🎯 Check if embedding needs update
+    const embeddingRelevantFields = [
+      "bio",
+      "skills",
+      "degree",
+      "branch",
+      "cgpa",
+    ];
+
+    const shouldUpdateEmbedding = Object.keys(filteredUpdates).some((key) =>
+      embeddingRelevantFields.includes(key),
+    );
+
+    // 🔥 Create or update profile
+    let profile = await StudentProfile.findOneAndUpdate(
       { userId },
       {
         $set: filteredUpdates,
-        $setOnInsert: { userId }, // only when creating
+        $setOnInsert: { userId },
       },
       {
         new: true,
-        upsert: true, // 🧠 magic line
+        upsert: true,
         runValidators: true,
       },
-    );
+    ).lean();
+
+    // 🧠 Generate embedding ONLY if needed OR if new profile
+    if (shouldUpdateEmbedding || !profile.embedding?.length) {
+      // 👤 Fetch user name
+      const user = await User.findById(userId).lean();
+
+      const name = user?.name || "";
+
+      // 🧠 Build meaningful text
+      const embeddingText = `
+This is a student profile.
+
+Name: ${name}
+Bio: ${profile.bio || ""}
+Skills: ${(profile.skills || []).join(", ")}
+Degree: ${profile.degree || ""}
+Branch: ${profile.branch || ""}
+CGPA: ${profile.cgpa || ""}
+      `.trim();
+
+      // 🚀 Generate embedding
+      const embedding = await createEmbedding(embeddingText, "document");
+
+      // 💾 Save embedding
+      profile = await StudentProfile.findOneAndUpdate(
+        { userId },
+        { $set: { embedding } },
+        { new: true },
+      ).lean();
+    }
 
     return NextResponse.json(
       { message: "Profile saved successfully", profile },
@@ -45,7 +90,10 @@ export async function PATCH(req: NextRequest) {
     console.error("Error updating profile:", error);
 
     return NextResponse.json(
-      { error: "Update failed", details: error.message },
+      {
+        error: "Update failed",
+        details: error.message,
+      },
       { status: 500 },
     );
   }

@@ -1,4 +1,5 @@
 import dbConnect from "@/app/_lib/dbConnect";
+import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { Like } from "@/app/models/LikeModel";
 import { Reel } from "@/app/models/ReelModel";
@@ -34,6 +35,22 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🧠 OPTIONAL: get student profile for better context
+    const studentProfile = await StudentProfile.findOne({ userId }).lean();
+
+    // 🧠 Build embedding text
+    const embeddingText = `
+This is a short video reel created by a student.
+
+Caption: ${caption || ""}
+Tags: ${(tags || []).join(", ")}
+
+Creator Skills: ${(studentProfile?.skills || []).join(", ")}
+    `.trim();
+
+    // 🚀 Generate embedding
+    const embedding = await createEmbedding(embeddingText, "document");
+
     const reel = await Reel.create({
       userId,
       videoUrl,
@@ -41,6 +58,8 @@ export async function POST(req: Request) {
       caption: caption || "",
       tags: tags || [],
       duration,
+
+      embedding,
     });
 
     return NextResponse.json({

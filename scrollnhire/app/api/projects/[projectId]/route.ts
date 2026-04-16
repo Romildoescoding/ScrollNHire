@@ -1,6 +1,5 @@
-// PATCH /api/projects/:projectId
-
 import dbConnect from "@/app/_lib/dbConnect";
+import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 import { Project } from "@/app/models/ProjectModel";
 import StudentProfile from "@/app/models/StudentProfileModel";
 import { auth } from "@/auth";
@@ -33,23 +32,57 @@ export async function PATCH(
     }
 
     const { projectId } = await context.params;
-
     const body = await req.json();
 
-    const project = await Project.findOneAndUpdate(
+    // 🧠 fields that affect embedding
+    const embeddingRelevantFields = [
+      "title",
+      "description",
+      "techStack",
+      "category",
+      "difficultyLevel",
+    ];
+
+    const shouldUpdateEmbedding = Object.keys(body).some((key) =>
+      embeddingRelevantFields.includes(key),
+    );
+
+    // 🔥 update project
+    let project = await Project.findOneAndUpdate(
       {
         _id: projectId,
-        studentId: student._id, // 🔐 ownership check
+        studentId: student._id,
       },
       { $set: body },
       { new: true },
-    );
+    ).lean();
 
     if (!project) {
       return NextResponse.json(
         { success: false, error: "Project not found or unauthorized" },
         { status: 404 },
       );
+    }
+
+    // 🧠 regenerate embedding if needed
+    if (shouldUpdateEmbedding || !project.embedding?.length) {
+      const embeddingText = `
+This is a software project.
+
+Title: ${project.title}
+Description: ${project.description || ""}
+Tech Stack: ${(project.techStack || []).join(", ")}
+Category: ${project.category || ""}
+`.trim();
+      // Difficulty: ${project.difficultyLevel || ""}
+
+      const embedding = await createEmbedding(embeddingText, "document");
+
+      project = await Project.findOneAndUpdate(
+        { _id: projectId },
+        { $set: { embedding } },
+        { new: true },
+      ).lean();
     }
 
     return NextResponse.json({

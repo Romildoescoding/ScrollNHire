@@ -31,11 +31,28 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { hiringProcessId, status } = body;
 
+    const existing = await HiringProcessModel.findById(hiringProcessId);
+
+    const terminalStates = ["hired", "rejected"];
+
+    let update: any = { status };
+
+    if (terminalStates.includes(status)) {
+      if (!terminalStates.includes(existing.status)) {
+        update.lastActiveStatus = existing.status;
+      }
+    }
+
+    if (status === "shortlisted") {
+      update.status = existing.lastActiveStatus || "shortlisted";
+    }
+
     const hiringProcess = await HiringProcessModel.findOneAndUpdate(
       {
         _id: hiringProcessId,
+        employerId: userId, // 🔐 enforce ownership
       },
-      { $set: { status } },
+      { $set: update },
       { new: true },
     );
 

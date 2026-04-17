@@ -201,7 +201,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </h2> */}
             <div className="space-y-1 flex flex-col gap-1">
               <Button
-                variant={pathname === "/student" ? "secondary" : "ghost"}
+                variant={
+                  ["/student", "/employer"].includes(pathname)
+                    ? "secondary"
+                    : "ghost"
+                }
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
                   ["/student", "/employer"].includes(pathname)

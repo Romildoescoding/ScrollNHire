@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
+export type ActiveStatus =
+  | "shortlisted"
+  | "chatting"
+  | "interview_scheduled"
+  | "interview_completed"
+  | "offer_sent";
+
 export interface IHiringProcess extends Document {
   employerId: Types.ObjectId;
   studentId: Types.ObjectId;
@@ -14,6 +21,8 @@ export interface IHiringProcess extends Document {
     | "offer_sent"
     | "rejected"
     | "hired";
+
+  lastActiveStatus?: ActiveStatus | null;
 
   role: string;
   interviewDate?: Date;
@@ -56,6 +65,18 @@ const hiringSchema = new Schema<IHiringProcess>(
         "hired",
       ],
       default: "shortlisted",
+    },
+
+    lastActiveStatus: {
+      type: String,
+      enum: [
+        "shortlisted",
+        "chatting",
+        "interview_scheduled",
+        "interview_completed",
+        "offer_sent",
+      ],
+      default: null,
     },
 
     role: {

@@ -26,17 +26,16 @@ const useUpdateStatus = () => {
         },
       );
 
-      if (!response.ok) {
-        throw new Error(`Failed to update: ${response.statusText}`);
-      }
-
       return response.data;
     } catch (err: any) {
       const message =
-        err.response?.data?.error || err.message || "Something went wrong";
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong";
 
       setError(message);
-      console.error("Error updating project:", err);
+      console.error("Error updating status:", err);
     } finally {
       setIsUpdating(false);
     }

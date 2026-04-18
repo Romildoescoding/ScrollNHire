@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -21,6 +21,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Grip, User2 } from "lucide-react";
 import useUpdateStatus from "@/app/hooks/useUpdateStatus";
 import useStudents, { IStudent } from "@/app/hooks/useStudents";
+import { Badge } from "./ui/badge";
+import ModalProfile from "./modal-student-profile";
 
 const initialData = {
   shortlisted: [],
@@ -137,39 +139,62 @@ export default function HiringPipeline() {
     }
   };
 
+  const [open, setOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
+
   return (
-    <div className="border rounded-lg bg-white dark:bg-zinc-950 p-4">
-      <h2 className="text-lg mb-4 font-semibold">Hiring Pipeline Tracker</h2>
+    <>
+      <ModalProfile
+        student={selectedStudent}
+        open={open}
+        onOpenChange={setOpen}
+      />
 
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-3 gap-4 h-[400px]">
-          {Object.entries(columns).map(([colId, students]) => (
-            <Column
-              key={colId}
-              id={colId}
-              title={colId}
-              students={students}
-              activeId={activeId}
-            />
-          ))}
-        </div>
+      <div className="border rounded-lg bg-white dark:bg-zinc-950 p-4">
+        <h2 className="text-lg mb-4 font-semibold">Hiring Pipeline Tracker</h2>
 
-        {/* 👻 DRAG OVERLAY */}
-        <DragOverlay>
-          {activeId ? <OverlayCard student={getItem(activeId)} /> : null}
-        </DragOverlay>
-      </DndContext>
-    </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-3 gap-4 h-[400px]">
+            {Object.entries(columns).map(([colId, students]) => (
+              <Column
+                key={colId}
+                id={colId}
+                title={colId}
+                students={students}
+                activeId={activeId}
+                setSelectedStudent={setSelectedStudent}
+                setOpen={setOpen}
+              />
+            ))}
+          </div>
+
+          {/* 👻 DRAG OVERLAY */}
+          <DragOverlay>
+            {activeId ? <OverlayCard student={getItem(activeId)} /> : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
+    </>
   );
 }
 
 // ---
 
-const Column = ({ id, title, students, activeId }) => {
+const Column = ({
+  id,
+  title,
+  students,
+  activeId,
+  setOpen,
+  setSelectedStudent,
+}: {
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  setSelectedStudent: Dispatch<SetStateAction<IStudent | null>>;
+}) => {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const colorMap = {
@@ -199,7 +224,12 @@ const Column = ({ id, title, students, activeId }) => {
         strategy={verticalListSortingStrategy}
       >
         {students.map((student) => (
-          <SortableCard key={student.hiringProcessId} student={student} />
+          <SortableCard
+            key={student.hiringProcessId}
+            student={student}
+            setOpen={setOpen}
+            setSelectedStudent={setSelectedStudent}
+          />
         ))}
       </SortableContext>
     </div>
@@ -208,7 +238,15 @@ const Column = ({ id, title, students, activeId }) => {
 
 // ---
 
-const SortableCard = ({ student }) => {
+const SortableCard = ({
+  student,
+  setOpen,
+  setSelectedStudent,
+}: {
+  student: IStudent;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  setSelectedStudent: Dispatch<SetStateAction<IStudent | null>>;
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: student.hiringProcessId });
 
@@ -221,20 +259,37 @@ const SortableCard = ({ student }) => {
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white dark:bg-zinc-950 rounded-lg p-2 flex justify-between border shadow-sm"
+      className="bg-white cursor-pointer dark:bg-zinc-950 rounded-lg p-2 flex items-center justify-between border shadow-sm"
+      onClick={() => {
+        setSelectedStudent(student);
+        setOpen(true);
+      }}
     >
-      <div className="flex gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={student.image ?? undefined} />
-          <AvatarFallback>
-            <User2 size={20} />
-          </AvatarFallback>
-        </Avatar>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={student.image ?? undefined} />
+            <AvatarFallback>
+              <User2 size={20} />
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="text-xs">
-          <div className="font-medium">{student.name}</div>
-          <div className="text-muted-foreground">{student.email}</div>
+          <div className="text-xs">
+            <div className="font-medium">{student.name}</div>
+            <div className="text-muted-foreground">
+              {student.degree} {student.branch}
+            </div>
+          </div>
         </div>
+        {student.skills.length > 0 && (
+          <div className="flex gap-2">
+            {student.skills.slice(0, 4).map((skill, i) => (
+              <Badge key={i} className="rounded-full text-[10px]">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       <div
@@ -251,23 +306,36 @@ const SortableCard = ({ student }) => {
 // ---
 
 /* 👻 OVERLAY CARD */
-const OverlayCard = ({ student }) => {
+const OverlayCard = ({ student }: { student: IStudent }) => {
   if (!student) return null;
 
   return (
-    <div className="bg-white dark:bg-zinc-950 rounded-lg p-2 flex justify-between border shadow-xl scale-105 opacity-90">
-      <div className="flex gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={student.image ?? undefined} />
-          <AvatarFallback>
-            <User2 size={20} />
-          </AvatarFallback>
-        </Avatar>
+    <div className="bg-white dark:bg-zinc-950 rounded-lg p-2 flex items-center justify-between border shadow-sm">
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={student.image ?? undefined} />
+            <AvatarFallback>
+              <User2 size={20} />
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="text-xs">
-          <div className="font-medium">{student.name}</div>
-          <div className="text-muted-foreground">{student.email}</div>
+          <div className="text-xs">
+            <div className="font-medium">{student.name}</div>
+            <div className="text-muted-foreground">
+              {student.degree} {student.branch}
+            </div>
+          </div>
         </div>
+        {student.skills.length > 0 && (
+          <div className="flex gap-2">
+            {student.skills.slice(0, 4).map((skill, i) => (
+              <Badge key={i} className="rounded-full text-[10px]">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

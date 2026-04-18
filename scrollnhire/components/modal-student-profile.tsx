@@ -55,7 +55,8 @@ const ModalProfile = ({
               <div className="text-lg text-extrabold">{student?.name}</div>
 
               <div className="text-muted-foreground text-sm">
-                {student?.degree} {student?.branch} at{" "}
+                {student?.degree} {student?.branch}
+                {/* at{" "} */}
                 {/* {student?.collegeName} */}
               </div>
             </div>
@@ -147,7 +148,7 @@ const ModalProfile = ({
                   Reels
                 </TabsTrigger>
               </TabsList>
-              <TabsContent className="grid grid-cols-4 gap-4" value="projects">
+              <TabsContent className="grid grid-cols-3 gap-4" value="projects">
                 {(student?.projects ?? [])?.map((project, i) => (
                   <Card
                     className="relative py-2 flex flex-col justify-between"

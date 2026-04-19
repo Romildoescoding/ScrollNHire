@@ -150,7 +150,7 @@ export default function HiringPipeline() {
         onOpenChange={setOpen}
       />
 
-      <div className="border rounded-lg bg-white dark:bg-zinc-950 p-4">
+      <div className="border shadow-sm rounded-lg bg-white dark:bg-zinc-950 p-4">
         <h2 className="text-lg mb-4 font-semibold">Hiring Pipeline Tracker</h2>
 
         <DndContext
@@ -209,8 +209,8 @@ const Column = ({
       className={`flex flex-col gap-2 p-3 rounded-lg border overflow-y-auto transition
       ${
         isOver
-          ? "bg-zinc-200 dark:bg-zinc-800 ring-2 ring-black dark:ring-white"
-          : "bg-zinc-100 dark:bg-zinc-900"
+          ? "bg-zinc-100 shadow-sm dark:bg-zinc-800 ring-2 ring-black dark:ring-white"
+          : "bg-zinc-50 shadow-sm dark:bg-zinc-900"
       }`}
     >
       <div className="flex items-center gap-2">

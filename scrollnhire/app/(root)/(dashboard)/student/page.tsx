@@ -1,105 +1,254 @@
 "use client";
 
-import { BarChartCard } from "@/components/bar-chart-card";
-import { ChartCard } from "@/components/chart-card";
-import DashboardChats from "@/components/dashboard-chats";
-import DashboardNotes from "@/components/dashboard-notes";
-// import useFetchEmails from "@/app/hooks/useFetchEmails";
-import { DataTable } from "@/components/email-table";
-
-// import { BarChartCard } from "@/app/components/BarChartCard";
-// import { ChartCard } from "@/app/components/ChartCard";
-// import DashboardChats from "@/app/components/DashboardChats";
-// import DashboardNotes from "@/app/components/DashboardNotes";
-// import { useSidebar } from "@/app/context/SidebarContext";
-import { CardDescription, CardTitle } from "@/components/ui/card";
+import useConversations from "@/app/hooks/useConversations";
+import HiringPipeline from "@/components/hiring-pipeline";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import InterviewCalendar from "@/components/ui/interview-calender";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Check,
+  CheckCheck,
+  Loader2,
+  User2
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { formatMessageTime } from "../chat/page";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
-import React, { useState } from "react";
 
-const DashboardComponent = () => {
+import {
+  Label,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+} from "recharts"
+
+import { ChartContainer, ChartTooltip , ChartTooltipContent } from "@/components/ui/chart"
+
+import {ChartAreaInteractive} from "@/components/reels-chart"
+
+const StudentDashboard = () => {
+  const router = useRouter();
+
+  const interviewsScheduled = [
+    {
+      id: "1",
+      name: "Aarav Sharma",
+      role: "Frontend Developer",
+      time: "10:00 AM",
+      date: new Date(2026, 3, 18), // April 18, 2026
+    },
+    {
+      id: "2",
+      name: "Priya Verma",
+      role: "Backend Developer",
+      time: "12:30 PM",
+      date: new Date(2026, 3, 18),
+    },
+    {
+      id: "21",
+      name: "Priya Verma",
+      role: "Backend Developer",
+      time: "12:30 PM",
+      date: new Date(2026, 3, 18),
+    },
+    {
+      id: "22",
+      name: "Priya Verma",
+      role: "Backend Developer",
+      time: "12:30 PM",
+      date: new Date(2026, 3, 18),
+    },
+    {
+      id: "23",
+      name: "Priya Verma",
+      role: "Backend Developer",
+      time: "12:30 PM",
+      date: new Date(2026, 3, 18),
+    },
+    {
+      id: "24",
+      name: "Priya Verma",
+      role: "Backend Developer",
+      time: "12:30 PM",
+      date: new Date(2026, 3, 18),
+    },
+    {
+      id: "3",
+      name: "Rohan Mehta",
+      role: "Full Stack Developer",
+      time: "03:00 PM",
+      date: new Date(2026, 3, 19),
+    },
+    {
+      id: "4",
+      name: "Sneha Kapoor",
+      role: "UI/UX Designer",
+      time: "11:15 AM",
+      date: new Date(2026, 3, 20),
+    },
+    {
+      id: "5",
+      name: "Karan Patel",
+      role: "React Developer",
+      time: "02:00 PM",
+      date: new Date(2026, 3, 20),
+    },
+    {
+      id: "6",
+      name: "Ananya Singh",
+      role: "DevOps Engineer",
+      time: "04:30 PM",
+      date: new Date(2026, 3, 22),
+    },
+    {
+      id: "7",
+      name: "Vikram Joshi",
+      role: "Node.js Developer",
+      time: "09:45 AM",
+      date: new Date(2026, 3, 22),
+    },
+  ];
+
+  const { conversations, loading: convoLoading } = useConversations();
   const { data: session } = useSession();
-  const [notes, setNotes] = useState([{ title: "Note 1" }]);
-  // const { collapsed, setIsCollapsed } = useSidebar();
-  // const { notes, isFetching } = useFetchNotes();
+
+ const completionPercentage = 75;
+
+const chartData = [
+  { browser: "safari", completion: completionPercentage, fill: "var(--color-safari)" },
+]
+const chartConfig = {
+  completion: {
+    label: "Completion",
+  },
+  safari: {
+    label: "Safari",
+    color: "var(--foreground)",
+    // color: "var(--chart-2)",
+  },
+} satisfies ChartConfig
+
+
   return (
-    <div className=" text-zinc-900 grid transition-all duration-300 max-[640px]:grid-cols-1 max-[810px]:grid-cols-2 grid-cols-3 gap-4 h-fit p-6 pt-4 pb-4 w-full overflow-x-hidden ">
-      <div className="w-full min-[810px]:justify-around h-full min-[1160px]:justify-start flex items-center flex-col gap-4">
-        <div className="rounded-lg order-1 max-h-fit border-[1px] flex flex-col gap-2 p-6 w-full ">
-          <span className="text-2xl font-semibold">
-            Welcome Back,{" "}
-            <span className="font-bold">{session?.user?.name || "User"}</span>
-          </span>
-          <span className="text-zinc-500 text-sm">
-            Get started by navigating from the sidebar or select an option on
-            the dashboard.
-          </span>
+    <main className="flex flex-col px-4 pb-6 gap-4 max-w-7xl mx-auto">
+      {/* Header */}
+      <section className="">
+        <h1 className="font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight">
+          Welcome back, Alex
+        </h1>
+      </section>
+
+      <div className="w-full h-[50vh] min-h-[374px] flex gap-4">
+        <div className="flex w-full h-full gap-4">
+          <div className="w-[300px] h-full flex flex-col gap-4">
+            {/* <Card className="bg-zinc-900 min-w-fit border-none p-4 dark:bg-zinc-200 text-background flex flex-col gap-2 rounded-lg shadow-sm">
+              <div className="flex gap-2 justify-between items-center">
+                <p className="font-semibold">Interviews Today</p>{" "}
+                <Button
+                  className="h-10 w-10 rounded-full bg-background hover:bg-background text-xl text-foreground hover:text-foreground pointer-events-none"
+                  style={{ padding: 0 }}
+                >
+                  <CalendarDays />
+                </Button>
+              </div>
+              <h1 className="text-4xl font-medium">3</h1>
+              <p className="text-zinc-400 dark:text-zinc-600 text-sm min-w-fit whitespace-nowrap">
+                Next at 2:30 PM on April 19, 26
+              </p>
+            </Card> */}
+            <Card className=" min-w-fit border p-4 flex flex-col gap-3 rounded-lg shadow-sm">
+              <div className="flex gap-2 justify-between items-center">
+                <p className="font-semibold text-lg">Profile Completeness</p>{" "}
+                <Button
+                  className="h-10 w-10 rounded-full text-xl pointer-events-none"
+                  variant="outline"
+                  style={{ padding: 0 }}
+                >
+                  <User2 />
+                </Button>
+              </div>
+
+              <div className="flex-1 flex flex-col gap-2">
+
+      <CardContent className="p-0 min-w-[150px] w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[150px]"
+        >
+          <RadialBarChart
+            data={chartData}
+            startAngle={0}
+            endAngle={250}
+            outerRadius={70}
+            innerRadius={55}
+          >
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted last:fill-background"
+              polarRadius={[70, 55]}
+            />
+            <RadialBar dataKey="completion" background cornerRadius={10} />
+            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {chartData[0].completion.toLocaleString()}%
+                        </tspan>
+                        {/* <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          completed
+                        </tspan> */}
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </PolarRadiusAxis>
+          </RadialBarChart>
+        </ChartContainer>
+      </CardContent>
+
+  {/* LIST OF THE SUGGESTIONS */}
+  <div className="flex flex-col gap-2">
+    {["Add more skills to your profile","Add some projects to your profile"].map((suggestion,i) => <div key={i} className="border text-sm rounded-lg bg-foreground text-background shadow-sm p-2">{suggestion}</div>)}
+  </div></div>
+
+            </Card>
+          </div>
+
         </div>
 
-        <DashboardNotes />
+        {/* CALENDER DIV */}
 
-        {/* <div className="rounded-lg max-h-fit border-[1px] flex flex-col gap-1 p-6 w-full max-w-sm"> */}
-        <div className="rounded-lg max-h-fit order-2 min-[810px]:order-3 border-[1px] flex flex-col gap-1 p-6 w-full">
-          <CardTitle className="text-xl">Total Notes</CardTitle>
-          <CardDescription>
-            The number of notes you have exported till date.
-          </CardDescription>
-          <h1 className="w-full flex text-3xl font-bold">
-            {Number(notes?.length).toLocaleString()} notes
-          </h1>
-        </div>
+        <InterviewCalendar interviewsScheduled={interviewsScheduled} />
       </div>
 
-      <div className="w-full min-[810px]:justify-around h-full min-[1160px]:justify-start flex items-center flex-col gap-4">
-        <div className="min-w-md w-full h-fit flex flex-col gap-4">
-          <ChartCard />
-        </div>
-
-        <DashboardChats />
-      </div>
-
-      <div className="w-full h-fit flex sm:col-span-1 min-[810px]:flex-row min-[810px]:col-span-2 min-[1160px]:flex-col min-[1160px]:col-span-1 flex-col gap-4">
-        <div className="rounded-lg max-h-fit border-[1px] flex flex-col gap-2 p-6 w-full">
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Access the main features via these buttons.
-          </CardDescription>
-          <Link
-            href="/notes/uploads"
-            className="w-full flex items-center justify-center p-2 font-semibold text-sm bg-zinc-900 hover:bg-zinc-800 text-zinc-50 rounded-lg transition-all"
-          >
-            Upload Notes
-          </Link>
-          <Link
-            href="/notes/editor"
-            className="w-full flex items-center justify-center p-2 font-semibold text-sm bg-zinc-900 hover:bg-zinc-800 text-zinc-50 rounded-lg transition-all"
-          >
-            Access Editor
-          </Link>
-          <Link
-            href="/chat"
-            className="w-full flex items-center justify-center p-2 font-semibold text-sm bg-zinc-900 hover:bg-zinc-800 text-zinc-50 rounded-lg transition-all"
-          >
-            Chat with AI
-          </Link>
-        </div>
-
-        <div className="min-w-md w-full h-fit flex flex-col gap-4">
-          <BarChartCard />
-        </div>
-
-        {/* <div className="rounded-lg max-h-fit border-[1px] flex flex-col gap-2 p-6 w-full max-w-sm">
-      <CardTitle>Quick Chat</CardTitle>
-      <CardDescription>Ask the AI anything.</CardDescription>
-      <input
-        type="text"
-        className="rounded-md border-[1px] text-sm placeholder:text-zinc-300 p-2"
-        placeholder="Type Message.."
-      />
-    </div> */}
-      </div>
-    </div>
+      {/* Bento Grid Layout */}
+      <ChartAreaInteractive/>
+    </main>
   );
 };
 
-export default DashboardComponent;
+export default StudentDashboard;

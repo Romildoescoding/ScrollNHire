@@ -2,6 +2,7 @@
 import React from "react";
 import { ReelUploadProvider } from "../context/ReelUploadContext";
 import { SidebarProvider } from "../context/SidebarContext";
+// import "./bones/registry";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (

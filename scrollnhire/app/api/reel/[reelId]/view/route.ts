@@ -13,15 +13,28 @@ export async function POST(
   const { reelId } = await context.params;
 
   try {
-    const existing = await View.findOne({ reelId, userId });
+    if (userId) {
+      // 🔒 logged-in user → only 1 view
+      const existing = await View.findOne({ reelId, userId });
 
-    if (!existing) {
-      await View.create({ reelId, userId });
+      if (!existing) {
+        await View.create({ reelId, userId });
 
-      await Reel.findByIdAndUpdate(reelId, {});
+        await Reel.findByIdAndUpdate(reelId, {
+          $inc: { viewsCount: 1 },
+        });
+      }
+    } else {
+      // 👻 anonymous → always count
+      await View.create({ reelId });
+
+      await Reel.findByIdAndUpdate(reelId, {
+        $inc: { viewsCount: 1 },
+      });
     }
   } catch (err) {
     console.error("VIEW_ERROR:", err);
   }
+
   return NextResponse.json({ success: true });
 }

@@ -11,9 +11,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function InterviewCalendar({
+  isLoading,
   interviewsScheduled,
 }: {
   interviewsScheduled: InterviewItem[];
+  isLoading: boolean;
 }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -62,7 +64,16 @@ export default function InterviewCalendar({
               : "Select a date"}
           </h3>
           <div className="flex h-full overflow-y-auto flex-col gap-2">
-            {interviewsForSelectedDate.length === 0 ? (
+            {isLoading ? (
+              <>
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-full h-12 shimmer2 rounded-lg"
+                  ></div>
+                ))}
+              </>
+            ) : interviewsForSelectedDate.length === 0 ? (
               <div className="w-full h-full items-center justify-center flex flex-col gap-2">
                 <div className=" h-10 aspect-square rounded-full flex items-center justify-center border-foreground border-2">
                   <Laptop size={24} strokeWidth={1.5} />
@@ -73,7 +84,7 @@ export default function InterviewCalendar({
                 <Button
                   className="rounded-full max-w-[160px]"
                   variant="default"
-                  onClick={() => router.push("/create")}
+                  onClick={() => router.push("/chat")}
                 >
                   {session?.user?.role === "employer"
                     ? "Schedule Interview"

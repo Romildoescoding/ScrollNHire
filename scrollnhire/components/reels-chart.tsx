@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -30,6 +31,7 @@ export const description = "An interactive area chart";
 
 type ChartProps = {
   data: { date: string; views: number }[];
+  isLoading: boolean;
 };
 
 const chartConfig = {
@@ -42,7 +44,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartAreaInteractive({ data }: ChartProps) {
+export function ChartAreaInteractive({ data, isLoading }: ChartProps) {
   const [timeRange, setTimeRange] = React.useState("90d");
 
   const chartData = data;
@@ -84,25 +86,28 @@ export function ChartAreaInteractive({ data }: ChartProps) {
         </Select>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillViews" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-views)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-views)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              {/* <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+        {isLoading ? (
+          <div className="shimmer2 h-[250px] w-full rounded-lg"></div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
+          >
+            <AreaChart data={filteredData}>
+              <defs>
+                <linearGradient id="fillViews" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-views)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-views)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                {/* <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
                   stopColor="var(--color-mobile)"
@@ -114,47 +119,49 @@ export function ChartAreaInteractive({ data }: ChartProps) {
                   stopOpacity={0.1}
                 />
               </linearGradient> */}
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                  indicator="dot"
-                />
-              }
-            />
-            <Area
-              dataKey="views"
-              type="natural"
-              fill="url(#fillViews)"
-              stroke="var(--color-views)"
-              stackId="a"
-            />
-            <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
-        </ChartContainer>
+              </defs>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => {
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                }}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) => {
+                      return new Date(value).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      });
+                    }}
+                    indicator="dot"
+                  />
+                }
+              />
+              <Area
+                dataKey="views"
+                type="natural"
+                fill="url(#fillViews)"
+                stroke="var(--color-views)"
+                stackId="a"
+              />
+              {/* <ChartLegend content={<ChartLegendContent />} /> */}
+            </AreaChart>
+          </ChartContainer>
+        )}
       </CardContent>
+      {/* <CardFooter>You got a total of 13.2k views</CardFooter> */}
     </Card>
   );
 }

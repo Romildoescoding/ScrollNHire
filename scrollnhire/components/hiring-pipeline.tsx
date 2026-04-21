@@ -168,6 +168,7 @@ export default function HiringPipeline() {
                 activeId={activeId}
                 setSelectedStudent={setSelectedStudent}
                 setOpen={setOpen}
+                isFetchingStudents={isFetchingStudents}
               />
             ))}
           </div>
@@ -191,9 +192,11 @@ const Column = ({
   activeId,
   setOpen,
   setSelectedStudent,
+  isFetchingStudents,
 }: {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedStudent: Dispatch<SetStateAction<IStudent | null>>;
+  isFetchingStudents: boolean;
 }) => {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -219,19 +222,27 @@ const Column = ({
         <span className="text-xs text-muted-foreground">{students.length}</span>
       </div>
 
-      <SortableContext
-        items={students.map((s) => s.hiringProcessId)}
-        strategy={verticalListSortingStrategy}
-      >
-        {students.map((student) => (
-          <SortableCard
-            key={student.hiringProcessId}
-            student={student}
-            setOpen={setOpen}
-            setSelectedStudent={setSelectedStudent}
-          />
-        ))}
-      </SortableContext>
+      {isFetchingStudents ? (
+        <div className="h-full w-full flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="shimmer2 h-[57px] w-full rounded-lg"></div>
+          ))}
+        </div>
+      ) : (
+        <SortableContext
+          items={students.map((s) => s.hiringProcessId)}
+          strategy={verticalListSortingStrategy}
+        >
+          {students.map((student) => (
+            <SortableCard
+              key={student.hiringProcessId}
+              student={student}
+              setOpen={setOpen}
+              setSelectedStudent={setSelectedStudent}
+            />
+          ))}
+        </SortableContext>
+      )}
     </div>
   );
 };

@@ -20,6 +20,8 @@ import { formatMessageTime } from "../chat/page";
 import { useSession } from "next-auth/react";
 import useEmployerDashboard from "@/app/hooks/useEmployerDashboard";
 import { format } from "date-fns";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { cn } from "@/lib/utils";
 
 const EmployerDashboard = () => {
   const router = useRouter();
@@ -108,6 +110,7 @@ const EmployerDashboard = () => {
 
   const { conversations, loading: convoLoading } = useConversations();
   const { data: session, status } = useSession();
+  const { isSidebarOpen } = useSidebar();
 
   return (
     <main className="flex flex-col px-4 pb-6 gap-4 max-w-7xl mx-auto">
@@ -124,10 +127,19 @@ const EmployerDashboard = () => {
         )}
       </section>
 
-      <div className="w-full h-[375px] min-h-[374px] flex gap-4">
-        <div className="flex w-full h-full gap-4">
-          <div className="w-fit h-full flex flex-col gap-4">
-            <Card className="bg-zinc-900 min-w-fit border-none p-4 dark:bg-zinc-200 text-background flex flex-col gap-2 rounded-lg shadow-sm">
+      <div
+        className={cn(
+          "w-full h-[780px] min-h-[374px] max-h-[780px] flex flex-col gap-4",
+          isSidebarOpen
+            ? "max-[546px]:h-[1000px] max-[546px]:max-h-[1200px] min-[1077px]:flex-row min-[1077px]:h-[375px] min-[1077px]:max-h-[375px]"
+            : "max-[546px]:h-[1000px] max-[546px]:max-h-[1200px] min-[901px]:flex-row min-[901px]:h-[375px] min-[901px]:max-h-[375px]",
+        )}
+      >
+        <div
+          className={`flex w-full h-full gap-4 flex-col min-[546px]:flex-row`}
+        >
+          <div className="w-full min-[546px]:w-fit h-full flex flex-col gap-4">
+            <Card className="bg-zinc-900 min-w-fit w-full min-[546px]:w-auto border-none p-4 dark:bg-zinc-200 text-background flex flex-col gap-2 rounded-lg shadow-sm">
               <div className="flex gap-2 justify-between items-center">
                 <p className="font-semibold">Interviews Today</p>{" "}
                 <Button
@@ -158,7 +170,7 @@ const EmployerDashboard = () => {
                 </p>
               )}
             </Card>
-            <Card className=" min-w-fit border p-4 flex flex-col gap-3 rounded-lg shadow-sm">
+            <Card className="bg-white dark:bg-zinc-950 min-w-fit w-full min-[546px]:w-auto border p-4 flex flex-col gap-3 rounded-lg shadow-sm">
               <div className="flex gap-2 justify-between items-center">
                 <p className="font-semibold text-lg">Quick Actions</p>{" "}
                 <Button

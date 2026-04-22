@@ -23,6 +23,8 @@ import useUpdateStatus from "@/app/hooks/useUpdateStatus";
 import useStudents, { IStudent } from "@/app/hooks/useStudents";
 import { Badge } from "./ui/badge";
 import ModalProfile from "./modal-student-profile";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { cn } from "@/lib/utils";
 
 const initialData = {
   shortlisted: [],
@@ -139,6 +141,8 @@ export default function HiringPipeline() {
     }
   };
 
+  const { isSidebarOpen } = useSidebar();
+
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
 
@@ -158,7 +162,14 @@ export default function HiringPipeline() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-3 gap-4 h-[400px]">
+          <div
+            className={cn(
+              `grid grid-cols-1 gap-4 h-fit`,
+              isSidebarOpen
+                ? "min-[890px]:grid-cols-2 min-[1175px]:grid-cols-3"
+                : "min-[714px]:grid-cols-2 min-[1000px]:grid-cols-3",
+            )}
+          >
             {Object.entries(columns).map(([colId, students]) => (
               <Column
                 key={colId}
@@ -209,7 +220,7 @@ const Column = ({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col gap-2 p-3 rounded-lg border overflow-y-auto transition
+      className={`flex h-[480px] flex-col gap-2 p-3 rounded-lg border overflow-y-auto transition
       ${
         isOver
           ? "bg-zinc-100 shadow-sm dark:bg-zinc-800 ring-2 ring-black dark:ring-white"

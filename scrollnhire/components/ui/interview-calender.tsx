@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
 import { InterviewItem } from "@/app/hooks/useStudentDashboard";
-import { AlertCircle, Laptop } from "lucide-react";
+import { ArrowLeft, Info, Laptop } from "lucide-react";
 import { Button } from "./button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { cn } from "@/lib/utils";
 
 export default function InterviewCalendar({
   isLoading,
@@ -17,19 +19,21 @@ export default function InterviewCalendar({
   interviewsScheduled: InterviewItem[];
   isLoading: boolean;
 }) {
+  const { isSidebarOpen } = useSidebar();
+
+  const MAX_BREAKPOINT = isSidebarOpen ? 1253 : 1077;
+  const MIN_BREAKPOINT = isSidebarOpen ? 1077 : 901;
   const { data: session } = useSession();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date(),
   );
 
-  // 🎯 Extract all interview dates
   const interviewDates = useMemo(
     () => interviewsScheduled.map((i) => i.interviewDate),
     [interviewsScheduled],
   );
 
-  // 🎯 Filter interviews for selected date
   const interviewsForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
     return interviewsScheduled.filter((i) =>
@@ -37,32 +41,113 @@ export default function InterviewCalendar({
     );
   }, [selectedDate, interviewsScheduled]);
 
-  return (
-    <div className="w-full min-w-fit border rounded-lg h-full bg-white dark:bg-zinc-950 p-4 shadow-sm overflow-y-hidden flex flex-col gap-2">
-      <p className="font-semibold text-lg">Interview Calender</p>
-      {/* 📅 Calendar */}
-      <div className="w-full h-[calc(100%-28px)] flex gap-2">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={setSelectedDate}
-          // 🔥 Highlight interview dates
-          modifiers={{
-            interview: interviewDates,
-          }}
-          modifiersClassNames={{
-            interview: "hasDot",
-          }}
-          className="p-0 bg-white dark:bg-zinc-950"
-        />
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-        {/* 📋 Interview List */}
-        <div className="flex flex-1 h-full flex-col gap-2 px-2">
-          <h3 className="font-semibold">
+  const [shouldScroll, setShouldScroll] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const width = window.innerWidth;
+      setShouldScroll(
+        width < 500 || (width >= MIN_BREAKPOINT && width <= MAX_BREAKPOINT),
+      );
+    };
+
+    check();
+
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [MAX_BREAKPOINT, MIN_BREAKPOINT]);
+
+  const transformContainer = (direction: "left" | "right") => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    if (!shouldScroll) return;
+    if (direction === "right") el.style.transform = "translateX(-52.5%)";
+    if (direction === "left") el.style.transform = "";
+  };
+
+  useEffect(() => {
+    if (!shouldScroll) {
+      const el = scrollContainerRef.current;
+      if (!el) return;
+      el.style.transform = "";
+    }
+  }, [shouldScroll]);
+
+  return (
+    <div className="w-full border rounded-lg h-full bg-white dark:bg-zinc-950 p-4 shadow-sm overflow-y-hidden overflow-x-hidden flex flex-col gap-2">
+      <p className="font-semibold text-lg flex justify-between gap-2">
+        <span>Interview Calender</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info size={18} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Select any date to view the interviews</p>
+          </TooltipContent>
+        </Tooltip>
+      </p>
+
+      <div
+        ref={scrollContainerRef}
+        className={cn(
+          "w-[200%] transition-all h-[calc(100%-28px)] flex gap-2 overflow-x-hidden",
+          isSidebarOpen
+            ? "min-[500px]:w-full min-[1077px]:w-[200%] min-[1253px]:w-full"
+            : "min-[500px]:w-full min-[901px]:w-[200%] min-[1077px]:w-full",
+        )}
+      >
+        <div
+          className={cn(
+            "h-full flex items-center justify-center w-1/2",
+            isSidebarOpen ? "min-[1253px]:w-fit" : "min-[1077px]:w-fit",
+          )}
+        >
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={(date) => {
+              setSelectedDate(date);
+              transformContainer("right");
+            }}
+            modifiers={{
+              interview: interviewDates,
+            }}
+            modifiersClassNames={{
+              interview: "hasDot",
+            }}
+            className="p-0 bg-white dark:bg-zinc-950"
+          />
+        </div>
+
+        <div
+          className={cn(
+            "flex w-1/2 h-full flex-col gap-2 px-2 relative",
+            isSidebarOpen
+              ? "min-[1253px]:flex-1 min-[1253px]:w-auto"
+              : "min-[1077px]:flex-1 min-[1077px]:w-auto",
+            shouldScroll ? "pl-8" : "pl-2",
+          )}
+        >
+          {shouldScroll && (
+            <Button
+              variant={"ghost"}
+              className="h-6 w-6 flex items-center justify-center absolute top-0 left-2"
+              style={{ padding: 0 }}
+              onClick={() => transformContainer("left")}
+            >
+              <ArrowLeft />
+            </Button>
+          )}
+
+          <h3 className="font-semibold ">
             {selectedDate
               ? `Interviews on ${format(selectedDate, "PPP")}`
               : "Select a date"}
           </h3>
+
           <div className="flex h-full overflow-y-auto flex-col gap-2">
             {isLoading ? (
               <>
@@ -75,7 +160,7 @@ export default function InterviewCalendar({
               </>
             ) : interviewsForSelectedDate.length === 0 ? (
               <div className="w-full h-full items-center justify-center flex flex-col gap-2">
-                <div className=" h-10 aspect-square rounded-full flex items-center justify-center border-foreground border-2">
+                <div className="h-10 aspect-square rounded-full flex items-center justify-center border-foreground border-2">
                   <Laptop size={24} strokeWidth={1.5} />
                 </div>
                 <span className="text-muted-foreground">

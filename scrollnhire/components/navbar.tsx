@@ -58,13 +58,13 @@ const Navbar = () => {
   return (
     <nav
       className={cn(
-        "border-b z-[9] transition-all bg-zinc-100 dark:bg-zinc-900 duration-500 fixed top-2 right-2  h-[56px]",
+        "border-b z-[9] transition-all bg-zinc-100 dark:bg-zinc-900 duration-500 fixed top-0 right-0 md:top-2 md:right-2 h-[56px]",
         isSidebarOpen
-          ? "w-[calc(100vw-200px)] md:w-[calc(100vw-264px)]"
+          ? "w-[100vw] md:w-[calc(100vw-264px)]"
           : "w-[100vw] md:w-[calc(100vw-88px)]",
       )}
     >
-      <div className="flex justify-between pr-4 dark:bg-neutral-950 transition-all duration-500 h-full w-full rounded-t-lg bg-white">
+      <div className="flex justify-between pr-4 dark:bg-neutral-950 transition-all duration-500 h-full w-full md:rounded-t-lg bg-white">
         <button
           onClick={() => setIsSidebarOpen((open) => !open)}
           className={cn(
@@ -72,11 +72,12 @@ const Navbar = () => {
             isSidebarOpen ? " md:text-neutral-600" : " text-neutral-600",
           )}
         >
-          {isSidebarOpen ? (
+          <PanelLeftOpen size={20} />
+          {/* {isSidebarOpen ? (
             <PanelLeftClose size={20} />
           ) : (
             <PanelLeftOpen size={20} />
-          )}
+          )} */}
         </button>
 
         <div className="flex items-center gap-4">

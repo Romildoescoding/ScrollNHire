@@ -53,9 +53,9 @@ export function LoginForm({
       // Case: Google denied permission or other error
       if (res?.error) {
         setErrorMessage("Google Sign-in failed. Please try again.");
-        toast(res.error, {
-          className: "bg-red-100 text-red-700 border border-red-300",
-        });
+        // toast(res.error, {
+        //   className: "bg-red-100 text-red-700 border border-red-300",
+        // });
         return;
       }
 

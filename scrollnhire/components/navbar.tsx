@@ -24,6 +24,7 @@ import {
 import { useTheme } from "next-themes";
 import { useSidebar } from "@/app/context/SidebarContext";
 import { cn } from "@/lib/utils";
+import { signOut, useSession } from "next-auth/react";
 
 const Navbar = () => {
   //   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,29 +32,33 @@ const Navbar = () => {
 
   //   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   //   const [isScrolled, setIsScrolled] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    // const handleScroll = () => {
-    //   if (window.scrollY > 10) {
-    //     setIsScrolled(true);
-    //   } else {
-    //     setIsScrolled(false);
-    //   }
-    // };
+  // useEffect(() => {
+  // setMounted(true);
+  // const handleScroll = () => {
+  //   if (window.scrollY > 10) {
+  //     setIsScrolled(true);
+  //   } else {
+  //     setIsScrolled(false);
+  //   }
+  // };
 
-    // window.addEventListener("scroll", handleScroll);
-    // return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // window.addEventListener("scroll", handleScroll);
+  // return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme((theme) => (theme === "dark" ? "light" : "dark"));
   };
 
-  const router = useRouter();
+  // const router = useRouter();
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+
+  function handleLogout() {
+    signOut({ callbackUrl: "https://localhost:3000/login" });
+  }
 
   return (
     <nav
@@ -84,7 +89,7 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/login")}
+            onClick={handleLogout}
             className="rounded-full"
           >
             <LogOut className="size-[18px]" />
@@ -95,11 +100,13 @@ const Navbar = () => {
             onClick={toggleTheme}
             className="rounded-full"
           >
-            {mounted && theme === "dark" ? (
+            {/* {mounted && ( */}
+            {theme === "dark" ? (
               <Sun className="size-[18px]" />
             ) : (
               <Moon className="size-[18px]" />
             )}
+            {/* )} */}
           </Button>
           {/* <Button
           variant="ghost"

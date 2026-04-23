@@ -131,8 +131,8 @@ const EmployerDashboard = () => {
         className={cn(
           "w-full h-[780px] min-h-[374px] max-h-[780px] flex flex-col gap-4",
           isSidebarOpen
-            ? "max-[546px]:h-[1000px] max-[546px]:max-h-[1200px] min-[1077px]:flex-row min-[1077px]:h-[375px] min-[1077px]:max-h-[375px]"
-            : "max-[546px]:h-[1000px] max-[546px]:max-h-[1200px] min-[901px]:flex-row min-[901px]:h-[375px] min-[901px]:max-h-[375px]",
+            ? "max-[546px]:h-fit max-[546px]:max-h-[1200px] min-[1077px]:flex-row min-[1077px]:h-[375px] min-[1077px]:max-h-[375px]"
+            : "max-[546px]:h-fit max-[546px]:max-h-[1200px] min-[901px]:flex-row min-[901px]:h-[375px] min-[901px]:max-h-[375px]",
         )}
       >
         <div
@@ -212,7 +212,7 @@ const EmployerDashboard = () => {
             <p className="font-semibold text-lg mb-2">Continue Chats</p>
             {/* {conversations.map()} */}
 
-            <div className="flex-1 flex flex-col gap-2 h-full overflow-y-auto">
+            <div className="flex-1 flex flex-col gap-2 max-h-36 h-full overflow-y-auto">
               {convoLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <div

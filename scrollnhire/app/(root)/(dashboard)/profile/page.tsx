@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Camera, ExternalLink, Plus, X } from "lucide-react";
+import {
+  Camera,
+  ExternalLink,
+  Folders,
+  Plus,
+  SquarePlay,
+  X,
+} from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -117,8 +124,14 @@ const ProfilePage = () => {
     <>
       <div className="p-6 pt-2 flex flex-col gap-4">
         {/* Image */}
-        <div className="flex gap-4 items-center">
-          <div className="flex gap-4 w-fit items-center">
+
+        <div className="flex items-center justify-end w-full min-[600px]:hidden">
+          <Button className="" onClick={() => router.push("/profile/edit")}>
+            Edit Profile
+          </Button>
+        </div>
+        <div className="flex flex-col min-[400px]:flex-row gap-4 items-center">
+          <div className="flex gap-4 w-full justify-center min-[400px]:w-fit items-center">
             <Image
               src={form.imageUrl || ""}
               alt="user"
@@ -144,26 +157,48 @@ const ProfilePage = () => {
               </div>
             )}
           </div>
-          <Button className="" onClick={() => router.push("/profile/edit")}>
+          <Button
+            className="hidden min-[600px]:flex"
+            onClick={() => router.push("/profile/edit")}
+          >
             Edit Profile
           </Button>
         </div>
-        <div className="w-full h-fit text-muted-foreground">{form.bio}</div>
+        <div className="border-t w-full h-fit text-muted-foreground">
+          {form.bio}
+        </div>
 
         {user.role === "student" && (
           <div className="space-y-2">
             <Label>Skills</Label>
 
-            <div className="flex flex-wrap gap-2">
-              {(form.studentProfile.skills ?? []).map((skill) => (
-                <Badge
-                  key={skill}
-                  className="rounded-full flex items-center gap-1"
+            {form.studentProfile.skills.length === 0 ? (
+              <div className="flex items-center justify-start w-full h-fit rounded-lg gap-2 transition">
+                {" "}
+                <span className="text-sm text-foreground/60">
+                  No skills added yet.
+                </span>
+                <Button
+                  className="rounded-full max-w-[160px]"
+                  variant="default"
+                  size={"sm"}
+                  onClick={() => router.push("/profile/edit")}
                 >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
+                  Add skills
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {(form.studentProfile.skills ?? []).map((skill) => (
+                  <Badge
+                    key={skill}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -178,10 +213,10 @@ const ProfilePage = () => {
                 }
                 className="w-full max-h-96 border rounded-md overflow-hidden cursor-pointer hover:shadow-md transition flex justify-center"
               >
-                <div className="relative  w-[644px] h-full overflow-hidden border-b-2 px-4">
+                <div className="relative w-[310px] min-[450px]:w-[475px] md:w-[644px] h-full overflow-hidden border-b-2 px-4">
                   {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js"> */}
                   <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js">
-                    <div>
+                    <div className="scale-50 min-[450px]:scale-75 max-[767px]:-translate-y-[12.5%] max-[767px]:-translate-x-[12.5%] max-[449px]:-translate-x-[25%] max-[449px]:-translate-y-[25%] md:scale-100 ">
                       <Viewer
                         defaultScale={1}
                         fileUrl={form.studentProfile.resumeUrl}
@@ -191,11 +226,19 @@ const ProfilePage = () => {
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg  transition">
+              <label className="flex flex-col items-center justify-center w-full gap-2 h-32 border-2 border-dashed rounded-lg  transition">
                 {" "}
                 <span className="text-sm text-foreground/60">
                   No resume uploaded
                 </span>{" "}
+                <Button
+                  className="rounded-full max-w-[160px]"
+                  variant="default"
+                  size={"sm"}
+                  onClick={() => router.push("/profile/edit")}
+                >
+                  Add resume
+                </Button>
               </label>
             )}
           </div>
@@ -203,7 +246,7 @@ const ProfilePage = () => {
 
         <div className="flex flex-col gap-3">
           <h1>Contact Information</h1>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Email</Label>
               <Input
@@ -215,7 +258,7 @@ const ProfilePage = () => {
             <div className="space-y-2">
               <Label>Linkedin</Label>
               <Input
-                placeholder="https://linkedin.com/..."
+                placeholder="No linkedin added"
                 value={form.linkedin}
                 disabled={true}
               />
@@ -224,7 +267,7 @@ const ProfilePage = () => {
               <div className="space-y-2">
                 <Label>GitHub</Label>
                 <Input
-                  placeholder="https://github.com/..."
+                  placeholder="No github added"
                   value={form.studentProfile.github}
                   disabled={true}
                 />
@@ -242,24 +285,47 @@ const ProfilePage = () => {
                   Reels
                 </TabsTrigger>
               </TabsList>
-              <TabsContent className="grid grid-cols-4 gap-4" value="projects">
-                {(form.studentProfile.projects ?? [])?.map((project, i) => (
-                  <Card
-                    className="relative py-2 flex flex-col justify-between"
-                    key={i}
-                  >
-                    <CardContent className="text-sm flex flex-col gap-2 px-2">
-                      <div className="w-full h-fit">
-                        <Image
-                          src={project.thumbnail || "/placeholder.png"}
-                          className="w-full rounded-md"
-                          alt="project_image"
-                          height={500}
-                          width={500}
-                        />
-                      </div>
+              {!form.studentProfile.projects ||
+              form.studentProfile.projects.length === 0 ? (
+                <TabsContent className="w-full" value="projects">
+                  <div className="w-full h-fit my-10 items-center justify-center flex flex-col gap-2">
+                    <div className="h-10 aspect-square rounded-full flex items-center justify-center border-foreground border-2">
+                      <Folders size={24} strokeWidth={1.5} />
+                    </div>
+                    <span className="text-muted-foreground">
+                      No projects created yet.
+                    </span>
+                    <Button
+                      className="rounded-full max-w-[160px]"
+                      variant="default"
+                      onClick={() => router.push("/projects")}
+                    >
+                      Create Projects
+                    </Button>
+                  </div>
+                </TabsContent>
+              ) : (
+                <TabsContent
+                  className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4"
+                  value="projects"
+                >
+                  {(form.studentProfile.projects ?? [])?.map((project, i) => (
+                    <Card
+                      className="relative py-2 flex flex-col justify-between"
+                      key={i}
+                    >
+                      <CardContent className="text-sm flex flex-col gap-2 px-2">
+                        <div className="w-full h-fit">
+                          <Image
+                            src={project.thumbnail || "/placeholder.png"}
+                            className="w-full rounded-md"
+                            alt="project_image"
+                            height={500}
+                            width={500}
+                          />
+                        </div>
 
-                      {/* <Button
+                        {/* <Button
                   className="absolute top-4 right-4 rounded-full h-8 w-8 flex items-center justify-center"
                   style={{ padding: 0 }}
                   onClick={() => handleOpenEditProject(project)}
@@ -267,122 +333,147 @@ const ProfilePage = () => {
                   <Pencil />
                 </Button> */}
 
-                      <div className="flex flex-col">
-                        <span></span>
-                        <div className="flex justify-between w-full">
-                          <div className="font-semibold flex-1 max-w-[80%] text-base">
-                            {project.title}
+                        <div className="flex flex-col">
+                          <span></span>
+                          <div className="flex justify-between w-full">
+                            <div className="font-semibold flex-1 max-w-[80%] text-base">
+                              {project.title}
+                            </div>
+                            {/* {project.liveUrl && ( */}
+                            <Button
+                              variant="outline"
+                              className="rounded-full h-8 min-w-8 w-8 flex items-center justify-center"
+                              style={{ padding: 0 }}
+                              disabled={!project.liveUrl}
+                            >
+                              <Link
+                                href={project.liveUrl ?? "/projects"}
+                                target="_blank"
+                                className="min-w-fit"
+                              >
+                                <ExternalLink size={18} />
+                              </Link>
+                            </Button>
+                            {/* )} */}
                           </div>
-                          {/* {project.liveUrl && ( */}
-                          <Button
-                            variant="outline"
-                            className="rounded-full h-8 min-w-8 w-8 flex items-center justify-center"
-                            style={{ padding: 0 }}
-                            disabled={!project.liveUrl}
-                          >
-                            <Link
-                              href={project.liveUrl ?? "/projects"}
-                              target="_blank"
-                              className="min-w-fit"
-                            >
-                              <ExternalLink size={18} />
-                            </Link>
-                          </Button>
-                          {/* )} */}
+                          <div className="text-muted-foreground">
+                            {project.description}
+                          </div>
                         </div>
-                        <div className="text-muted-foreground">
-                          {project.description}
-                        </div>
-                      </div>
 
-                      {/* Tech stack badges */}
-                      <div className="flex flex-wrap gap-2">
-                        {(project.techStack || []).map(
-                          (tech: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="text-xs bg-muted px-2 py-1 rounded-full"
-                            >
-                              {tech}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </CardContent>
-                    <p className="flex w-full justify-end p-2 pb-0">
-                      <Badge
-                        className={cn(
-                          "flex rounded-full items-center gap-2 p-1 capitalize",
-                          project.difficultyLevel === "advanced"
-                            ? "bg-red-300 text-red-600"
-                            : project.difficultyLevel === "intermediate"
-                              ? "bg-blue-300 text-blue-600"
-                              : "bg-green-300 text-green-600",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "flex w-3 h-3 rounded-full",
-                            project.difficultyLevel === "advanced"
-                              ? "bg-red-500"
-                              : project.difficultyLevel === "intermediate"
-                                ? "bg-blue-500"
-                                : "bg-green-500",
+                        {/* Tech stack badges */}
+                        <div className="flex flex-wrap gap-2">
+                          {(project.techStack || []).map(
+                            (tech: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="text-xs bg-muted px-2 py-1 rounded-full"
+                              >
+                                {tech}
+                              </span>
+                            ),
                           )}
-                        ></span>
-                        {project.difficultyLevel ?? "Beginner"}
-                      </Badge>
-                    </p>
-                  </Card>
-                ))}
-              </TabsContent>
-              <TabsContent value="reels">
-                <div className="columns-2 md:columns-3 gap-3 space-y-3">
-                  {(form.studentProfile.reels ?? []).map((reel, index) => {
-                    const isSquare = false;
-
-                    return (
-                      <div
-                        key={reel._id}
-                        onClick={() => router.push(`/reels/${reel._id}`)}
-                        className="break-inside-avoid cursor-pointer rounded-xl overflow-hidden relative group"
-                      >
-                        {/* 🖼️ THUMBNAIL */}
-                        <img
-                          src={reel.thumbnailUrl}
-                          alt="reel"
-                          loading="lazy"
-                          className={`w-full object-cover transition duration-500  ${
-                            isSquare ? "aspect-square" : "aspect-[2/3]"
-                          }`}
-                        />
-
-                        {/* 🎥 HOVER PREVIEW (DESKTOP) */}
-                        {!isMobile && (
-                          <video
-                            src={reel.videoUrl}
-                            muted
-                            loop
-                            playsInline
-                            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition duration-300"
-                            onMouseEnter={(e) => e.currentTarget.play()}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.pause();
-                              e.currentTarget.currentTime = 0;
-                            }}
-                          />
-                        )}
-
-                        {/* overlay */}
-                        <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10">
-                          {/* <p className="font-semibold truncate">{reel.user.name}</p> */}
-                          <p className="truncate opacity-70">{reel.caption}</p>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </TabsContent>
+                      </CardContent>
+                      <p className="flex w-full justify-end p-2 pb-0">
+                        <Badge
+                          className={cn(
+                            "flex rounded-full items-center gap-2 p-1 capitalize",
+                            project.difficultyLevel === "advanced"
+                              ? "bg-red-300 text-red-600"
+                              : project.difficultyLevel === "intermediate"
+                                ? "bg-blue-300 text-blue-600"
+                                : "bg-green-300 text-green-600",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "flex w-3 h-3 rounded-full",
+                              project.difficultyLevel === "advanced"
+                                ? "bg-red-500"
+                                : project.difficultyLevel === "intermediate"
+                                  ? "bg-blue-500"
+                                  : "bg-green-500",
+                            )}
+                          ></span>
+                          {project.difficultyLevel ?? "Beginner"}
+                        </Badge>
+                      </p>
+                    </Card>
+                  ))}
+                </TabsContent>
+              )}
+
+              {!form.studentProfile.reels ||
+              form.studentProfile.reels.length === 0 ? (
+                <TabsContent className="w-full" value="reels">
+                  <div className="w-full h-fit my-10 items-center justify-center flex flex-col gap-2">
+                    <div className="h-10 aspect-square rounded-full flex items-center justify-center border-foreground border-2">
+                      <SquarePlay size={24} strokeWidth={1.5} />
+                    </div>
+                    <span className="text-muted-foreground">
+                      No reels uploaded yet.
+                    </span>
+                    <Button
+                      className="rounded-full max-w-[160px]"
+                      variant="default"
+                      onClick={() => router.push("/create")}
+                    >
+                      Upload reels
+                    </Button>
+                  </div>
+                </TabsContent>
+              ) : (
+                <TabsContent value="reels">
+                  <div className="columns-2 md:columns-3 gap-3 space-y-3">
+                    {(form.studentProfile.reels ?? []).map((reel, index) => {
+                      const isSquare = false;
+
+                      return (
+                        <div
+                          key={reel._id}
+                          onClick={() => router.push(`/reels/${reel._id}`)}
+                          className="break-inside-avoid cursor-pointer rounded-xl overflow-hidden relative group"
+                        >
+                          {/* 🖼️ THUMBNAIL */}
+                          <img
+                            src={reel.thumbnailUrl}
+                            alt="reel"
+                            loading="lazy"
+                            className={`w-full object-cover transition duration-500  ${
+                              isSquare ? "aspect-square" : "aspect-[2/3]"
+                            }`}
+                          />
+
+                          {/* 🎥 HOVER PREVIEW (DESKTOP) */}
+                          {!isMobile && (
+                            <video
+                              src={reel.videoUrl}
+                              muted
+                              loop
+                              playsInline
+                              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition duration-300"
+                              onMouseEnter={(e) => e.currentTarget.play()}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.pause();
+                                e.currentTarget.currentTime = 0;
+                              }}
+                            />
+                          )}
+
+                          {/* overlay */}
+                          <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10">
+                            {/* <p className="font-semibold truncate">{reel.user.name}</p> */}
+                            <p className="truncate opacity-70">
+                              {reel.caption}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              )}
             </Tabs>
           )}
 
@@ -417,7 +508,7 @@ const ProfilePage = () => {
             //   onChange={() => {}}
             // />
 
-            <div className="grid grid-cols-2">
+            <div className="grid grid-cols-1 min-[600px]:grid-cols-2">
               <div className="space-y-2">
                 <Label>Company</Label>
                 <div className="flex gap-4 items-center">
@@ -439,7 +530,7 @@ const ProfilePage = () => {
 
           {/* DELETE ACCOUNT */}
           <div className="space-y-2 mt-2">
-            <div className="flex gap-4 items-center border rounded-md p-4 justify-between">
+            <div className="flex flex-col min-[460px]:flex-row gap-4 items-center border rounded-md p-4 justify-between">
               <div className="flex-1 flex flex-col gap-1 justify-center">
                 <h1 className=" font-medium text-sm">Delete my Account</h1>
                 <p className="text-foreground/50 text-xs">

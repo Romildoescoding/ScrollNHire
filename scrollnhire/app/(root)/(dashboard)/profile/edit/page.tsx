@@ -244,7 +244,7 @@ const ProfilePage = () => {
         {/* Image */}
         <div className="flex flex-col gap-4">
           <div className="">
-            <div className="flex gap-4 w-full items-center">
+            <div className="flex flex-col min-[350px]:flex-row gap-4 w-full items-center">
               <label className="relative w-fit max-w-20 cursor-pointer">
                 <input
                   type="file"
@@ -256,11 +256,11 @@ const ProfilePage = () => {
                   alt="user"
                   width={100}
                   height={100}
-                  style={{ width: "90px", height: "80px" }}
-                  className="rounded-full border h-20 aspect-square border-zinc-300 dark:border-zinc-700"
+                  style={{ width: "90px", minWidth: "80px", height: "80px" }}
+                  className="rounded-full border min-w-20 h-20 aspect-square border-zinc-300 dark:border-zinc-700"
                 />
               </label>
-              <div className="flex flex-col justify-end gap-1 w-full h-full">
+              <div className="flex max-[349px]:items-center flex-col justify-end gap-1 w-full h-full">
                 <Button className="max-w-fit" onClick={handleImageChange}>
                   <Plus /> Change Image
                 </Button>
@@ -275,7 +275,7 @@ const ProfilePage = () => {
             <Label>
               Name <span className="text-red-500">*</span>
             </Label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
               <Input
                 placeholder="Enter Name"
                 value={form.name}
@@ -288,7 +288,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Email</Label>
               <Input value={user?.email} disabled />
@@ -309,7 +309,7 @@ const ProfilePage = () => {
 
           {/* EMPLOYER */}
           {user.role === "employer" && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
               <CompanySelect
                 value={form.employerProfile.companyName}
                 onChange={(company) => {
@@ -342,7 +342,7 @@ const ProfilePage = () => {
           {/* STUDENT */}
           {user.role === "student" && (
             <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>
                     Degree <span className="text-red-500">*</span>
@@ -368,7 +368,7 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>
                     CGPA <span className="text-red-500">*</span>
@@ -397,7 +397,7 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>GitHub</Label>
                   <Input
@@ -413,7 +413,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Resume Upload */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Resume</Label>
 
@@ -501,7 +501,7 @@ const ProfilePage = () => {
             />
           </div>
 
-          <div className="mb-2 flex gap-4 w-40 max-w-full">
+          <div className="mb-2 flex flex-col items-center min-[400px]:flex-row gap-4 w-full min-[400px]:w-40 max-w-full">
             <Button
               onClick={() => setForm(JSON.parse(JSON.stringify(initialForm)))}
               className="w-full"

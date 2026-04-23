@@ -37,6 +37,8 @@ import {
 
 import { ChartAreaInteractive } from "@/components/reels-chart";
 import useStudentDashboard from "@/app/hooks/useStudentDashboard";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/app/context/SidebarContext";
 
 // import { Skeleton } from "boneyard-js/react";
 
@@ -64,6 +66,8 @@ const StudentDashboard = () => {
     },
   } satisfies ChartConfig;
 
+  const { isSidebarOpen } = useSidebar();
+
   return (
     <main className="flex flex-col px-4 pb-6 gap-4 max-w-7xl mx-auto">
       {/* Header */}
@@ -81,24 +85,23 @@ const StudentDashboard = () => {
         {/* </Skeleton> */}
       </section>
 
-      <div className="w-full h-[375px] min-h-[374px] flex gap-4">
-        <div className="flex w-full h-full gap-4">
-          <div className="w-[225px] h-full flex flex-col gap-4">
-            {/* <Card className="bg-zinc-900 min-w-fit border-none p-4 dark:bg-zinc-200 text-background flex flex-col gap-2 rounded-lg shadow-sm">
-              <div className="flex gap-2 justify-between items-center">
-                <p className="font-semibold">Interviews Today</p>{" "}
-                <Button
-                  className="h-10 w-10 rounded-full bg-background hover:bg-background text-xl text-foreground hover:text-foreground pointer-events-none"
-                  style={{ padding: 0 }}
-                >
-                  <CalendarDays />
-                </Button>
-              </div>
-              <h1 className="text-4xl font-medium">3</h1>
-              <p className="text-zinc-400 dark:text-zinc-600 text-sm min-w-fit whitespace-nowrap">
-                Next at 2:30 PM on April 19, 26
-              </p>
-            </Card> */}
+      <div
+        className={cn(
+          "w-full h-[780px] min-h-[374px] max-h-[780px] flex flex-col gap-4",
+          isSidebarOpen
+            ? "max-[546px]:h-fit max-[546px]:max-h-[1200px] min-[1077px]:flex-row min-[1077px]:h-[375px] min-[1077px]:max-h-[375px]"
+            : "max-[546px]:h-fit max-[546px]:max-h-[1200px] min-[901px]:flex-row min-[901px]:h-[375px] min-[901px]:max-h-[375px]",
+        )}
+      >
+        <div className="flex flex-col min-[545px]:flex-row w-full h-full gap-4">
+          <div
+            className={cn(
+              "w-full min-[545px]:w-[325px] h-full flex flex-col gap-4",
+              isSidebarOpen
+                ? "min-[1077px]:w-[225px]"
+                : "min-[901px]:w-[225px]",
+            )}
+          >
             <Card className=" min-w-fit border p-4 flex flex-col gap-3 rounded-lg shadow-sm bg-white dark:bg-zinc-950">
               <div className="flex gap-2 justify-between items-center">
                 <p className="font-semibold text-lg">My Profile</p>{" "}
@@ -217,7 +220,14 @@ const StudentDashboard = () => {
           </div>
 
           {/* RECENT ACTIVITY AND QUICK ACTIONS */}
-          <div className="w-[calc(100%-225px)] h-full flex flex-col gap-4">
+          <div
+            className={cn(
+              "w-full min-[545px]:w-[calc(100%-325px)] h-full flex flex-col gap-4",
+              isSidebarOpen
+                ? "min-[1077px]:w-[calc(100%-225px)] "
+                : "min-[901px]:w-[calc(100%-225px)] ",
+            )}
+          >
             <Card className=" min-w-fit border p-4 flex flex-col gap-3 rounded-lg shadow-sm text-background bg-zinc-900 dark:bg-zinc-50">
               <div className="flex gap-2 justify-between items-center">
                 <p className="font-semibold text-lg">Recent Activity</p>{" "}

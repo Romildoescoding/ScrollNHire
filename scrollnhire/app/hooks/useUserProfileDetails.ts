@@ -19,7 +19,7 @@ interface User {
   employerProfile?: IEmployerProfile | null;
 }
 
-export function useUserProfileDetails(param: string | null | undefined) {
+export function useUserProfileDetails(param?: string | null | undefined) {
   const fetched = useRef(false);
   const [user, setUser] = useState<User>({
     name: "",

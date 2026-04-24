@@ -810,7 +810,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               )}
               <Button
                 variant={pathname === "/notifications" ? "secondary" : "ghost"}
-                className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"
+                className={cn(
+                  "w-full pl-2 relative cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                  pathname === "/notifications"
+                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                )}
                 onClick={() => router.push("/notifications")}
               >
                 {unreadNotifications > 0 && (
@@ -901,7 +906,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm shadow-zinc-300 dark:shadow-zinc-950 overflow-hidden">
+      <div className="flex-1 rouned-none md:rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm shadow-zinc-300 dark:shadow-zinc-950 overflow-hidden">
         {/* <div className="flex-1 rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm overflow-auto"> */}
         <AppLayout>{children}</AppLayout>
       </div>

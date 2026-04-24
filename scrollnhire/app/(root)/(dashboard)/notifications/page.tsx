@@ -1,6 +1,7 @@
 "use client";
 
 import { formatNotificationTime } from "@/app/_lib/actions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import axios from "axios";
 import { Bookmark, Calendar, Heart, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -186,49 +187,61 @@ function Notif({ notification }: { notification: NotificationType }) {
   return (
     <div
       onClick={() => router.push(`/reels/${notification.reelId?._id}`)}
-      className="cursor-pointer flex items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors"
+      className="cursor-pointer flex flex-col min-[450px]:flex-row items-end min-[450px]:items-center rounded-md gap-4 p-4 border-b border-primary/5 hover:bg-primary/5 transition-colors"
     >
       {/* PROFILE */}
-      <div className="relative shrink-0">
-        <div
-          className="w-12 h-12 rounded-full bg-slate-200 bg-cover bg-center"
-          style={{
-            backgroundImage: `url("${notification.senderId?.image}")`,
-          }}
-        />
-
-        {/* ICON */}
-        <div
-          className={`${getBgColor()} absolute -bottom-1 -right-1  text-white rounded-full p-1 border-2 border-background-light dark:border-background-dark`}
-        >
-          {getIcon()}
-        </div>
-      </div>
-
-      {/* CONTENT */}
-      <div className="flex-1 flex gap-4 items-center min-w-0">
-        <div>
-          <p className=" min-w-fit text-sm font-medium leading-tight mb-1">
-            <span className="font-bold text-slate-900 dark:text-slate-100">
-              {notification.senderId?.name || "User"}
-            </span>{" "}
-            {getMessage()}
-          </p>
-
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {formatNotificationTime(notification.createdAt)}
-          </p>
-        </div>
-
-        {notification.reelId?.thumbnailUrl && (
-          <div
-            className="h-12 aspect-[2/3] rounded-md bg-slate-200 bg-cover bg-center"
+      <div className="w-full flex gap-4">
+        <div className="relative shrink-0">
+          {/* <div
+            className="w-12 h-12 rounded-full bg-slate-200 bg-cover bg-center"
             style={{
-              // background: "red",
-              backgroundImage: `url("${notification.reelId?.thumbnailUrl}")`,
+              backgroundImage: `url("${notification.senderId?.image}")`,
             }}
-          />
-        )}
+          /> */}
+
+          <Avatar className="h-12 w-12">
+            <AvatarImage
+              src={notification.senderId?.image ?? undefined}
+              alt="Avatar"
+            />
+            <AvatarFallback>
+              {notification.senderId?.name[0] || "U"}
+            </AvatarFallback>
+          </Avatar>
+
+          {/* ICON */}
+          <div
+            className={`${getBgColor()} absolute -bottom-1 -right-1  text-white rounded-full p-1 border-2 border-background-light dark:border-background-dark`}
+          >
+            {getIcon()}
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div className="flex-1 flex gap-4 items-center min-w-0">
+          <div>
+            <p className=" min-w-fit text-sm font-medium leading-tight mb-1">
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {notification.senderId?.name || "User"}
+              </span>{" "}
+              {getMessage()}
+            </p>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {formatNotificationTime(notification.createdAt)}
+            </p>
+          </div>
+
+          {notification.reelId?.thumbnailUrl && (
+            <div
+              className="h-12 aspect-[2/3] rounded-md bg-slate-200 bg-cover bg-center"
+              style={{
+                // background: "red",
+                backgroundImage: `url("${notification.reelId?.thumbnailUrl}")`,
+              }}
+            />
+          )}
+        </div>
       </div>
 
       <div

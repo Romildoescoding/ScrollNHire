@@ -2,7 +2,15 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowUpDown, Loader2, Search, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  ArrowUpDown,
+  Loader2,
+  Search,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +25,8 @@ import {
 import { Label } from "@/components/ui/label";
 import SearchResults from "@/components/search-results";
 import { unique } from "next/dist/build/utils";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { cn } from "@/lib/utils";
 
 interface User {
   _id: string;
@@ -175,6 +185,8 @@ export default function ExplorePage() {
     }
   }, [reels, isMobile]);
 
+  const { isSidebarOpen } = useSidebar();
+
   // SEARCHING ENGINE
 
   const [type, setType] = useState<"reels" | "profiles" | "projects" | "all">(
@@ -187,9 +199,11 @@ export default function ExplorePage() {
   const uniqueTags = useRef(new Set<string>());
   const [tagInput, setTagInput] = useState<string>("");
 
+  const [showTagAndFilter, setShowTagAndFilter] = useState(true);
+
   return (
     <div className="h-[calc(100vh-96px)] flex flex-col">
-      <div className="flex flex-col gap-2 border-b">
+      <div className="relative flex flex-col gap-2 border-b">
         <div className="flex items-center px-2 pr-4">
           {isSearchActive && (
             <Button
@@ -247,87 +261,121 @@ export default function ExplorePage() {
             </Tabs>
 
             {/* 🔹 SORT OPTIONS */}
-            <div className="flex gap-2 items-center w-full justify-between">
-              <div className="space-y-2">
-                <Label>Tags</Label>
+            {showTagAndFilter && (
+              <div
+                className={cn(
+                  "flex flex-col md:flex-row gap-2 items-end md:items-center w-full justify-between",
+                  isSidebarOpen
+                    ? "min-[900px]:flex-row min-[900px]:items-center"
+                    : "md:flex-row md:items-center",
+                )}
+              >
+                <div
+                  className={cn(
+                    "order-2 w-full space-y-2",
+                    isSidebarOpen ? "min-[900px]:order-1" : "md:order-1",
+                  )}
+                >
+                  <Label>Tags</Label>
 
-                <div className=" border rounded-lg p-2 flex gap-2">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        className=" rounded-full flex items-center gap-1"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation(); // 🛑 prevent weird bubbling issues
-
-                            const filteredTags = selectedTags.filter(
-                              (t) => t !== tag,
-                            );
-
-                            setSelectedTags(filteredTags);
-                          }}
-                          className="ml-1 cursor-pointer"
+                  <div className="max-w-fit border rounded-lg p-2 flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          className=" rounded-full flex items-center gap-1"
                         >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation(); // 🛑 prevent weird bubbling issues
 
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="You can add upto 5 tags"
-                      value={tagInput}
-                      className="border-none ourline-none"
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
+                              const filteredTags = selectedTags.filter(
+                                (t) => t !== tag,
+                              );
 
-                          if (selectedTags.length >= 5) return;
+                              setSelectedTags(filteredTags);
+                            }}
+                            className="ml-1 cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
 
-                          const normalized = tagInput.trim().toLowerCase();
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="You can add upto 5 tags"
+                        value={tagInput}
+                        className="border-none ourline-none"
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
 
-                          if (!normalized || selectedTags.includes(normalized))
-                            return;
+                            if (selectedTags.length >= 5) return;
 
-                          setSelectedTags((prev) => [...prev, normalized]);
+                            const normalized = tagInput.trim().toLowerCase();
 
-                          setTagInput("");
-                        }
-                      }}
-                    />
+                            if (
+                              !normalized ||
+                              selectedTags.includes(normalized)
+                            )
+                              return;
+
+                            setSelectedTags((prev) => [...prev, normalized]);
+
+                            setTagInput("");
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2 items-center">
-                <Label>
-                  <ArrowUpDown className="text-muted-foreground" size={18} />
-                </Label>
-                <Select
-                  value={sort}
-                  onValueChange={(val) => setSort(val as any)}
+                <div
+                  className={cn(
+                    "order-1 flex gap-2 items-center",
+                    isSidebarOpen ? "min-[900px]:order-2" : "md:order-2",
+                  )}
                 >
-                  <SelectTrigger className="">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
+                  <Label>
+                    <ArrowUpDown className="text-muted-foreground" size={18} />
+                  </Label>
+                  <Select
+                    value={sort}
+                    onValueChange={(val) => setSort(val as any)}
+                  >
+                    <SelectTrigger className="">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
 
-                  <SelectContent className="">
-                    <SelectItem value="trending">Trending</SelectItem>
-                    <SelectItem value="latest">Latest</SelectItem>
-                    <SelectItem value="most_liked">Most Liked</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <SelectContent className="">
+                      <SelectItem value="trending">Trending</SelectItem>
+                      <SelectItem value="latest">Latest</SelectItem>
+                      <SelectItem value="most_liked">Most Liked</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
-        <div></div>
+
+        {isSearchActive && (
+          <div className="absolute -bottom-14 left-1/2 -translate-x-1/2">
+            <Button
+              className="h-10 w-10 rounded-full flex items-center justfiy-center"
+              style={{ padding: 0 }}
+              variant="outline"
+              onClick={() => setShowTagAndFilter((show) => !show)}
+            >
+              {showTagAndFilter ? <ArrowUp /> : <ArrowDown />}
+            </Button>
+          </div>
+        )}
       </div>
 
       {isSearchActive && (
@@ -346,7 +394,7 @@ export default function ExplorePage() {
         <div className="p-4">
           <p className="text-sm text-zinc-400 mb-2">Suggestions</p>
 
-          <div className="flex flex-col">
+          <div className="flex text-x min-[400px]:text-sm min-[550px]:text-base flex-col">
             {[
               "Software Engineer with 4+ years of experience",
               "React developers with the knowledge of AI",
@@ -355,7 +403,7 @@ export default function ExplorePage() {
             ].map((suggestion) => (
               <p
                 key={suggestion}
-                className="cursor-pointer flex items-center gap-4 p-2"
+                className="cursor-pointer flex items-center gap-4 max-[399px]:p-0 p-2"
                 onClick={() => setQuery(suggestion)}
               >
                 <span className="flex items-center justify-center border rounded-full h-10 w-10">

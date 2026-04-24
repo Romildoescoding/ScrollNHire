@@ -391,10 +391,10 @@ const ProjectPage = () => {
         }}
         className=" cursor-pointer w-full h-44 p-4 border rounded-md flex gap-2 flex-col items-center bg-background/90"
       >
-        <p className="w-14 h-14 border rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center">
+        <p className="w-14 min-h-14 max-h-14 min-w-14 max-w-14 h-14 border rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center">
           <Plus size={24} />
         </p>
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground text-center">
           Click to begin the process of showcasing your new project
         </span>
         <Button className="rounded-full max-w-fit">Create Project</Button>
@@ -435,7 +435,7 @@ const ProjectPage = () => {
               />
             </Field>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col min-[500px]:flex-row gap-4">
               <Field>
                 <Label>GitHub URL</Label>
                 <Input
@@ -453,7 +453,7 @@ const ProjectPage = () => {
               </Field>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col min-[500px]:flex-row gap-4">
               <Field>
                 <Label>Category</Label>
                 <Input
@@ -590,7 +590,7 @@ const ProjectPage = () => {
               />
             </Field>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col min-[500px]:flex-row gap-4">
               <Field>
                 <Label>GitHub URL</Label>
                 <Input
@@ -608,7 +608,7 @@ const ProjectPage = () => {
               </Field>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col min-[500px]:flex-row gap-4">
               <Field>
                 <Label>Category</Label>
                 <Input
@@ -717,7 +717,7 @@ const ProjectPage = () => {
       {/* ================= PROJECT LIST ================= */}
       <div className="flex flex-col gap-2">
         <span>{`All Projects (${projects.length})`}</span>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {(projects ?? []).map((project: any, i: number) => (
             <Card
               className="relative py-2 flex flex-col justify-between"

@@ -1,6 +1,15 @@
 import { IProject } from "@/app/models/ProjectModel";
-import { Loader2 } from "lucide-react";
+import { ExternalLink, Loader2, User2 } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/app/context/SidebarContext";
+import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 interface Reel {
   _id: string;
   thumbnailUrl: string;
@@ -127,6 +136,15 @@ const SearchResults = ({
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
+  const { isSidebarOpen } = useSidebar();
+  const router = useRouter();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   return (
     <div ref={containerRef} className="flex-1 overflow-y-scroll p-4">
       {loading && (
@@ -141,12 +159,42 @@ const SearchResults = ({
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {reels.map((reel) => (
-              <div key={reel._id} className="rounded-xl overflow-hidden">
-                <video
-                  src={reel.videoUrl}
-                  className="w-full h-full object-cover"
-                  muted
+              <div
+                key={reel._id}
+                onClick={() => router.push(`/reels/${reel._id}`)}
+                className="break-inside-avoid cursor-pointer rounded-xl overflow-hidden relative group"
+              >
+                {/* 🖼️ THUMBNAIL */}
+                <img
+                  src={reel.thumbnailUrl}
+                  alt="reel"
+                  loading="lazy"
+                  className={`w-full object-cover transition duration-500  ${
+                    isSquare ? "aspect-square" : "aspect-[2/3]"
+                  }`}
                 />
+
+                {/* 🎥 HOVER PREVIEW (DESKTOP) */}
+                {!isMobile && (
+                  <video
+                    src={reel.videoUrl}
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition duration-300"
+                    onMouseEnter={(e) => e.currentTarget.play()}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.pause();
+                      e.currentTarget.currentTime = 0;
+                    }}
+                  />
+                )}
+
+                {/* overlay */}
+                <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10">
+                  {/* <p className="font-semibold truncate">{reel.user.name}</p> */}
+                  <p className="truncate opacity-70">{reel.caption}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -157,25 +205,45 @@ const SearchResults = ({
         <div className="mb-6">
           <h2 className="font-semibold mb-3">Profiles</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div
+            className={cn(
+              "grid grid-cols-1 min-[545px]:grid-cols-2  gap-4",
+              isSidebarOpen
+                ? "lg:grid-cols-3 xl:grid-cols-4"
+                : "md:grid-cols-3 xl:grid-cols-4",
+            )}
+          >
             {profiles.map((profile) => (
-              <div key={profile._id} className="p-4 bg-neutral-900 rounded-xl">
-                <img
-                  src={profile.userId?.image}
-                  className="w-10 h-10 rounded-full mb-2"
-                />
+              <div
+                key={profile._id}
+                onClick={() => router.push(`/profile/${profile.userId}`)}
+                className="bg-white cursor-pointer dark:bg-zinc-950 rounded-lg p-2 flex items-center justify-center border shadow-sm"
+              >
+                <div className="flex w-full flex-col gap-2">
+                  <div className="flex gap-2">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile.image ?? undefined} />
+                      <AvatarFallback>
+                        <User2 size={20} />
+                      </AvatarFallback>
+                    </Avatar>
 
-                <p className="text-white font-medium">{profile.userId?.name}</p>
-
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {profile.skills?.slice(0, 3).map((skill: string) => (
-                    <span
-                      key={skill}
-                      className="text-xs bg-neutral-800 px-2 py-1 rounded"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                    <div className="text-xs">
+                      <div className="font-medium">{profile.name}</div>
+                      <div className="text-muted-foreground">
+                        {profile.degree} {profile.branch}
+                      </div>
+                    </div>
+                  </div>
+                  {profile.skills.length > 0 && (
+                    <div className="flex gap-2">
+                      {profile.skills.slice(0, 4).map((skill, i) => (
+                        <Badge key={i} className="rounded-full text-[10px]">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -187,22 +255,98 @@ const SearchResults = ({
         <div className="mb-6">
           <h2 className="font-semibold mb-3">Projects</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <div key={project._id} className="p-4 bg-neutral-900 rounded-xl">
-                <p className="text-white font-semibold">{project.title}</p>
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4">
+            {projects.map((project, i) => (
+              <Card
+                className="relative py-2 flex flex-col justify-between"
+                key={i}
+              >
+                <CardContent className="text-sm flex flex-col gap-2 px-2">
+                  <div className="w-full h-fit">
+                    <Image
+                      src={project.thumbnail || "/placeholder.png"}
+                      className="w-full rounded-md"
+                      alt="project_image"
+                      height={500}
+                      width={500}
+                    />
+                  </div>
 
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {project.techStack?.slice(0, 3).map((tech: string) => (
+                  {/* <Button
+                  className="absolute top-4 right-4 rounded-full h-8 w-8 flex items-center justify-center"
+                  style={{ padding: 0 }}
+                  onClick={() => handleOpenEditProject(project)}
+                >
+                  <Pencil />
+                </Button> */}
+
+                  <div className="flex flex-col">
+                    <span></span>
+                    <div className="flex justify-between w-full">
+                      <div className="font-semibold flex-1 max-w-[80%] text-base">
+                        {project.title}
+                      </div>
+                      {/* {project.liveUrl && ( */}
+                      <Button
+                        variant="outline"
+                        className="rounded-full h-8 min-w-8 w-8 flex items-center justify-center"
+                        style={{ padding: 0 }}
+                        disabled={!project.liveUrl}
+                      >
+                        <Link
+                          href={project.liveUrl ?? "/projects"}
+                          target="_blank"
+                          className="min-w-fit"
+                        >
+                          <ExternalLink size={18} />
+                        </Link>
+                      </Button>
+                      {/* )} */}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {project.description}
+                    </div>
+                  </div>
+
+                  {/* Tech stack badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {(project.techStack || []).map(
+                      (tech: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="text-xs bg-muted px-2 py-1 rounded-full"
+                        >
+                          {tech}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                </CardContent>
+                <p className="flex w-full justify-end p-2 pb-0">
+                  <Badge
+                    className={cn(
+                      "flex rounded-full items-center gap-2 p-1 capitalize",
+                      project.difficultyLevel === "advanced"
+                        ? "bg-red-300 text-red-600"
+                        : project.difficultyLevel === "intermediate"
+                          ? "bg-blue-300 text-blue-600"
+                          : "bg-green-300 text-green-600",
+                    )}
+                  >
                     <span
-                      key={tech}
-                      className="text-xs bg-neutral-800 px-2 py-1 rounded"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
+                      className={cn(
+                        "flex w-3 h-3 rounded-full",
+                        project.difficultyLevel === "advanced"
+                          ? "bg-red-500"
+                          : project.difficultyLevel === "intermediate"
+                            ? "bg-blue-500"
+                            : "bg-green-500",
+                      )}
+                    ></span>
+                    {project.difficultyLevel ?? "Beginner"}
+                  </Badge>
+                </p>
+              </Card>
             ))}
           </div>
         </div>

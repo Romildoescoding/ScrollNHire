@@ -93,6 +93,51 @@ export async function GET(req: NextRequest) {
             vectorScore: { $meta: "vectorSearchScore" },
           },
         },
+
+        // 🔗 Join with User collection
+        {
+          $lookup: {
+            from: "users", // collection name (IMPORTANT: lowercase plural usually)
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+
+        // 🧹 Flatten user array
+        {
+          $unwind: "$user",
+        },
+
+        // 🎯 Final projection (exclude embedding, include what you need)
+        {
+          $project: {
+            _id: 1,
+            userId: 1,
+            vectorScore: 1,
+
+            // student profile fields
+            rollno: 1,
+            degree: 1,
+            branch: 1,
+            yearOfPassing: 1,
+            cgpa: 1,
+            skills: 1,
+            github: 1,
+            linkedin: 1,
+            bio: 1,
+            verified: 1,
+            resumeUrl: 1,
+
+            // user fields
+            name: "$user.name",
+            image: "$user.image",
+            email: "$user.email",
+
+            // 🚫 explicitly exclude embedding
+            // embedding: 0,
+          },
+        },
       ]);
 
       accounts = rawProfiles

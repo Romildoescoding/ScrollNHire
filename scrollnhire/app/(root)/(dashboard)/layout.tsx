@@ -101,7 +101,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     // <SessionProvider>
     // <div className="bg-zinc-100 dark:bg-zinc-900 py-2 pr-2 flex min-h-[calc(100vh-56px)]">
-    <div className="bg-zinc-100 dark:bg-zinc-900 md:py-2 md:pr-2 flex max-h-screen min-h-[calc(100dvh-56px)] overflow-hidden">
+    <div className="bg-zinc-100 dark:bg-zinc-900 md:py-2 md:pr-2 flex md:max-h-screen min-h-[calc(100svh-56px)] md:min-h-[calc(100dvh-56px)] overflow-hidden">
       {/* {uploadProgress > -1 && ( */}
 
       <motion.div
@@ -152,7 +152,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div
         className={cn(
-          "fixed z-[10] max-h-screen min-h-screen top-0 w-56 h-full flex flex-col md:hidden transition-all duration-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900",
+          "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen top-0 w-56 h-full flex flex-col md:hidden transition-all duration-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900",
           isSidebarOpen ? "left-0" : "-left-56",
         )}
         // style={{ position: "sticky" }}
@@ -520,7 +520,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* ORIGINAL SIDEBAR FOR THE APPLICATION */}
       <div
         className={cn(
-          "fixed z-[10] max-h-screen min-h-screen left-2 top-0 h-full hidden flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
+          "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen left-2 top-0 h-full hidden flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
           // "fixed z-[10] max-h-screen min-h-screen left-4 top-0 h-full bg-white dark:bg-zinc-900 flex flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
           isSidebarOpen ? "w-48 md:w-64" : "w-[0px] md:w-[80px]",
         )}

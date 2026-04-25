@@ -69,7 +69,7 @@ export default function OnboardingPage() {
           <Loader2 className="h-7 w-7 animate-spin" />
         </div>
       ) : (
-        <div className="min-h-screen flex justify-center bg-gray-50">
+        <div className="min-h-svh md:min-h-screen flex justify-center bg-gray-50">
           <div className="w-full max-w-4xl pt-0 p-6 relative">
             {/* {step > 0 && (
           <div className="absolute top-0 left-[-36px]">

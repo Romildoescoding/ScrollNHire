@@ -49,7 +49,7 @@ const CallbackPage = () => {
   }, [status]); // 👈 depend on status, not session
 
   return (
-    <div className="flex items-center justify-center h-screen w-full">
+    <div className="flex items-center justify-center h-svh md:h-screen w-full">
       <Loader2 className="h-7 w-7 animate-spin" />
     </div>
   );

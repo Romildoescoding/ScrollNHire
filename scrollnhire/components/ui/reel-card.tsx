@@ -241,7 +241,7 @@ export default function ReelCard({
   return (
     <div className="flex h-full justify-center w-full bg-background dark:bg-[#0f0f12]">
       {/* PHONE WIDTH CONTAINER */}
-      <div className="relative w-full min-[425px]:w-[425px] h-full bg-background dark:bg-[#0f0f12] rounded-none min-[425px]rounded-lg overflow-hidden">
+      <div className="relative w-full min-[500px]:w-[500px] h-full bg-background dark:bg-[#0f0f12] rounded-none min-[500px]rounded-lg overflow-hidden">
         {/* VIDEO */}
         <video
           ref={videoRef}

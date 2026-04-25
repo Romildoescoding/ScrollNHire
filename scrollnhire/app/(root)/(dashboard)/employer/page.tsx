@@ -160,8 +160,7 @@ const EmployerDashboard = () => {
                 <div className="shimmer3 rounded-md w-full h-5"></div>
               ) : data.nextInterview ? (
                 <p className="text-zinc-400 dark:text-zinc-600 text-sm min-w-fit whitespace-nowrap">
-                  Next at {format(data.nextInterview.interviewDate, "p")} 2:30
-                  PM on April 19, 26
+                  Next at {format(data.nextInterview.interviewDate, "p")} on{" "}
                   {format(data.nextInterview.interviewDate, "PPP")}
                 </p>
               ) : (

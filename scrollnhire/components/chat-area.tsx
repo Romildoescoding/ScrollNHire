@@ -46,6 +46,9 @@ import { format } from "date-fns";
 import axios from "axios";
 import { socket } from "@/app/_lib/socket";
 import { useSeenObserver } from "@/app/hooks/useSeenObserver";
+import { cn } from "@/lib/utils";
+
+import { motion } from "motion/react";
 
 export type MessageType = "message" | "interview";
 
@@ -86,8 +89,12 @@ export const detectPlatform = (link: string): Platform => {
 const ChatArea = ({
   selectedConversation,
   setConversations,
+  setSelectedConversation,
+  onlineUsers,
 }: {
+  onlineUsers: string[];
   selectedConversation: IConversation | null;
+  setSelectedConversation: Dispatch<SetStateAction<IConversation | null>>;
   setConversations: Dispatch<SetStateAction<IConversation[]>>;
 }) => {
   const { data: session } = useSession();
@@ -1168,7 +1175,7 @@ const ChatArea = ({
       {/* //////////////////////////////////////////////////////////////////////////// */}
 
       {!selectedConversation && (
-        <div className="flex flex-1 items-center justify-center bg-background dark:bg-[#0f0f12]">
+        <div className=" hidden min-[550px]:flex flex-1 items-center justify-center bg-background dark:bg-[#0f0f12]">
           <Image
             alt="shadcn/ui"
             loading="lazy"
@@ -1189,15 +1196,20 @@ const ChatArea = ({
           />
         </div>
       )}
+      {/* desktop view chats sheet */}
       {selectedConversation && (
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 max-[549px]:w-full hidden min-[550px]:flex flex-col">
           <div className="flex justify-between items-center gap-4 px-4 py-3">
             {/* Left Section */}
             <div className="flex items-center gap-4">
               {/* Back Button (mobile only) */}
-              <button className="flex lg:hidden items-center justify-center w-10 h-10 rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+              {/* <Button
+                style={{ padding: 0 }}
+                variant="outline"
+                className="flex w-8 h-8 lg:hidden items-center justify-center "
+              >
                 <ArrowLeft className="w-5 h-5" />
-              </button>
+              </Button> */}
 
               {/* Avatar */}
               <div className="relative w-10 h-10">
@@ -1210,7 +1222,14 @@ const ChatArea = ({
                     <User2 size={20} />
                   </AvatarFallback>
                 </Avatar>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900" />
+                <span
+                  className={cn(
+                    "absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900",
+                    onlineUsers.includes(selectedConversation?.sender._id)
+                      ? "bg-green-500"
+                      : "bg-zinc-500",
+                  )}
+                />
               </div>
 
               {/* Name + Status */}
@@ -1219,7 +1238,18 @@ const ChatArea = ({
                   {selectedConversation?.sender.name}
                 </span>
                 {/* <span className="text-xs text-green-500">{selectedConversation?.sender.status}</span> */}
-                <span className="text-xs text-green-500">Online</span>
+                <span
+                  className={cn(
+                    "text-xs",
+                    onlineUsers.includes(selectedConversation?.sender._id)
+                      ? "text-green-500"
+                      : "text-zinc-400",
+                  )}
+                >
+                  {onlineUsers.includes(selectedConversation?.sender._id)
+                    ? "Online"
+                    : "Offline"}
+                </span>
               </div>
             </div>
 
@@ -1248,38 +1278,48 @@ const ChatArea = ({
             ref={containerRef}
             className="flex-1 overflow-y-auto p-6 space-y-4"
           >
-            {/* Incoming */}
-            {messages.map((msg) =>
-              msg.senderId !== session?.user?.id ? (
-                <SenderMessage
-                  key={msg._id}
-                  msg={msg}
-                  observe={observe}
-                  handleOpenInterview={handleOpenInterview}
-                  // text={msg.text}
-                  // createdAt={msg.createdAt}
-                  // user={{}}
-                  // setReply={() => {}}
-                />
-              ) : (
-                <UserMessage
-                  key={msg._id}
-                  msg={msg}
-                  handleOpenInterview={handleOpenInterview}
-                  role={session.user?.role || ""}
-                  handleOpenEditInterview={handleOpenEditModal}
-                  // createdAt={msg.createdAt}
-                  // isRead={msg.seen}
-                  // text={msg.text}
-                  // user={{}}
-                />
-              ),
-            )}
+            {messagesLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-full flex items-center h-[42px] mb-2"
+                    style={{ justifyContent: i % 2 == 0 ? "start" : "end" }}
+                  >
+                    <div className="shimmer2 rounded-lg w-3/4 h-full"></div>
+                  </div>
+                ))
+              : messages.map((msg) =>
+                  msg.senderId !== session?.user?.id ? (
+                    <SenderMessage
+                      key={msg._id}
+                      msg={msg}
+                      observe={observe}
+                      handleOpenInterview={handleOpenInterview}
+                      // text={msg.text}
+                      // createdAt={msg.createdAt}
+                      // user={{}}
+                      // setReply={() => {}}
+                    />
+                  ) : (
+                    <UserMessage
+                      key={msg._id}
+                      msg={msg}
+                      handleOpenInterview={handleOpenInterview}
+                      role={session.user?.role || ""}
+                      handleOpenEditInterview={handleOpenEditModal}
+                      // createdAt={msg.createdAt}
+                      // isRead={msg.seen}
+                      // text={msg.text}
+                      // user={{}}
+                    />
+                  ),
+                )}
             <div ref={bottomRef} className="h-1 w-full" />
           </div>
 
           {/* Input */}
           <ChatInputForm
+            selectedConversation={selectedConversation}
             sendMessage={handleSendMessage}
             setOpenInterviewModal={(bool) => {
               setInterviewLink("");
@@ -1290,6 +1330,117 @@ const ChatArea = ({
           />
         </div>
       )}
+
+      <motion.div
+        style={{ right: selectedConversation ? 0 : "-100vw" }}
+        className="bg-white dark:bg-zinc-950 absolute top-0 h-full w-screen transition-all flex min-[550px]:hidden flex-col"
+      >
+        <div className="flex justify-between items-center gap-4 px-4 py-3">
+          {/* Left Section */}
+          <div className="flex items-center gap-4">
+            {/* Back Button (mobile only) */}
+            <Button
+              style={{ padding: 0 }}
+              variant="outline"
+              className="flex w-8 h-8 lg:hidden items-center justify-center "
+              onClick={() => setSelectedConversation(null)}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+
+            {/* Avatar */}
+            <div className="relative w-10 h-10">
+              <Avatar className="h-full w-full">
+                <AvatarImage
+                  src={selectedConversation?.sender.image ?? undefined}
+                  alt="Avatar"
+                />
+                <AvatarFallback>
+                  <User2 size={20} />
+                </AvatarFallback>
+              </Avatar>
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-zinc-900" />
+            </div>
+
+            {/* Name + Status */}
+            <div className="flex flex-col">
+              <span className="text-xs min-[500px]:text-sm font-semibold">
+                {selectedConversation?.sender.name}
+              </span>
+              {/* <span className="text-xs text-green-500">{selectedConversation?.sender.status}</span> */}
+              <span className="text-[10px] min-[500px]:text-xs text-green-500">
+                Online
+              </span>
+            </div>
+          </div>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-2">
+            {/* Desktop Actions */}
+            {/* <div className="hidden lg:flex items-center gap-2">
+              <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                <Video className="w-4 h-4" />
+              </button>
+
+              <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
+                <PhoneMissed className="w-4 h-4" />
+              </button>
+            </div> */}
+
+            {/* More Menu */}
+            <button className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700">
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-auto p-6 space-y-4"
+        >
+          {/* Incoming */}
+          {messages.map((msg) =>
+            msg.senderId !== session?.user?.id ? (
+              <SenderMessage
+                key={msg._id}
+                msg={msg}
+                observe={observe}
+                handleOpenInterview={handleOpenInterview}
+                // text={msg.text}
+                // createdAt={msg.createdAt}
+                // user={{}}
+                // setReply={() => {}}
+              />
+            ) : (
+              <UserMessage
+                key={msg._id}
+                msg={msg}
+                handleOpenInterview={handleOpenInterview}
+                role={session.user?.role || ""}
+                handleOpenEditInterview={handleOpenEditModal}
+                // createdAt={msg.createdAt}
+                // isRead={msg.seen}
+                // text={msg.text}
+                // user={{}}
+              />
+            ),
+          )}
+          <div ref={bottomRef} className="h-1 w-full" />
+        </div>
+
+        {/* Input */}
+        <ChatInputForm
+          selectedConversation={selectedConversation}
+          sendMessage={handleSendMessage}
+          setOpenInterviewModal={(bool) => {
+            setInterviewLink("");
+            setDate(undefined);
+            setTime("");
+            setOpen(bool);
+          }}
+        />
+      </motion.div>
     </>
   );
 };

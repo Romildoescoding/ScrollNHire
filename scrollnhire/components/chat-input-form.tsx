@@ -11,6 +11,8 @@ import React, {
 import { motion } from "motion/react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Button } from "./ui/button";
+import { IConversation } from "@/app/hooks/useConversations";
+import { useSession } from "next-auth/react";
 
 const ChatInputForm = ({
   // scrollToBottom,
@@ -25,9 +27,11 @@ const ChatInputForm = ({
   // selectedPDfFile,
   // setSelectedPdfFile,
   // sendPDfMessageAI,
+  selectedConversation,
 }: {
   sendMessage: (message: string) => void;
   setOpenInterviewModal: Dispatch<SetStateAction<boolean>>;
+  selectedConversation: IConversation | null;
 }) => {
   const [message, setMessage] = useState("");
   //   const { collapsed } = useSidebar();
@@ -126,8 +130,10 @@ const ChatInputForm = ({
   const inputRef = useRef(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    if (selectedConversation) inputRef.current?.focus();
   }, []);
+
+  const { data: session } = useSession();
 
   return (
     <form
@@ -199,23 +205,25 @@ const ChatInputForm = ({
         }}
       />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="min-w-fit h-9 w-9 p-0 rounded-full bg-foreground text-background flex items-center justify-center"
-            onClick={(e) => {
-              e.preventDefault();
-              setOpenInterviewModal(true);
-            }}
-            style={{ padding: 0 }}
-          >
-            <CalendarPlus size={15} />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Schedule Interview</p>
-        </TooltipContent>
-      </Tooltip>
+      {session?.user?.role === "employer" && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="min-w-fit h-9 w-9 p-0 rounded-full bg-foreground text-background flex items-center justify-center"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpenInterviewModal(true);
+              }}
+              style={{ padding: 0 }}
+            >
+              <CalendarPlus size={15} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Schedule Interview</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
 
       <Button
         className="min-w-fit h-9 w-9 p-0 rounded-full bg-foreground text-background flex items-center justify-center"

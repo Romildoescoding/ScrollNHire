@@ -294,7 +294,9 @@ html {
 
 .hasDot {
   position: relative;
+  /* background-color: yellow; */
 }
+
 .hasDot::after {
   content: "";
   height: 6px;

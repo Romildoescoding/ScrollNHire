@@ -219,7 +219,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </Button>
 
-              <Button
+              {/* <Button
                 variant={pathname === "/jobs" ? "secondary" : "ghost"}
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
@@ -239,7 +239,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 >
                   Job Profiles
                 </span>
-              </Button>
+              </Button> */}
               <Button
                 variant={pathname === "/profile" ? "secondary" : "ghost"}
                 className={cn(
@@ -311,7 +311,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Button>
               )}
 
-              <Button
+              {/* <Button
                 variant={pathname === "/interviews" ? "secondary" : "ghost"}
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
@@ -332,7 +332,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 >
                   Interviews
                 </span>
-              </Button>
+              </Button> */}
               <Button
                 variant={pathname === "/chat" ? "secondary" : "ghost"}
                 className={cn(

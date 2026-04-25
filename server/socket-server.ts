@@ -15,6 +15,7 @@ const onlineUsers = new Map<string, string>();
 io.on("connection", (socket) => {
   socket.on("register", (userId) => {
     onlineUsers.set(userId, socket.id);
+    socket.broadcast.emit("user_online", userId);
   });
 
   socket.on("join_conversation", (conversationId) => {
@@ -80,10 +81,18 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("get_online_users", () => {
+    socket.emit("online_users_list", Array.from(onlineUsers.keys()));
+  });
+
   socket.on("disconnect", () => {
     for (const [userId, id] of onlineUsers.entries()) {
       if (id === socket.id) {
         onlineUsers.delete(userId);
+
+        // 🔥 tell everyone this user is offline
+        socket.broadcast.emit("user_offline", userId);
+
         break;
       }
     }

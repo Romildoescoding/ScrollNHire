@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { ModalAddChat } from "@/components/modal-add-chat";
 import { socket } from "@/app/_lib/socket";
 import axios from "axios";
+import { useSidebar } from "@/app/context/SidebarContext";
 
 export function formatMessageTime(dateString) {
   if (!dateString) return "";
@@ -146,10 +147,39 @@ const AiChatPage = () => {
     return () => socket.off("conversation_created");
   }, []);
 
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  // ONLINE USERS SOCKET
+  useEffect(() => {
+    if (!socket.connected) socket.connect();
+
+    socket.emit("register", session?.user?.id);
+    socket.emit("get_online_users");
+
+    socket.on("online_users_list", (users) => {
+      setOnlineUsers(users);
+    });
+
+    socket.on("user_online", (userId) => {
+      setOnlineUsers((prev) => [...new Set([...prev, userId])]);
+    });
+
+    socket.on("user_offline", (userId) => {
+      setOnlineUsers((prev) => prev.filter((id) => id !== userId));
+    });
+
+    return () => {
+      socket.off("online_users_list");
+      socket.off("user_online");
+      socket.off("user_offline");
+    };
+  }, []);
+
+  // const { isSidebarOpen } = useSidebar();
+
   return (
-    <div className="h-full flex bg-background dark:bg-[#0f0f12] pl-2 pb-4 rounded-lg text-black dark:text-white">
+    <div className="h-full flex bg-background dark:bg-[#0f0f12] min-[550px]:pl-2 min-[550px]:pb-4 rounded-lg text-black dark:text-white relative overflow-x-hidden">
       {/* Sidebar */}
-      <div className="w-full max-w-xs bg-background dark:bg-zinc-950 rounded-lg border border-border  flex flex-col">
+      <div className="w-full max-w-full min-[550px]:max-w-64 min-[896px]:max-w-72 lg:max-w-xs bg-background dark:bg-zinc-950 min-[550px]:rounded-lg min-[550px]:border border-border flex flex-col">
         {/* Header */}
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Chats</h2>
@@ -179,18 +209,23 @@ const AiChatPage = () => {
         </div>
 
         {convoLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="h-7 w-7 animate-spin" />
+          <div className="flex-1 flex flex-col p-2 gap-2 overflow-y-auto">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="shimmer2 rounded-lg  w-full h-[57px]"
+              ></div>
+            ))}
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 flex flex-col p-2 gap-2 overflow-y-auto">
             {filteredConvos.map((chat, i) => (
               <div
                 key={i}
                 onClick={() => {
                   setSelectedConversation(chat);
                 }}
-                className="px-4 border-b  py-3 flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
+                className="px-4 rounded-lg border-b  py-3 flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
               >
                 {/* Avatar */}
                 <Avatar className="h-8 w-8">
@@ -207,10 +242,10 @@ const AiChatPage = () => {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium truncate">
+                    <span className="text-xs min-[896px]:text-base font-medium truncate">
                       {chat.sender?.name}
                     </span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-[10px] min-[896px]:text-xs text-zinc-500">
                       {chat.lastMessage?.createdAt &&
                         formatMessageTime(chat.lastMessage.createdAt)}
                     </span>
@@ -226,7 +261,7 @@ const AiChatPage = () => {
                           )}
                         </span>
                       )}
-                    <p className=" mr-2 flex-1 text-sm text-zinc-500 truncate">
+                    <p className=" mr-2 flex-1 text-[11px] min-[896px]:text-sm  text-zinc-500 truncate">
                       {chat.lastMessage?.message ||
                         "Click to start conversation."}
                     </p>
@@ -246,8 +281,10 @@ const AiChatPage = () => {
 
       {/* Chat Area */}
       <ChatArea
+        onlineUsers={onlineUsers}
         selectedConversation={selectedConversation}
         setConversations={setConversations}
+        setSelectedConversation={setSelectedConversation}
       />
     </div>
   );

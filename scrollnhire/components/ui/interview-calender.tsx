@@ -29,15 +29,23 @@ export default function InterviewCalendar({
     new Date(),
   );
 
+  // const interviewDates = useMemo(
+  //   () => interviewsScheduled.map((i) => i.interviewDate),
+  //   [interviewsScheduled],
+  // );
+
   const interviewDates = useMemo(
-    () => interviewsScheduled.map((i) => i.interviewDate),
+    () => interviewsScheduled.map((i) => new Date(i.interviewDate)),
     [interviewsScheduled],
   );
 
   const interviewsForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
+    // return interviewsScheduled.filter((i) =>
+    //   isSameDay(i.interviewDate, selectedDate),
+    // );
     return interviewsScheduled.filter((i) =>
-      isSameDay(i.interviewDate, selectedDate),
+      isSameDay(new Date(i.interviewDate), selectedDate),
     );
   }, [selectedDate, interviewsScheduled]);
 

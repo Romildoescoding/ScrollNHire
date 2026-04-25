@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 type UploadContextType = {
   isSidebarOpen: boolean;
@@ -10,7 +16,12 @@ type UploadContextType = {
 const SidebarContext = createContext<UploadContextType | null>(null);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    // automatically open the sidebar you know
+    if (window.innerWidth >= 768) setIsSidebarOpen(true);
+  }, []);
 
   return (
     <SidebarContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>

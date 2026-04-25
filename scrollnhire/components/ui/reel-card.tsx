@@ -4,6 +4,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import {
   Bookmark,
   BookmarkCheck,
+  EllipsisVertical,
   Heart,
   Loader2,
   MessageCircle,
@@ -22,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Input } from "./input";
 import { formatCommentTime } from "@/app/_lib/actions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { cn } from "@/lib/utils";
 // import Image from "next/image";
 
 interface User {
@@ -66,6 +68,7 @@ export default function ReelCard({
 
   const [liked, setLiked] = useState(reel.isLiked);
   const [likes, setLikes] = useState(reel.likesCount);
+  const [shares, setShares] = useState(0);
 
   const [showLikeAnim, setShowLikeAnim] = useState(false);
 
@@ -238,12 +241,31 @@ export default function ReelCard({
     }
   };
 
+  const [isVerticalVideo, setIsVerticalVideo] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLoadedMetadata = () => {
+      const isVertical = video.videoHeight > video.videoWidth;
+      setIsVerticalVideo(isVertical);
+    };
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, []);
+
   return (
     <div className="flex h-full justify-center w-full bg-background dark:bg-[#0f0f12]">
       {/* PHONE WIDTH CONTAINER */}
-      <div className="relative w-full min-[500px]:w-[500px] h-full bg-background dark:bg-[#0f0f12] rounded-none min-[500px]rounded-lg overflow-hidden">
+      {/* <div className="relative w-full min-[500px]:w-[500px] h-full bg-background dark:bg-[#0f0f12] rounded-none min-[500px]rounded-lg overflow-hidden"> */}
+      <div className="relative w-full max-w-fit aspect-[9/16] bg-black overflow-hidden rounded-none min-[500px]:rounded-lg">
         {/* VIDEO */}
-        <video
+        {/* <video
           ref={videoRef}
           src={reel.videoUrl}
           loop
@@ -251,6 +273,24 @@ export default function ReelCard({
           autoPlay
           playsInline
           className="h-full w-full object-cover"
+          onDoubleClick={handleLike}
+        /> */}
+        <video
+          ref={videoRef}
+          src={reel.videoUrl}
+          loop
+          muted={isMuted}
+          autoPlay
+          playsInline
+          className="w-fit max-w-full h-full object-contain bg-black"
+          // className={cn(
+          //   "w-full h-full",
+          //   isVerticalVideo === null
+          //     ? "object-contain bg-black" // fallback while loading
+          //     : isVerticalVideo
+          //       ? "object-cover" // 🔥 fills perfectly, no side bars
+          //       : "object-contain bg-black", // 📺 keeps full view for landscape
+          // )}
           onDoubleClick={handleLike}
         />
 
@@ -276,8 +316,12 @@ export default function ReelCard({
             className="cursor-pointer flex flex-col items-center"
           >
             <Heart
-              size={24}
-              className={liked ? "fill-red-500 text-red-500" : ""}
+              strokeWidth={1.5}
+              // size={24}
+              className={cn(
+                "h-8 w-8 md:h-6 md:w-6",
+                liked ? "fill-red-500 text-red-500" : "",
+              )}
             />
             <span className="text-[10px]">{likes}</span>
           </button>
@@ -286,7 +330,11 @@ export default function ReelCard({
             onClick={openComments}
             className="cursor-pointer flex flex-col items-center"
           >
-            <MessageCircle size={24} />
+            <MessageCircle
+              strokeWidth={1.5}
+              className="h-8 w-8 md:h-6 md:w-6"
+              // size={24}
+            />
             <span className="text-[10px]">{commentsLength}</span>
           </button>
 
@@ -298,9 +346,17 @@ export default function ReelCard({
                   className="cursor-pointer flex flex-col items-center"
                 >
                   {isShortlisted ? (
-                    <BookmarkCheck size={24} />
+                    <BookmarkCheck
+                      strokeWidth={1.5}
+                      className="h-8 w-8 md:h-6 md:w-6"
+                      // size={24}
+                    />
                   ) : (
-                    <Bookmark size={24} />
+                    <Bookmark
+                      strokeWidth={1.5}
+                      className="h-8 w-8 md:h-6 md:w-6"
+                      // size={24}
+                    />
                   )}
                 </button>
               </TooltipTrigger>
@@ -312,7 +368,20 @@ export default function ReelCard({
             </Tooltip>
           )}
           <button className="cursor-pointer flex flex-col items-center">
-            <Send size={24} />
+            <Send
+              strokeWidth={1.5}
+              className="h-8 w-8 md:h-6 md:w-6"
+              // size={24}
+            />
+            <span className="text-[10px]">{shares}</span>
+          </button>
+
+          <button className="cursor-pointer flex flex-col items-center">
+            <EllipsisVertical
+              strokeWidth={1.5}
+              className="h-8 w-8 md:h-6 md:w-6"
+              // size={24}
+            />
           </button>
         </div>
 
@@ -339,7 +408,7 @@ export default function ReelCard({
 
         <button
           onClick={() => setIsMuted((muted) => !muted)}
-          className="text-neutral-50 cursor-pointer absolute bottom-4 right-4 flex items-center justify-center h-8 w-8 rounded-full bg-neutral-950/50 hover:bg-neutral-700/50 transition-all border-none outline-none"
+          className="text-neutral-50 cursor-pointer absolute bottom-4 right-4 flex items-center justify-center h-8 w-8 md:h-6 md:w-6 rounded-full bg-neutral-950/50 hover:bg-neutral-700/50 transition-all border-none outline-none"
         >
           {!isMuted ? (
             <Volume2 className="h-4 w-4" />
@@ -378,7 +447,7 @@ export default function ReelCard({
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {comments.map((c) => (
                     <div key={c._id} className="flex gap-3">
-                      <Avatar className="h-6 w-6">
+                      <Avatar className="h-8 w-8 md:h-6 md:w-6">
                         <AvatarImage
                           src={c?.userId?.image ?? undefined}
                           alt="Avatar"
@@ -404,7 +473,7 @@ export default function ReelCard({
 
               {/* COMMENT INPUT */}
               <div className="p-3 border-t flex gap-2 items-center">
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-8 w-8 md:h-6 md:w-6">
                   <AvatarImage
                     src={session?.user?.image ?? undefined}
                     alt="Avatar"

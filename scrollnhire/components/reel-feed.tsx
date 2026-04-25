@@ -240,7 +240,7 @@ export default function ReelFeed({
 export const ReelSkeleton = () => {
   return (
     <div className="flex h-full justify-center w-full bg-background dark:dark:bg-[#0f0f12] animate-pulse">
-      <div className="relative w-full min-[500px]:w-[500px] h-full shimmer rounded-md overflow-hidden">
+      <div className="relative w-full max-w-fit aspect-[9/16] bg-black overflow-hidden rounded-none min-[500px]:rounded-lg">
         {/* fake video block */}
         <div className="absolute inset-0 shimmer" />
 
@@ -256,6 +256,7 @@ export const ReelSkeleton = () => {
 
         {/* right side actions (like, comment etc) */}
         <div className="absolute right-3 bottom-20 flex flex-col items-center gap-4">
+          <div className="h-10 w-10 shimmer rounded-full" />
           <div className="h-10 w-10 shimmer rounded-full" />
           <div className="h-10 w-10 shimmer rounded-full" />
           <div className="h-10 w-10 shimmer rounded-full" />

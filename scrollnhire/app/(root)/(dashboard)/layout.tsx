@@ -149,77 +149,79 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       ></div>
 
       {/* WHEN IS IS MOBILE VIEW AND GOTTA DISPLAY A FLOATING SIDEBAR */}
+      {/* I DON'T WANNA DISPLAY THE SIDEBAR IF USER IS UNAUTHENTICATED AND IS JUST VIEWING A REEL YOU KNOW */}
 
-      <div
-        className={cn(
-          "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen top-0 w-56 h-full flex flex-col md:hidden transition-all duration-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900",
-          isSidebarOpen ? "left-0" : "-left-56",
-        )}
-        // style={{ position: "sticky" }}
-      >
-        <Link
-          href="/"
-          className="w-full max-w-fit p-4 pb-2 flex cursor-pointer justify-start overflow-hidden"
-          // add the one for cso too.
-          // onClick={() =>
-          //   router.push(role === "student" ? "/student" : "/employer")
-          // }
+      {(pathname.startsWith("/reels") ? !!session?.user?.email : true) && (
+        <div
+          className={cn(
+            "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen top-0 w-56 h-full flex flex-col md:hidden transition-all duration-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900",
+            isSidebarOpen ? "left-0" : "-left-56",
+          )}
+          // style={{ position: "sticky" }}
         >
-          <Image
-            alt="logo"
-            width="24"
-            height="24"
-            className="me-1 rounded-[5px] transition-all "
-            // style={{ color: "transparent" }}
-            src="/logo.webp"
-          />
-
-          <span
-            style={{ opacity: isSidebarOpen ? "100" : "0" }}
-            className="transition-all ml-2 duration-300"
+          <Link
+            href="/"
+            className="w-full max-w-fit p-4 pb-2 flex cursor-pointer justify-start overflow-hidden"
+            // add the one for cso too.
+            // onClick={() =>
+            //   router.push(role === "student" ? "/student" : "/employer")
+            // }
           >
-            ScrollnHire
-          </span>
-        </Link>
-        <nav
-          className="flex-1 overflow-x-hidden overflow-y-auto py-4"
-          style={{ overflowY: isSidebarOpen ? "auto" : "hidden" }}
-        >
-          {/* MAIN FEATURES */}
-          <div className="px-2 py-2 pr-8 flex flex-col gap-1">
-            <div className="space-y-1 flex flex-col gap-1">
-              <Button
-                variant={
-                  ["/student", "/employer"].includes(pathname)
-                    ? "secondary"
-                    : "ghost"
-                }
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  ["/student", "/employer"].includes(pathname)
-                    ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                disabled={role === null}
-                // add the one for cso too.
-                onClick={() =>
-                  router.push(role === "student" ? "/student" : "/employer")
-                }
-              >
-                <Home className="text-zinc-500 dark:text-zinc-400 mr-2" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    !["/student", "/employer"].includes(pathname) &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Home
-                </span>
-              </Button>
+            <Image
+              alt="logo"
+              width="24"
+              height="24"
+              className="me-1 rounded-[5px] transition-all "
+              // style={{ color: "transparent" }}
+              src="/logo.webp"
+            />
 
-              {/* <Button
+            <span
+              style={{ opacity: isSidebarOpen ? "100" : "0" }}
+              className="transition-all ml-2 duration-300"
+            >
+              ScrollnHire
+            </span>
+          </Link>
+          <nav
+            className="flex-1 overflow-x-hidden overflow-y-auto py-4"
+            style={{ overflowY: isSidebarOpen ? "auto" : "hidden" }}
+          >
+            {/* MAIN FEATURES */}
+            <div className="px-2 py-2 pr-8 flex flex-col gap-1">
+              <div className="space-y-1 flex flex-col gap-1">
+                <Button
+                  variant={
+                    ["/student", "/employer"].includes(pathname)
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    ["/student", "/employer"].includes(pathname)
+                      ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  disabled={role === null}
+                  // add the one for cso too.
+                  onClick={() =>
+                    router.push(role === "student" ? "/student" : "/employer")
+                  }
+                >
+                  <Home className="text-zinc-500 dark:text-zinc-400 mr-2" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      !["/student", "/employer"].includes(pathname) &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Home
+                  </span>
+                </Button>
+
+                {/* <Button
                 variant={pathname === "/jobs" ? "secondary" : "ghost"}
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
@@ -240,78 +242,78 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   Job Profiles
                 </span>
               </Button> */}
-              <Button
-                variant={pathname === "/profile" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/profile"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/profile")}
-              >
-                <User2 className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/profile" &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  My Profile
-                </span>
-              </Button>
-              {user.role === "student" && (
                 <Button
-                  variant={pathname === "/projects" ? "secondary" : "ghost"}
+                  variant={pathname === "/profile" ? "secondary" : "ghost"}
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
                     pathname === "/profile"
                       ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
-                  onClick={() => router.push("/projects")}
+                  onClick={() => router.push("/profile")}
                 >
-                  <Folders className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <User2 className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
                     className={cn(
                       "transition-all duration-300",
-                      pathname !== "/projects" &&
+                      pathname !== "/profile" &&
                         "text-zinc-500 dark:text-zinc-400",
                     )}
                   >
-                    Projects
+                    My Profile
                   </span>
                 </Button>
-              )}
-              {user.role === "employer" && (
-                <Button
-                  variant={pathname === "/manage" ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                    pathname === "/manage"
-                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                  )}
-                  onClick={() => router.push("/manage")}
-                >
-                  <GraduationCap className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                  <span
-                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                {user.role === "student" && (
+                  <Button
+                    variant={pathname === "/projects" ? "secondary" : "ghost"}
                     className={cn(
-                      "transition-all duration-300",
-                      pathname !== "/manage" &&
-                        "text-zinc-500 dark:text-zinc-400",
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/profile"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                     )}
+                    onClick={() => router.push("/projects")}
                   >
-                    Manage Students
-                  </span>
-                </Button>
-              )}
+                    <Folders className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/projects" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Projects
+                    </span>
+                  </Button>
+                )}
+                {user.role === "employer" && (
+                  <Button
+                    variant={pathname === "/manage" ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/manage"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                    )}
+                    onClick={() => router.push("/manage")}
+                  >
+                    <GraduationCap className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/manage" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Manage Students
+                    </span>
+                  </Button>
+                )}
 
-              {/* <Button
+                {/* <Button
                 variant={pathname === "/interviews" ? "secondary" : "ghost"}
                 className={cn(
                   "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
@@ -333,129 +335,132 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   Interviews
                 </span>
               </Button> */}
-              <Button
-                variant={pathname === "/chat" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/chat"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/chat")}
-              >
-                <MessageCircleMore className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/chat" && "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Chats
-                </span>
-              </Button>
-
-              <Button
-                variant={pathname.includes("/reels") ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname.includes("/reels")
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/reels")}
-              >
-                <SquarePlay className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    !pathname.includes("/reels") &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Reels
-                </span>
-              </Button>
-
-              <Button
-                variant={pathname === "/explore" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/explore"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/explore")}
-              >
-                <Compass className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/explore" &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Explore
-                </span>
-              </Button>
-
-              {role === "student" && (
                 <Button
-                  variant={pathname === "/create" ? "secondary" : "ghost"}
+                  variant={pathname === "/chat" ? "secondary" : "ghost"}
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                    pathname === "/create"
+                    pathname === "/chat"
                       ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
-                  onClick={() => router.push("/create")}
+                  onClick={() => router.push("/chat")}
                 >
-                  <Plus className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <MessageCircleMore className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
                     className={cn(
                       "transition-all duration-300",
-                      pathname !== "/create" &&
+                      pathname !== "/chat" &&
                         "text-zinc-500 dark:text-zinc-400",
                     )}
                   >
-                    Create
+                    Chats
                   </span>
                 </Button>
-              )}
-              <Button
-                variant={pathname === "/notifications" ? "secondary" : "ghost"}
-                className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"
-                onClick={() => router.push("/notifications")}
-              >
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-0 left-6 flex items-center justify-center h-[14px] w-[14px] text-[10px] bg-red-500 text-white rounded-full">
-                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                  </span>
-                )}
-                <Bell className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+
+                <Button
+                  variant={pathname.includes("/reels") ? "secondary" : "ghost"}
                   className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/notifications" &&
-                      "text-zinc-500 dark:text-zinc-400",
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname.includes("/reels")
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
+                  onClick={() => router.push("/reels")}
                 >
-                  Notifications
-                </span>
-              </Button>
+                  <SquarePlay className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      !pathname.includes("/reels") &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Reels
+                  </span>
+                </Button>
+
+                <Button
+                  variant={pathname === "/explore" ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/explore"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  onClick={() => router.push("/explore")}
+                >
+                  <Compass className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/explore" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Explore
+                  </span>
+                </Button>
+
+                {role === "student" && (
+                  <Button
+                    variant={pathname === "/create" ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/create"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                    )}
+                    onClick={() => router.push("/create")}
+                  >
+                    <Plus className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/create" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Create
+                    </span>
+                  </Button>
+                )}
+                <Button
+                  variant={
+                    pathname === "/notifications" ? "secondary" : "ghost"
+                  }
+                  className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"
+                  onClick={() => router.push("/notifications")}
+                >
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-0 left-6 flex items-center justify-center h-[14px] w-[14px] text-[10px] bg-red-500 text-white rounded-full">
+                      {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                    </span>
+                  )}
+                  <Bell className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/notifications" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Notifications
+                  </span>
+                </Button>
+              </div>
             </div>
-          </div>
-        </nav>
-        <div className="mt-auto mb-2 p-4 min-h-16 relative">
-          <div
-            className="flex items-center gap-2"
-            // onClick={() => setIsProfileOpen((val) => true)}
-          >
-            {/* <AnimatePresence>
+          </nav>
+          <div className="mt-auto mb-2 p-4 min-h-16 relative">
+            <div
+              className="flex items-center gap-2"
+              // onClick={() => setIsProfileOpen((val) => true)}
+            >
+              {/* <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -491,72 +496,75 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </motion.div>
                   )}
                 </AnimatePresence> */}
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={session?.user?.image ?? undefined}
-                alt="Avatar"
-              />
-              <AvatarFallback>
-                <User2 size={20} />
-              </AvatarFallback>
-            </Avatar>
-            <div
-              style={{ opacity: isSidebarOpen ? "100" : "0" }}
-              className="transition-all duration-300"
-            >
-              <div className="grid gap-0.5 text-xs">
-                <div className="font-medium">
-                  {session?.user?.name || "User"}
-                </div>
-                <div className="text-muted-foreground">
-                  {session?.user?.email}
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={session?.user?.image ?? undefined}
+                  alt="Avatar"
+                />
+                <AvatarFallback>
+                  <User2 size={20} />
+                </AvatarFallback>
+              </Avatar>
+              <div
+                style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                className="transition-all duration-300"
+              >
+                <div className="grid gap-0.5 text-xs">
+                  <div className="font-medium">
+                    {session?.user?.name || "User"}
+                  </div>
+                  <div className="text-muted-foreground">
+                    {session?.user?.email}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ORIGINAL SIDEBAR FOR THE APPLICATION */}
-      <div
-        className={cn(
-          "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen left-2 top-0 h-full hidden flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
-          // "fixed z-[10] max-h-screen min-h-screen left-4 top-0 h-full bg-white dark:bg-zinc-900 flex flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
-          isSidebarOpen ? "w-48 md:w-64" : "w-[0px] md:w-[80px]",
-        )}
-        style={{ position: "sticky" }}
-      >
-        <Link
-          href="/"
-          className="w-full max-w-fit p-4 pb-2 flex cursor-pointer justify-start overflow-hidden"
-          // add the one for cso too.
-          // onClick={() =>
-          //   router.push(role === "student" ? "/student" : "/employer")
-          // }
+      {/* I DON'T WANNA DISPLAY THE SIDEBAR IF USER IS UNAUTHENTICATED AND IS JUST VIEWING A REEL YOU KNOW */}
+      {(pathname.startsWith("/reels") ? !!session?.user?.email : true) && (
+        <div
+          className={cn(
+            "fixed z-[10] max-h-svh md:max-h-screen min-h-svh md:min-h-screen left-2 top-0 h-full hidden flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
+            // "fixed z-[10] max-h-screen min-h-screen left-4 top-0 h-full bg-white dark:bg-zinc-900 flex flex-col md:flex md:relative transition-all duration-500 overflow-hidden",
+            isSidebarOpen ? "w-48 md:w-64" : "w-[0px] md:w-[80px]",
+          )}
+          style={{ position: "sticky" }}
         >
-          <Image
-            alt="logo"
-            width="24"
-            height="24"
-            className="me-1 rounded-[5px] transition-all "
-            // style={{ color: "transparent" }}
-            src="/logo.webp"
-          />
-
-          <span
-            style={{ opacity: isSidebarOpen ? "100" : "0" }}
-            className="transition-all ml-2 duration-300"
+          <Link
+            href="/"
+            className="w-full max-w-fit p-4 pb-2 flex cursor-pointer justify-start overflow-hidden"
+            // add the one for cso too.
+            // onClick={() =>
+            //   router.push(role === "student" ? "/student" : "/employer")
+            // }
           >
-            ScrollnHire
-          </span>
-        </Link>
-        <nav
-          className="flex-1 overflow-x-hidden overflow-y-auto py-4"
-          style={{ overflowY: isSidebarOpen ? "auto" : "hidden" }}
-        >
-          {/* MAIN FEATURES */}
-          <div className="px-2 py-2 pr-8 flex flex-col gap-1">
-            {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
+            <Image
+              alt="logo"
+              width="24"
+              height="24"
+              className="me-1 rounded-[5px] transition-all "
+              // style={{ color: "transparent" }}
+              src="/logo.webp"
+            />
+
+            <span
+              style={{ opacity: isSidebarOpen ? "100" : "0" }}
+              className="transition-all ml-2 duration-300"
+            >
+              ScrollnHire
+            </span>
+          </Link>
+          <nav
+            className="flex-1 overflow-x-hidden overflow-y-auto py-4"
+            style={{ overflowY: isSidebarOpen ? "auto" : "hidden" }}
+          >
+            {/* MAIN FEATURES */}
+            <div className="px-2 py-2 pr-8 flex flex-col gap-1">
+              {/* <h2 className="mb-2 relative px-2 text-xs font-semibold tracking-tight">
               <span
                 className="transition-all duration-500"
                 style={{ opacity: isSidebarOpen ? "100" : "0" }}
@@ -570,280 +578,284 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 -----
               </span>
             </h2> */}
-            <div className="space-y-1 flex flex-col gap-1">
-              <Button
-                variant={
-                  ["/student", "/employer"].includes(pathname)
-                    ? "secondary"
-                    : "ghost"
-                }
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  ["/student", "/employer"].includes(pathname)
-                    ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                disabled={role === null}
-                // add the one for cso too.
-                onClick={() =>
-                  router.push(role === "student" ? "/student" : "/employer")
-                }
-              >
-                <Home className="text-zinc-500 dark:text-zinc-400 mr-2" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    !["/student", "/employer"].includes(pathname) &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Home
-                </span>
-              </Button>
-
-              <Button
-                variant={pathname === "/jobs" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/jobs"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/jobs")}
-              >
-                <BriefcaseBusiness className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/jobs" && "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Job Profiles
-                </span>
-              </Button>
-              <Button
-                variant={pathname === "/profile" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/profile"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/profile")}
-              >
-                <User2 className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/profile" &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  My Profile
-                </span>
-              </Button>
-              {user.role === "student" && (
+              <div className="space-y-1 flex flex-col gap-1">
                 <Button
-                  variant={pathname === "/projects" ? "secondary" : "ghost"}
+                  variant={
+                    ["/student", "/employer"].includes(pathname)
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    ["/student", "/employer"].includes(pathname)
+                      ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  disabled={role === null}
+                  // add the one for cso too.
+                  onClick={() =>
+                    router.push(role === "student" ? "/student" : "/employer")
+                  }
+                >
+                  <Home className="text-zinc-500 dark:text-zinc-400 mr-2" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      !["/student", "/employer"].includes(pathname) &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Home
+                  </span>
+                </Button>
+
+                <Button
+                  variant={pathname === "/jobs" ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/jobs"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  onClick={() => router.push("/jobs")}
+                >
+                  <BriefcaseBusiness className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/jobs" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Job Profiles
+                  </span>
+                </Button>
+                <Button
+                  variant={pathname === "/profile" ? "secondary" : "ghost"}
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
                     pathname === "/profile"
                       ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
-                  onClick={() => router.push("/projects")}
+                  onClick={() => router.push("/profile")}
                 >
-                  <Folders className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <User2 className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
                     className={cn(
                       "transition-all duration-300",
-                      pathname !== "/projects" &&
+                      pathname !== "/profile" &&
                         "text-zinc-500 dark:text-zinc-400",
                     )}
                   >
-                    Projects
+                    My Profile
                   </span>
                 </Button>
-              )}
-              {user.role === "employer" && (
+                {user.role === "student" && (
+                  <Button
+                    variant={pathname === "/projects" ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/profile"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                    )}
+                    onClick={() => router.push("/projects")}
+                  >
+                    <Folders className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/projects" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Projects
+                    </span>
+                  </Button>
+                )}
+                {user.role === "employer" && (
+                  <Button
+                    variant={pathname === "/manage" ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/manage"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                    )}
+                    onClick={() => router.push("/manage")}
+                  >
+                    <GraduationCap className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/manage" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Manage Students
+                    </span>
+                  </Button>
+                )}
+
                 <Button
-                  variant={pathname === "/manage" ? "secondary" : "ghost"}
+                  variant={pathname === "/interviews" ? "secondary" : "ghost"}
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                    pathname === "/manage"
+                    pathname === "/interviews"
                       ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
-                  onClick={() => router.push("/manage")}
+                  onClick={() => router.push("/interviews")}
                 >
-                  <GraduationCap className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <Laptop className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
                     className={cn(
                       "transition-all duration-300",
-                      pathname !== "/manage" &&
+                      pathname !== "/interviews" &&
                         "text-zinc-500 dark:text-zinc-400",
                     )}
                   >
-                    Manage Students
+                    Interviews
                   </span>
                 </Button>
-              )}
-
-              <Button
-                variant={pathname === "/interviews" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/interviews"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/interviews")}
-              >
-                <Laptop className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/interviews" &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Interviews
-                </span>
-              </Button>
-              <Button
-                variant={pathname === "/chat" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/chat"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/chat")}
-              >
-                <MessageCircleMore className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/chat" && "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Chats
-                </span>
-              </Button>
-
-              <Button
-                variant={pathname.includes("/reels") ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname.includes("/reels")
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/reels")}
-              >
-                <SquarePlay className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    !pathname.includes("/reels") &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Reels
-                </span>
-              </Button>
-
-              <Button
-                variant={pathname === "/explore" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/explore"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/explore")}
-              >
-                <Compass className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
-                  className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/explore" &&
-                      "text-zinc-500 dark:text-zinc-400",
-                  )}
-                >
-                  Explore
-                </span>
-              </Button>
-
-              {role === "student" && (
                 <Button
-                  variant={pathname === "/create" ? "secondary" : "ghost"}
+                  variant={pathname === "/chat" ? "secondary" : "ghost"}
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                    pathname === "/create"
+                    pathname === "/chat"
                       ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
-                  onClick={() => router.push("/create")}
+                  onClick={() => router.push("/chat")}
                 >
-                  <Plus className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <MessageCircleMore className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
                   <span
                     style={{ opacity: isSidebarOpen ? "100" : "0" }}
                     className={cn(
                       "transition-all duration-300",
-                      pathname !== "/create" &&
+                      pathname !== "/chat" &&
                         "text-zinc-500 dark:text-zinc-400",
                     )}
                   >
-                    Create
+                    Chats
                   </span>
                 </Button>
-              )}
-              <Button
-                variant={pathname === "/notifications" ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full pl-2 relative cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
-                  pathname === "/notifications"
-                    ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
-                    : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
-                )}
-                onClick={() => router.push("/notifications")}
-              >
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-0 left-6 flex items-center justify-center h-[14px] w-[14px] text-[10px] bg-red-500 text-white rounded-full">
-                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                  </span>
-                )}
-                <Bell className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
-                <span
-                  style={{ opacity: isSidebarOpen ? "100" : "0" }}
+
+                <Button
+                  variant={pathname.includes("/reels") ? "secondary" : "ghost"}
                   className={cn(
-                    "transition-all duration-300",
-                    pathname !== "/notifications" &&
-                      "text-zinc-500 dark:text-zinc-400",
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname.includes("/reels")
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
+                  onClick={() => router.push("/reels")}
                 >
-                  Notifications
-                </span>
-              </Button>
+                  <SquarePlay className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      !pathname.includes("/reels") &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Reels
+                  </span>
+                </Button>
+
+                <Button
+                  variant={pathname === "/explore" ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/explore"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  onClick={() => router.push("/explore")}
+                >
+                  <Compass className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/explore" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Explore
+                  </span>
+                </Button>
+
+                {role === "student" && (
+                  <Button
+                    variant={pathname === "/create" ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                      pathname === "/create"
+                        ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                        : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                    )}
+                    onClick={() => router.push("/create")}
+                  >
+                    <Plus className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                    <span
+                      style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                      className={cn(
+                        "transition-all duration-300",
+                        pathname !== "/create" &&
+                          "text-zinc-500 dark:text-zinc-400",
+                      )}
+                    >
+                      Create
+                    </span>
+                  </Button>
+                )}
+                <Button
+                  variant={
+                    pathname === "/notifications" ? "secondary" : "ghost"
+                  }
+                  className={cn(
+                    "w-full pl-2 relative cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/notifications"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
+                  onClick={() => router.push("/notifications")}
+                >
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-0 left-6 flex items-center justify-center h-[14px] w-[14px] text-[10px] bg-red-500 text-white rounded-full">
+                      {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                    </span>
+                  )}
+                  <Bell className="text-zinc-500 dark:text-zinc-400 mr-2 h-4 w-4" />
+                  <span
+                    style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                    className={cn(
+                      "transition-all duration-300",
+                      pathname !== "/notifications" &&
+                        "text-zinc-500 dark:text-zinc-400",
+                    )}
+                  >
+                    Notifications
+                  </span>
+                </Button>
+              </div>
             </div>
-          </div>
-        </nav>
-        <div className="mt-auto mb-2 p-4 min-h-16 relative">
-          <div
-            className="flex items-center gap-2"
-            // onClick={() => setIsProfileOpen((val) => true)}
-          >
-            {/* <AnimatePresence>
+          </nav>
+          <div className="mt-auto mb-2 p-4 min-h-16 relative">
+            <div
+              className="flex items-center gap-2"
+              // onClick={() => setIsProfileOpen((val) => true)}
+            >
+              {/* <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -879,31 +891,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </motion.div>
                   )}
                 </AnimatePresence> */}
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={session?.user?.image ?? undefined}
-                alt="Avatar"
-              />
-              <AvatarFallback>
-                <User2 size={20} />
-              </AvatarFallback>
-            </Avatar>
-            <div
-              style={{ opacity: isSidebarOpen ? "100" : "0" }}
-              className="transition-all duration-300"
-            >
-              <div className="grid gap-0.5 text-xs">
-                <div className="font-medium">
-                  {session?.user?.name || "User"}
-                </div>
-                <div className="text-muted-foreground">
-                  {session?.user?.email}
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={session?.user?.image ?? undefined}
+                  alt="Avatar"
+                />
+                <AvatarFallback>
+                  <User2 size={20} />
+                </AvatarFallback>
+              </Avatar>
+              <div
+                style={{ opacity: isSidebarOpen ? "100" : "0" }}
+                className="transition-all duration-300"
+              >
+                <div className="grid gap-0.5 text-xs">
+                  <div className="font-medium">
+                    {session?.user?.name || "User"}
+                  </div>
+                  <div className="text-muted-foreground">
+                    {session?.user?.email}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 rouned-none md:rounded-lg bg-zinc-50 dark:bg-[#0f0f12] shadow-sm shadow-zinc-300 dark:shadow-zinc-950 overflow-hidden">

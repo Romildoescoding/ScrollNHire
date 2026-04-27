@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Briefcase, Loader2 } from "lucide-react";
+import { ArrowRight, Briefcase, Loader2 } from "lucide-react";
 import CompanySelect from "./company-select";
 
 export default function EmployerProfileForm({ onNext }: { onNext: any }) {
@@ -92,20 +92,17 @@ export default function EmployerProfileForm({ onNext }: { onNext: any }) {
     <>
       {/* HEADER */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl italic font-playfair">Final Step</h1>
-        <p className="text-slate-500">
+        <h1 className="text-2xl sm:text-4xl italic font-playfair">
+          Final Step
+        </h1>
+        <p className="text-xs sm:text-base text-zinc-500">
           Let’s set up your professional identity.
         </p>
       </div>
 
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl px-4 mx-auto space-y-6">
         {/* 🏢 COMPANY */}
         <div className="space-y-4">
-          <h2 className="text-xl flex items-center gap-2 font-semibold">
-            <Briefcase size={20} />
-            Work Details
-          </h2>
-
           <CompanySelect
             value={form.companyName}
             onChange={(company) =>
@@ -146,8 +143,13 @@ export default function EmployerProfileForm({ onNext }: { onNext: any }) {
           disabled={!isValid || loading}
           className="w-full flex items-center justify-center gap-2"
         >
-          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {loading ? "Saving..." : "Continue Setup"}
+          <span className="truncate">Continue Setup</span>
+          {!loading && (
+            <span className="material-symbols-outlined">
+              <ArrowRight />
+            </span>
+          )}
+          {loading && <Loader2 className="h-7 w-7 animate-spin" />}
         </Button>
       </div>
     </>

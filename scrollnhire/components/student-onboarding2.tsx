@@ -6,8 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, GraduationCap, Link, Loader2, X } from "lucide-react";
+import {
+  ArrowRight,
+  Brain,
+  GraduationCap,
+  Link,
+  Loader2,
+  X,
+} from "lucide-react";
 import CollegeSelect from "./college-select";
+import axios from "axios";
 
 export default function StudentProfileForm({ onNext }: { onNext: any }) {
   const { data: session } = useSession();
@@ -20,7 +28,7 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
     branch: "",
     yearOfPassing: "",
     cgpa: "",
-    resumeUrl: "",
+    resume: null,
     github: "",
     linkedin: "",
     bio: "",
@@ -55,10 +63,10 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
     return err;
   };
 
-  useEffect(() => {
-    const e = validate();
-    setIsValid(Object.keys(e).length === 0);
-  }, [form]);
+  // useEffect(() => {
+  //   const e = validate();
+  //   setIsValid(Object.keys(e).length === 0);
+  // }, [form]);
 
   // 🧠 Skills logic
   const addSkill = () => {
@@ -81,6 +89,40 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
     });
   };
 
+  const uploadResumeToCloudinary = async (file: File) => {
+    const formData = new FormData();
+
+    formData.append("file", file);
+    formData.append("upload_preset", "resume_upload");
+
+    const res = await axios.post(
+      "https://api.cloudinary.com/v1_1/dyvlnnly8/auto/upload",
+      formData,
+    );
+
+    return res.data.secure_url;
+  };
+
+  const handleResumeChange = (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // ✅ Type check
+    if (file.type !== "application/pdf") {
+      alert("Only PDF files are allowed");
+      return;
+    }
+
+    // ✅ Size check (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("File size should be less than 5MB");
+      return;
+    }
+
+    setForm((form) => ({ ...form, resume: file }));
+  };
+
   // 🚀 Submit
   const handleSubmit = async () => {
     setSubmitted(true);
@@ -90,6 +132,9 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
     if (Object.keys(e).length !== 0) return;
 
     setLoading(true);
+
+    let resumeUrl = "";
+    if (form.resume) resumeUrl = await uploadResumeToCloudinary(form.resume);
 
     try {
       const res = await fetch("/api/profile/student", {
@@ -103,7 +148,7 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
           branch: form.branch,
           yearOfPassing: Number(form.yearOfPassing),
           cgpa: form.cgpa ? Number(form.cgpa) : undefined,
-          resumeUrl: form.resumeUrl,
+          resumeUrl: resumeUrl,
           skills: form.skills,
           github: form.github,
           linkedin: form.linkedin,
@@ -148,23 +193,18 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
       <div className="flex flex-col flex-1 pt-2">
         <header className="text-center mb-8">
           <h1
-            className={`font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2`}
+            className={`font-playfair text-zinc-900 dark:text-zinc-100 tezt-2xl sm:text-4xl italic leading-tight mb-2`}
           >
             Final Step
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-base">
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
             {`All of the information will help you get noticed.`}
           </p>
         </header>
       </div>
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl px-4 pb-4 mx-auto space-y-6">
         {/* 🎓 EDUCATION */}
         <div className="space-y-4">
-          <h2 className="text-xl flex gap-3 items-center font-semibold">
-            <GraduationCap size={24} />
-            Education
-          </h2>
-
           <CollegeSelect
             value={form.collegeName}
             onChange={(college) =>
@@ -259,12 +299,8 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
         </div>
 
         {/* 🧠 SKILLS */}
-        <div className="space-y-3">
-          <h2 className="text-xl flex gap-3 items-center font-semibold">
-            <Brain size={24} />
-            Skills
-          </h2>
-
+        <div className="space-y-3 border-t pt-4">
+          <Label>Skills</Label>
           <div className="flex gap-2">
             <Input
               placeholder="Add a skill"
@@ -279,7 +315,7 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
             {form.skills.map((skill) => (
               <div
                 key={skill}
-                className="flex items-center gap-1 bg-neutral-200 text-neutral-700 px-3 py-1 rounded-full text-sm"
+                className="flex items-center gap-1 bg-zinc-200 text-zinc-700 px-3 py-1 rounded-full text-sm"
               >
                 {skill}
                 <X
@@ -292,26 +328,27 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
         </div>
 
         {/* 🔗 LINKS */}
-        <div className="space-y-3">
-          <h2 className="text-xl flex gap-3 items-center font-semibold">
-            <Link size={24} /> Links
-          </h2>
-
-          <Input
-            placeholder="GitHub URL"
-            value={form.github}
-            onChange={(e) => setForm({ ...form, github: e.target.value })}
-          />
-
-          <Input
-            placeholder="LinkedIn URL"
-            value={form.linkedin}
-            onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
-          />
+        <div className="space-y-3 border-t pt-4">
+          <div className="flex flex-col gap-2">
+            <Label>Github</Label>
+            <Input
+              placeholder="https://www.github.com/..."
+              value={form.github}
+              onChange={(e) => setForm({ ...form, github: e.target.value })}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Linkedin</Label>
+            <Input
+              placeholder="https://www.linkedin.com/..."
+              value={form.linkedin}
+              onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+            />
+          </div>
         </div>
 
         {/* 📝 BIO */}
-        <div>
+        <div className="flex flex-col gap-2">
           <Label>Bio</Label>
           <Textarea
             placeholder="Tell something about yourself..."
@@ -321,23 +358,36 @@ export default function StudentProfileForm({ onNext }: { onNext: any }) {
         </div>
 
         {/* 📄 RESUME */}
-        <div>
-          <Label>Resume URL</Label>
-          <Input
-            placeholder="https://..."
-            value={form.resumeUrl}
-            onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })}
-          />
+        <div className="space-y-2">
+          <Label>Resume</Label>
+
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
+            <span className="text-sm text-foreground/60">
+              {form.resume
+                ? form.resume.name
+                : "Drop your resume here or click to upload"}
+            </span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e: any) => handleResumeChange(e)}
+            />
+          </label>
         </div>
 
         {/* 🚀 SUBMIT */}
         <Button
           onClick={handleSubmit}
-          disabled={!isValid || loading}
+          disabled={loading}
           className="w-full flex items-center justify-center gap-2"
         >
-          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {loading ? "Saving..." : "Continue Setup"}
+          <span className="truncate">Continue Setup</span>
+          {!loading && (
+            <span className="material-symbols-outlined">
+              <ArrowRight />
+            </span>
+          )}
+          {loading && <Loader2 className="h-7 w-7 animate-spin" />}
         </Button>
       </div>
     </>

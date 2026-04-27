@@ -93,22 +93,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async jwt({ token, user, account }) {
-      // When user logs in
+    // async jwt({ token, user, account }) {
+    //   // When user logs in
+    //   if (user) {
+    //     await dbConnect();
+
+    //     const dbUser = await User.findOne({ email: user.email });
+
+    //     if (dbUser) {
+    //       token.id = dbUser._id.toString(); // ✅ Mongo id
+    //       token.role = dbUser.role;
+    //     }
+    //   }
+
+    //   if (account?.provider === "google") {
+    //     token.accessToken = account.access_token;
+    //     token.refreshToken = account.refresh_token;
+    //   }
+
+    //   return token;
+    // },
+
+    async jwt({ token, trigger, session, user }) {
+      // 🔥 When session.update() is called
+      if (trigger === "update" && session?.role) {
+        token.role = session.role;
+      }
+
+      // On login
       if (user) {
         await dbConnect();
-
         const dbUser = await User.findOne({ email: user.email });
 
         if (dbUser) {
-          token.id = dbUser._id.toString(); // ✅ Mongo id
+          token.id = dbUser._id.toString();
           token.role = dbUser.role;
         }
-      }
-
-      if (account?.provider === "google") {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
       }
 
       return token;

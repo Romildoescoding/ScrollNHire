@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       provider: "custom",
       providerId: email,
       password: hashedPassword,
-      profileImage: "https://placehold.co/96",
+      image: "https://placehold.co/96",
     });
 
     return NextResponse.json({ message: "Signup successful" }, { status: 201 });

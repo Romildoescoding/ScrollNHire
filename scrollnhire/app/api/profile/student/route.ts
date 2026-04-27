@@ -48,7 +48,8 @@ export async function PATCH(req: NextRequest) {
       {
         new: true,
         upsert: true,
-        runValidators: true,
+        // runValidators: true,
+        runValidators: false,
       },
     ).lean();
 
@@ -78,7 +79,7 @@ CGPA: ${profile.cgpa || ""}
       profile = await StudentProfile.findOneAndUpdate(
         { userId },
         { $set: { embedding } },
-        { new: true },
+        { new: true, runValidators: false },
       ).lean();
     }
 

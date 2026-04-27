@@ -13,19 +13,14 @@ import {
 } from "@/components/ui/select";
 import CollegeSelect from "./college-select";
 import { useSession } from "next-auth/react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 export default function StudentOnboarding({ onNext }: { onNext: any }) {
   const { data: session } = useSession();
 
   const [form, setForm] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    // dob: "",
+    name: "",
     gender: "",
-    // collegeId: "",
-    // collegeName: "",
-    // rollno: "",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -35,8 +30,8 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
   const validate = () => {
     const newErrors: any = {};
 
-    if (!form.firstName) newErrors.firstName = "First name is required";
-    if (!form.lastName) newErrors.lastName = "Last name is required";
+    if (!form.name) newErrors.name = "Name is required";
+    // if (!form.lastName) newErrors.lastName = "Last name is required";
     // if (!form.dob) newErrors.dob = "Date of birth is required";
     if (!form.gender) newErrors.gender = "Please select a gender";
     // if (!form.collegeId) {
@@ -66,9 +61,7 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
       try {
         // 🧠 transform form → backend format
         const payload = {
-          name: [form.firstName, form.middleName, form.lastName]
-            .filter(Boolean)
-            .join(" "),
+          name: form.name,
           gender: form.gender,
         };
 
@@ -107,6 +100,7 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
         // }
 
         console.log("✅ Updated user:", data.user);
+
         // console.log("✅ Updated student profile:", data2.profile);
 
         onNext(form);
@@ -132,36 +126,35 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
       <div className="flex flex-col flex-1 pt-2">
         <header className="text-center mb-8">
           <h1
-            className={`font-playfair text-slate-900 dark:text-slate-100 text-4xl italic leading-tight mb-2`}
+            className={`font-playfair text-zinc-900 dark:text-zinc-100 text-2xl sm:text-4xl italic leading-tight mb-2`}
           >
             Basic details
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-base">
+          <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-base">
             {`Let's get you started with the basic information.`}
           </p>
         </header>
       </div>
 
-      <div className="space-y-6 max-w-xl mx-auto">
+      <div className="px-4 space-y-6 max-w-xl mx-auto">
         {/* NAME */}
         <div className="space-y-2">
           <Label>
             Full Name <span className="text-red-500">*</span>
           </Label>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <Input
-                placeholder="First Name"
-                value={form.firstName}
-                onChange={(e) =>
-                  setForm({ ...form, firstName: e.target.value })
-                }
-              />
-              {submitted && errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-              )}
-            </div>
+          <Input
+            placeholder="John Doe"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+          {submitted && errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
+          {/* </div> */}
+
+          {/* <div className="grid grid-cols-3 gap-3">
+            
 
             <div>
               <Input
@@ -183,7 +176,7 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
                 <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* DOB */}
@@ -225,7 +218,7 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
                 <Button
                   key={gender}
                   variant={"outline"}
-                  className={`${form.gender === gender ? "text-neutral-800 border-2 border-neutral-800" : "text-neutral-500 border border-neutral-200"} shadom-sm capitalize flex-1`}
+                  className={`${form.gender === gender ? "text-zinc-800 dark:text-zinc-100 border-2 border-zinc-800 dark:border-zinc-100" : "text-zinc-500 border border-zinc-200"} shadom-sm capitalize flex-1`}
                   onClick={() => setForm({ ...form, gender })}
                 >
                   {gender}
@@ -273,10 +266,13 @@ export default function StudentOnboarding({ onNext }: { onNext: any }) {
         {/* SUBMIT */}
         {/* <Button onClick={handleSubmit} disabled={!isValid} className="w-full"> */}
         <Button onClick={handleSubmit} className="w-full">
-          Continue
-          {loading && (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span className="truncate">Continue</span>
+          {!loading && (
+            <span className="material-symbols-outlined">
+              <ArrowRight />
+            </span>
           )}
+          {loading && <Loader2 className="h-7 w-7 animate-spin" />}
         </Button>
       </div>
     </>

@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Gem,
@@ -60,18 +60,24 @@ const Navbar = () => {
     signOut({ callbackUrl: "https://localhost:3000/login" });
   }
 
+  const pathname = usePathname();
+  const { data: session } = useSession();
+
   return (
     <nav
       className={cn(
         "border-b z-[9] transition-all bg-zinc-100 dark:bg-zinc-900 duration-500 fixed top-0 right-0 md:top-2 md:right-2 h-[56px]",
-        isSidebarOpen
-          ? "w-[100vw] md:w-[calc(100vw-264px)]"
-          : "w-[100vw] md:w-[calc(100vw-88px)]",
+        pathname.startsWith("/reels") && !session?.user?.email
+          ? "w-[100vw]"
+          : isSidebarOpen
+            ? "w-[100vw] md:w-[calc(100vw-264px)]"
+            : "w-[100vw] md:w-[calc(100vw-88px)]",
       )}
     >
       <div className="flex justify-between pr-4 dark:bg-neutral-950 transition-all duration-500 h-full w-full md:rounded-t-lg bg-white">
         <button
           onClick={() => setIsSidebarOpen((open) => !open)}
+          disabled={pathname.startsWith("/reels") && !session?.user?.email}
           className={cn(
             "z-[11] h-14 w-18 flex items-center justify-center cursor-pointer transition-all duration-500 text-neutral-600 hover:text-neutral-950 dark:text-white dark:hover:text-neutral-200",
             isSidebarOpen ? " md:text-neutral-600" : " text-neutral-600",

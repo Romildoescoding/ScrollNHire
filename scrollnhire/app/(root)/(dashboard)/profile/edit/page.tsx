@@ -419,7 +419,9 @@ const ProfilePage = () => {
 
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                     <span className="text-sm text-foreground/60">
-                      Drop your resume here or click to upload
+                      {form.studentProfile.resume
+                        ? form.studentProfile.resume.name
+                        : "Drop your resume here or click to upload"}
                     </span>
                     <input
                       type="file"

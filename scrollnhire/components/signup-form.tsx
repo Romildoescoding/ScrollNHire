@@ -167,9 +167,9 @@ export function SignupForm({
               <div className="flex h-8 w-8 items-center justify-center rounded-md">
                 <GalleryVerticalEnd className="size-6" />
               </div>
-              <span className="sr-only">FashionGPT.</span>
+              <span className="sr-only">ScrollnHire.</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to FashionGPT.</h1>
+            <h1 className="text-xl font-bold">Welcome to ScrollnHire.</h1>
             <div className="text-center text-sm">
               Please Register to get started
             </div>
@@ -193,15 +193,15 @@ export function SignupForm({
         </div>
       </form>
 
-      <p className="h-[1px] w-full bg-neutral-300 relative">
-        <span className="absolute flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 text-neutral-500 bg-white h-6 w-6 items-center justify-center">
+      <p className="h-[1px] w-full bg-zinc-300 relative">
+        <span className="absolute flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 text-zinc-500 bg-background h-6 w-6 items-center justify-center">
           or
         </span>
       </p>
 
       {/* ERROR UI */}
       {errorMessage && (
-        <p className="text-red-600 bg-[#ffe3e3] p-2 rounded-md text-center text-xs">
+        <p className="text-red-600 dark:text-red-300 bg-[#ffe3e3] dark:bg-[#290000] p-2 rounded-md text-center text-xs">
           {errorMessage}
         </p>
       )}
@@ -214,18 +214,18 @@ export function SignupForm({
               type="email"
               id="email"
               placeholder=" "
-              className="peer block w-full border border-neutral-400 rounded-lg px-3 py-2 
-               focus:outline-none focus:border-neutral-500 bg-transparent"
+              className="peer block w-full border border-zinc-400 rounded-lg px-3 py-2 
+               focus:outline-none focus:border-zinc-500 bg-transparent dark:bg-background"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <label
               htmlFor="email"
-              className="absolute left-3 top-2 px-1 bg-white text-neutral-500 transition-all duration-200
+              className="absolute left-3 top-2 px-1 bg-background text-zinc-500 transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:text-sm 
                 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-sm
-                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-neutral-600"
+                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-zinc-600"
             >
               Email
             </label>
@@ -237,8 +237,8 @@ export function SignupForm({
               type={showPass ? "text" : "password"}
               id="password"
               placeholder=" "
-              className="peer block w-full border border-neutral-400 rounded-lg px-3 py-2 
-               focus:outline-none focus:border-neutral-500 bg-transparent"
+              className="peer block w-full border border-zinc-400 rounded-lg px-3 py-2 
+               focus:outline-none focus:border-zinc-500 bg-transparent dark:bg-background"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -247,7 +247,7 @@ export function SignupForm({
             <Button
               variant="ghost"
               type="button"
-              className="absolute top-1/2 -translate-y-1/2 right-2 h-6 w-6 text-neutral-500"
+              className="absolute top-1/2 -translate-y-1/2 right-2 h-6 w-6 text-zinc-500"
               style={{ padding: 0 }}
               onClick={() => setShowPass((show) => !show)}
             >
@@ -256,10 +256,10 @@ export function SignupForm({
 
             <label
               htmlFor="password"
-              className="absolute left-3 top-2 px-1 bg-white text-neutral-500 transition-all duration-200
+              className="absolute left-3 top-2 px-1 bg-background text-zinc-500 transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:text-sm 
                 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-sm
-                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-neutral-600"
+                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-zinc-600"
             >
               Password
             </label>
@@ -275,8 +275,8 @@ export function SignupForm({
               type={showPassConfirm ? "text" : "password"}
               id="confirm-password"
               placeholder=" "
-              className="peer block w-full border border-neutral-400 rounded-lg px-3 py-2 
-               focus:outline-none focus:border-neutral-500 bg-transparent"
+              className="peer block w-full border border-zinc-400 rounded-lg px-3 py-2 
+               focus:outline-none focus:border-zinc-500 bg-transparent dark:bg-background"
               required
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
@@ -285,7 +285,7 @@ export function SignupForm({
             <Button
               variant="ghost"
               type="button"
-              className="absolute top-1/2 -translate-y-1/2 right-2 h-6 w-6 text-neutral-500"
+              className="absolute top-1/2 -translate-y-1/2 right-2 h-6 w-6 text-zinc-500"
               style={{ padding: 0 }}
               onClick={() => setShowPassConfirm((show) => !show)}
             >
@@ -294,10 +294,10 @@ export function SignupForm({
 
             <label
               htmlFor="confirm-password"
-              className="absolute left-3 top-2 px-1 bg-white text-neutral-500 transition-all duration-200
+              className="absolute left-3 top-2 px-1 bg-background text-zinc-500 transition-all duration-200
                 peer-placeholder-shown:top-2 peer-placeholder-shown:text-sm 
                 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-sm
-                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-neutral-600"
+                peer-focus:-top-2 peer-focus:text-sm peer-focus:text-zinc-600"
             >
               Confirm Password
             </label>

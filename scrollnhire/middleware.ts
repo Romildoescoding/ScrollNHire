@@ -59,6 +59,11 @@ export async function middleware(req: NextRequest) {
 
   const role = token.role as "student" | "employer";
 
+  // SAFE FALLBACK FOR NOT ROLES
+  if (!role) {
+    return NextResponse.redirect(new URL("/onboarding", req.url));
+  }
+
   /**
    * 🔁 AUTH PAGES
    */

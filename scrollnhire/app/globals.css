@@ -308,3 +308,36 @@ html {
   right: 4px;
   z-index: 3;
 }
+
+@keyframes scroll1 {
+  0% {
+    top: 0;
+  }
+  99.99% {
+    top: -200%;
+  }
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes scroll2 {
+  0% {
+    top: 200%;
+  }
+  99.99% {
+    top: 0%;
+  }
+  100% {
+    top: 200%;
+  }
+}
+
+.animate-scroll1 {
+  /* animation: scroll1 3s cubic-bezier(0.65, 0, 0.35, 1) infinite; */
+  animation: scroll1 3s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}
+
+.animate-scroll2 {
+  animation: scroll2 3s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}

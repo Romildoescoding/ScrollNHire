@@ -1,8 +1,10 @@
 "use client";
+import Earth from "@/components/globe";
 import SmoothScrollProvider from "@/components/smooth_scroll_provider";
 import { AnimatedUnderline } from "@/components/ui/animated-underline";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Moon, Sun } from "lucide-react";
+import { ChevronRight, Moon, Sun, User2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
@@ -97,11 +99,11 @@ const LandingPage = () => {
         </div>
         {/* HERO */}
         <div className="h-svh text-7xl sm:h-[50vh] bg-white dark:bg-black w-full flex flex-col items-center justify-end">
-          <div className="font-semibold flex flex-col items-center justify-end">
+          <div className=" font-medium flex flex-col items-center justify-end">
             <div className="flex gap-4">
               <div className="flex gap-2">
                 Scroll{" "}
-                <div className="h-full aspect-square border rounded-xl bg-foreground">
+                <div className="h-full aspect-square border bg-[blueviolet] rounded-xl">
                   <div className="h-full w-full flex items-center justify-center">
                     <div className="h-12 w-12 overflow-hidden relative">
                       {/* DARK MODE */}
@@ -138,9 +140,46 @@ const LandingPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 Discover
-                <div className="w-36 h-full border rounded-xl bg-foreground"></div>
+                {/* <div className="w-36 h-full bg-transparent relative">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 aspect-2/3 w-19 rounded-lg shadow-sm shadow-blue-700 dark:shadow-blue-950 border border-blue-800 -rotate-30 bg-blue-700 flex flex-col items-center gap-2 p-2">
+                    <Avatar className="h-8 w-8 bg-blue-100 dark:bg-blue-100 text-blue-600 dark:text-blue-600">
+                      <AvatarImage src={"/placeholder.png"} alt="Avatar" />
+                      <AvatarFallback className="bg-blue-100 dark:bg-blue-100 text-blue-600 dark:text-blue-600">
+                        <User2 size={20} />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col w-full h-fit">
+                      <span className="font-semibold text-blue-100 text-sm">
+                        Andrew
+                      </span>
+                      <span className="font-light text-xs text-blue-300">
+                        Software Engineer
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-1/2 -translate-y-1/2 right-0 aspect-2/3 w-19 rounded-lg shadow-sm border border-blue-900 rotate-30 bg-blue-800 shadow-blue-800 dark:shadow-blue-950 flex flex-col items-center gap-2 p-2">
+                    <Avatar className="h-8 w-8 bg-blue-100 dark:bg-blue-100 text-blue-600 dark:text-blue-600">
+                      <AvatarImage src={"/placeholder.png"} alt="Avatar" />
+                      <AvatarFallback className="bg-blue-100 dark:bg-blue-100 text-blue-600 dark:text-blue-600">
+                        <User2 size={20} />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col w-full h-fit">
+                      <span className="font-semibold text-blue-100 text-sm">
+                        John
+                      </span>
+                      <span className="font-light text-xs text-blue-300">
+                        Senior Developer
+                      </span>
+                    </div>
+                  </div>
+                </div> */}
+                <div className="h-full w-fit">
+                  <Earth />
+                </div>
               </div>
             </div>
             <div className="flex gap-2">

@@ -313,7 +313,7 @@ html {
   0% {
     top: 0;
   }
-  99.99% {
+  99.99999% {
     top: -200%;
   }
   100% {
@@ -325,7 +325,7 @@ html {
   0% {
     top: 200%;
   }
-  99.99% {
+  99.99999% {
     top: 0%;
   }
   100% {
@@ -340,4 +340,108 @@ html {
 
 .animate-scroll2 {
   animation: scroll2 3s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}
+
+@keyframes move1 {
+  0% {
+    top: 200%;
+    /* transform: translate(-50%, 0%); */
+  }
+  50% {
+    top: 0%;
+    /* transform: translate(-50%, -50%); */
+  }
+  99.99999% {
+    top: -200%;
+    /* transform: translate(-50%, 0%); */
+  }
+  100% {
+    top: 200%;
+    /* transform: translate(-50%, 0%); */
+  }
+}
+
+@keyframes move2 {
+  0% {
+    top: 0%;
+    /* transform: translate(-50%, -50%); */
+  }
+  50% {
+    top: -200%;
+    /* transform: translate(-50%, 0%); */
+  }
+  50.99999% {
+    top: 200%;
+    /* transform: translate(-50%, 0%); */
+  }
+  /* 99.99%{
+    top:50%
+  } */
+  100% {
+    top: 0%;
+    /* transform: translate(-50%, -50%); */
+  }
+}
+@keyframes tick1 {
+  0% {
+    background-color: #3f3f46;
+    color: #3f3f46;
+  }
+  45% {
+    background-color: #3f3f46;
+    color: #3f3f46;
+  }
+  50% {
+    background-color: #00c950;
+    color: white;
+  }
+  99.99999% {
+    background-color: #00c950;
+    color: white;
+  }
+  100% {
+    background-color: #3f3f46;
+    color: #3f3f46;
+  }
+}
+
+@keyframes tick2 {
+  0% {
+    background-color: #00c950;
+    color: white;
+  }
+  50% {
+    background-color: #00c950;
+    color: white;
+  }
+  50.99999% {
+    background-color: #3f3f46;
+    color: #3f3f46;
+  }
+  95% {
+    background-color: #3f3f46;
+    color: #3f3f46;
+  }
+  100% {
+    background-color: #00c950;
+    color: white;
+  }
+}
+
+/* HIRING ANIMATION */
+.animate-hire-1 {
+  /* animation: scroll1 3s cubic-bezier(0.65, 0, 0.35, 1) infinite; */
+  animation: move1 6s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}
+
+.animate-hire-2 {
+  animation: move2 6s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}
+.animate-selection-div1 {
+  /* animation: scroll1 3s cubic-bezier(0.65, 0, 0.35, 1) infinite; */
+  animation: tick1 6s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+}
+
+.animate-selection-div2 {
+  animation: tick2 6s cubic-bezier(0.83, 0, 0.17, 1) infinite;
 }

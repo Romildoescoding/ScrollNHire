@@ -1,10 +1,14 @@
 "use client";
+import { DashboardShowcase } from "@/components/dashboard-landing";
+import { FAQ } from "@/components/faqs";
 import Earth from "@/components/globe";
+import HowItWorks from "@/components/how-it-works";
+import { Pricing } from "@/components/pricing";
 import SmoothScrollProvider from "@/components/smooth_scroll_provider";
 import { AnimatedUnderline } from "@/components/ui/animated-underline";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Moon, Sun, User2 } from "lucide-react";
+import { Check, ChevronRight, Moon, Sun, User2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
@@ -98,51 +102,52 @@ const LandingPage = () => {
           </div>
         </div>
         {/* HERO */}
-        <div className="h-svh text-7xl sm:h-[50vh] bg-white dark:bg-black w-full flex flex-col items-center justify-end">
-          <div className=" font-medium flex flex-col items-center justify-end">
-            <div className="flex gap-4">
-              <div className="flex gap-2">
-                Scroll{" "}
-                <div className="h-full aspect-square border bg-[blueviolet] rounded-xl">
-                  <div className="h-full w-full flex items-center justify-center">
-                    <div className="h-12 w-12 overflow-hidden relative">
-                      {/* DARK MODE */}
-                      <Image
-                        src="/logo_black.svg"
-                        height={60}
-                        width={60}
-                        alt="gradient"
-                        className="animate-scroll1 hidden absolute top-0 left-1/2 -translate-x-1/2 dark:block h-12 w-12"
-                      />
-                      <Image
-                        src="/logo_black.svg"
-                        height={60}
-                        width={60}
-                        alt="gradient"
-                        className="animate-scroll2 absolute top-full left-1/2 -translate-x-1/2 hidden dark:block h-12 w-12"
-                      />
-                      {/* LIGHT MODE */}
-                      <Image
-                        src="/logo_white.svg"
-                        height={60}
-                        width={60}
-                        alt="gradient"
-                        className="animate-scroll1 block absolute top-0 left-1/2 -translate-x-1/2 dark:hidden h-12 w-12"
-                      />
-                      <Image
-                        src="/logo_white.svg"
-                        height={60}
-                        width={60}
-                        alt="gradient"
-                        className="animate-scroll2 absolute top-full left-1/2 -translate-x-1/2 block dark:hidden h-12 w-12"
-                      />
+        <div className="h-[30svh] relative text-7xl sm:h-[30vh] bg-white dark:bg-black w-full flex flex-col items-center justify-end">
+          <div className="relative top-40 flex flex-col gap-4 items-center">
+            <div className="relative font-medium flex flex-col items-center justify-end">
+              <div className="flex gap-4">
+                <div className="flex gap-2">
+                  Scroll{" "}
+                  <div className="h-full aspect-square border bg-[blueviolet] rounded-xl">
+                    <div className="h-full w-full flex items-center justify-center">
+                      <div className="h-12 w-12 overflow-hidden relative">
+                        {/* DARK MODE */}
+                        <Image
+                          src="/logo_black.svg"
+                          height={60}
+                          width={60}
+                          alt="gradient"
+                          className="animate-scroll1 hidden absolute top-0 left-1/2 -translate-x-1/2 dark:block h-12 w-12"
+                        />
+                        <Image
+                          src="/logo_black.svg"
+                          height={60}
+                          width={60}
+                          alt="gradient"
+                          className="animate-scroll2 absolute top-full left-1/2 -translate-x-1/2 hidden dark:block h-12 w-12"
+                        />
+                        {/* LIGHT MODE */}
+                        <Image
+                          src="/logo_white.svg"
+                          height={60}
+                          width={60}
+                          alt="gradient"
+                          className="animate-scroll1 block absolute top-0 left-1/2 -translate-x-1/2 dark:hidden h-12 w-12"
+                        />
+                        <Image
+                          src="/logo_white.svg"
+                          height={60}
+                          width={60}
+                          alt="gradient"
+                          className="animate-scroll2 absolute top-full left-1/2 -translate-x-1/2 block dark:hidden h-12 w-12"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-4">
-                Discover
-                {/* <div className="w-36 h-full bg-transparent relative">
+                <div className="flex gap-4">
+                  Discover
+                  {/* <div className="w-36 h-full bg-transparent relative">
                   <div className="absolute top-1/2 -translate-y-1/2 left-0 aspect-2/3 w-19 rounded-lg shadow-sm shadow-blue-700 dark:shadow-blue-950 border border-blue-800 -rotate-30 bg-blue-700 flex flex-col items-center gap-2 p-2">
                     <Avatar className="h-8 w-8 bg-blue-100 dark:bg-blue-100 text-blue-600 dark:text-blue-600">
                       <AvatarImage src={"/placeholder.png"} alt="Avatar" />
@@ -177,15 +182,85 @@ const LandingPage = () => {
                     </div>
                   </div>
                 </div> */}
-                <div className="h-full w-fit">
-                  <Earth />
+                  <div className="h-full w-fit">
+                    <Earth />
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                Hire
+                <div className="w-56 flex items-center justify-center h-full  bg-foreground rounded-2xl">
+                  <div className="w-52 h-[54px] overflow-hidden relative">
+                    <div className="animate-hire-1 absolute top-full left-1/2 w-52 h-[54px] -translate-x-1/2 border p-2 flex gap-2 bg-background rounded-xl">
+                      <Avatar className="h-8 w-8 ">
+                        <AvatarImage src={"/placeholder.png"} alt="Avatar" />
+                        <AvatarFallback className="">
+                          <User2 size={20} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col w-full h-fit">
+                        <span className="font-semibold  text-sm">Andrew</span>
+                        <span className="font-light text-xs">
+                          Software Engineer
+                        </span>
+                      </div>
+                      <div className="h-full w-fit flex items-center justify-center">
+                        <div className="animate-selection-div1 h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+                          <Check />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="animate-hire-2 absolute top-1/2 left-1/2 w-52 h-[54px] -translate-x-1/2 border p-2 flex gap-2 bg-background rounded-xl">
+                      <Avatar className="h-8 w-8 ">
+                        <AvatarImage src={"/placeholder.png"} alt="Avatar" />
+                        <AvatarFallback className="">
+                          <User2 size={20} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col w-full h-fit">
+                        <span className="font-semibold  text-sm">John</span>
+                        <span className="font-light text-xs">
+                          Product Manager
+                        </span>
+                      </div>
+                      <div className="h-full w-fit flex items-center justify-center">
+                        <div className="animate-selection-div2 h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+                          <Check />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              Hire
-              <div className="w-36 h-full border rounded-xl bg-foreground"></div>
+          </div>
+          {/* <div className="absolute top-full left-1/2 -translate-x-1/2 ">
+            <div className="text-xl text-muted-foreground text-center flex flex-col">
+              <span>
+                Find developers through their work, not their resumes.
+              </span>
+              <span>
+                A feed of real projects, live demos, and actual skills.
+              </span>
             </div>
+          </div> */}
+          <div className="absolute top-[200%] left-1/2 -translate-x-1/2 rounded-xl h-fit w-[90vw] p-4 flex flex-col gap-4">
+            <div className="flex w-full justify-between gap-4">
+              <Button
+                className="rounded-full text-xl font-medium"
+                style={{ padding: "30px 60px" }}
+              >
+                Explore Talent
+              </Button>
+              <Button
+                variant="secondary"
+                style={{ padding: "30px 60px" }}
+                className="rounded-full text-xl dark:bg-zinc-950 font-medium"
+              >
+                Hire now
+              </Button>
+            </div>
+            <div className=" rounded-xl w-full aspect-video bg-black shadow-sm"></div>
           </div>
         </div>
 
@@ -214,6 +289,10 @@ const LandingPage = () => {
           className="hidden dark:block h-auto w-screen"
         />
         <div className="h-screen bg-black dark:bg-white"></div>
+        <HowItWorks />
+        <DashboardShowcase />
+        <Pricing />
+        <FAQ />
       </div>
     </SmoothScrollProvider>
   );

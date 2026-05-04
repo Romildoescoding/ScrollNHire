@@ -10,33 +10,29 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="w-full py-20 md:py-32 bg-black dark:bg-white relative overflow-hidden"
+      className="w-full py-20 md:py-32 px-4 lg:px-8 bg-black dark:bg-white relative overflow-hidden"
     >
       {/* <div className="absolute inset-0 -z-10 h-full w-full "></div> */}
 
-      <div className="container px-4 md:px-6 relative">
-        <motion.div
-          // initial={{ opacity: 0, y: 20 }}
-          // whileInView={{ opacity: 1, y: 0 }}
-          // viewport={{ once: true }}
-          // // transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
-        >
-          {/* <Badge
-            className="rounded-full px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
-            Pricing
-          </Badge> */}
-          <h2 className="text-3xl md:text-6xl font-bold text-white dark:text-black">
-            Pricing Plans
-          </h2>
-          {/* <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            {
-              "Choose the plan that's right for your business. All plans include a 14-day free trial."
-            }
-          </p> */}
-        </motion.div>
+      <div className="w-full relative">
+        <div className="self-stretch mb-12 px-4 sm:px-6 md:px-8 lg:px-0 w-full dark:border-zinc-200 border-zinc-800 flex justify-center items-center gap-6">
+          <div className="w-full px-4 sm:px-6 shadow-[0px_2px_4px_rgba(50,45,43,0.06)] overflow-hidden rounded-lg flex flex-col justify-start items-center gap-3 sm:gap-4 shadow-none">
+            <div className="w-fit text-center flex justify-center flex-col text-background text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight md:leading-[60px] font-sans tracking-tight">
+              <span className=" leading-6 md:leading-10 lg:leading-normal">
+                Pricing Plans
+              </span>
+              <h1 className="font-playfair italic leading-tight text-center">
+                {`(early access)`}
+              </h1>
+            </div>
+
+            {/* <div className="self-stretch text-center text-muted/60 text-sm sm:text-base font-normal leading-6 sm:leading-7 font-sans">
+              Explore talent and projects in a smooth, scroll-first experience
+              <br />
+              that feels natural, fast, and actually enjoyable.
+            </div> */}
+          </div>
+        </div>
 
         <div className="mx-auto max-w-5xl">
           <Tabs defaultValue="monthly" className="w-full">
@@ -114,8 +110,8 @@ export function Pricing() {
                     <Card
                       className={`relative overflow-hidden h-full ${
                         plan.popular
-                          ? "border-background shadow-lg"
-                          : "border-background/10 shadow-md"
+                          ? "dark:border-zinc-600 border-zinc-200 shadow-lg"
+                          : "dark:border-zinc-200 border-zinc-800 shadow-md"
                       } bg-gradient-to-b text-white dark:text-black bg-zinc-950 dark:bg-white from-background to-muted/10 backdrop-blur`}
                     >
                       {plan.popular && (
@@ -123,25 +119,36 @@ export function Pricing() {
                           Most Popular
                         </div>
                       )}
-                      <CardContent className="p-6 flex flex-col h-full">
-                        <h3 className="text-2xl font-bold">{plan.name}</h3>
+                      <CardContent className="p-6 py-0 lg:py-6 flex flex-col h-full">
+                        <h3 className="text-3xl md:text-3xl font-semibold font-playfair italic leading-tight">
+                          {plan.name}
+                        </h3>
                         <div className="flex items-baseline mt-4">
-                          <span className="text-4xl font-bold">
-                            {plan.price !== "soon" ? plan.price : "Coming soon"}
-                          </span>
+                          {plan.price !== "soon" && (
+                            <span className="text-xl md:text-2xl font-bold">
+                              {plan.price}
+                            </span>
+                          )}
+                          {plan.price === "soon" && (
+                            <span className="text-xl md:text-2xl font-semibold">
+                              Coming soon
+                            </span>
+                          )}
                           {plan.price !== "soon" && (
                             <span className="text-muted-foreground ml-1">
                               /month
                             </span>
                           )}
                         </div>
-                        <p className="text-muted-foreground mt-2">
+                        <p className="text-muted-foreground text-sm lg:text-base mt-2">
                           {plan.description}
                         </p>
                         <ul className="space-y-3 my-6 flex-grow">
                           {plan.features.map((feature, j) => (
                             <li key={j} className="flex items-center">
-                              <Check className="mr-2 size-4 text-background" />
+                              <div className="min-w-fit mr-2 ">
+                                <Check className="size-4 text-background" />
+                              </div>
                               <span>{feature}</span>
                             </li>
                           ))}
@@ -150,7 +157,7 @@ export function Pricing() {
                           className={cn(
                             `w-full mt-auto rounded-full`,
                             plan.type === "student"
-                              ? "bg-zinc-900 dark:bg-white text-white dark:text-black"
+                              ? "bg-zinc-900 dark:bg-white text-white dark:text-black border dark:border-zinc-200 border-zinc-800"
                               : "bg-zinc-50 dark:bg-black text-black dark:text-white",
                           )}
                           disabled={plan.price === "soon"}

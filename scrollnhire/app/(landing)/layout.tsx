@@ -96,8 +96,8 @@ function LandingLayout({ children }: { children: React.ReactNode }) {
       {children}
       <div className="h-fit bg-white dark:bg-black flex flex-col">
         <footer className="w-full">
-          <div className="container flex flex-col gap-8 px-4 py-10 pb-0 md:px-6 lg:py-16 lg:pb-0">
-            <div className="flex gap-8 justify-between">
+          <div className="container flex flex-col gap-8 pl-2 sm:pl-4 py-10 pb-0 md:px-6 lg:py-16 lg:pb-0">
+            <div className="flex-col sm:flex-row flex gap-4 sm:gap-8 items-center sm:items-start justify-between">
               <div className="space-y-4">
                 <div className="ml-[6px]">
                   {/* ScrollnHire */}
@@ -201,7 +201,7 @@ function LandingLayout({ children }: { children: React.ReactNode }) {
             <div className="text-[18vw] h-[20vw] font-semibold">
               ScrollnHire
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8">
+            <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8 pb-4">
               <p className="text-xs text-muted-foreground">
                 &copy; {new Date().getFullYear()} ScrollnHire. All rights
                 reserved.

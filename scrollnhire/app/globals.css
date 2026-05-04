@@ -445,3 +445,42 @@ html {
 .animate-selection-div2 {
   animation: tick2 6s cubic-bezier(0.83, 0, 0.17, 1) infinite;
 }
+
+.blue_gradient {
+  background: #ffffff;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(64, 8, 168, 1) 66%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
+.inverted_blue_gradient {
+  background: #000000;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(64, 8, 168, 1) 50%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+.dark {
+  .blue_gradient {
+    background: #000000;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(64, 8, 168, 1) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  }
+  .inverted_blue_gradient {
+    background: #ffffff;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(64, 8, 168, 1) 66%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+}

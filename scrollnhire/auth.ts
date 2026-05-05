@@ -120,16 +120,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = session.role;
       }
 
-      // On login
       if (user) {
-        await dbConnect();
-        const dbUser = await User.findOne({ email: user.email });
-
-        if (dbUser) {
-          token.id = dbUser._id.toString();
-          token.role = dbUser.role;
-        }
+        token.id = user.id;
+        token.role = user.role;
       }
+
+      // On login
+      // if (user) {
+      //   await dbConnect();
+      //   const dbUser = await User.findOne({ email: user.email });
+
+      //   if (dbUser) {
+      //     token.id = dbUser._id.toString();
+      //     token.role = dbUser.role;
+      //   }
+      // }
 
       return token;
     },

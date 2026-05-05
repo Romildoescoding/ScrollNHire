@@ -8,7 +8,15 @@ const matchRoute = (pathname: string, route: string) => {
   return pathname === route || pathname.startsWith(route + "/");
 };
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/callback"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/signup",
+  "/callback",
+  "/privacy-policy",
+  "/terms-and-conditions",
+  "/careers",
+];
 const PUBLIC_PREFIXES = ["/reels"];
 
 const AUTH_ROUTES = ["/login", "/signup"];

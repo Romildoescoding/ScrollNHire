@@ -55,9 +55,12 @@ const Navbar = () => {
 
   // const router = useRouter();
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const router = useRouter();
 
-  function handleLogout() {
-    signOut({ callbackUrl: "https://localhost:3000/login" });
+  async function handleLogout() {
+    // signOut({ callbackUrl: "https://localhost:3000/login" });
+    await signOut({ redirect: false });
+    router.push("/login");
   }
 
   const pathname = usePathname();

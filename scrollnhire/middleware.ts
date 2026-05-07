@@ -38,11 +38,11 @@ export async function middleware(req: NextRequest) {
   // 🔥 EDGE SAFE TOKEN
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
   });
 
   console.log("TOKEN:", token);
-  console.log(process.env.NEXTAUTH_SECRET);
+  console.log(process.env.AUTH_SECRET);
 
   const isPublicRoute =
     PUBLIC_ROUTES.some((route) => matchRoute(pathname, route)) ||

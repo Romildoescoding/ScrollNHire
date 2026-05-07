@@ -6,7 +6,7 @@ import dbConnect from "@/app/_lib/dbConnect";
 import { User } from "@/app/models/UserModel";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
 
   session: {
     strategy: "jwt",

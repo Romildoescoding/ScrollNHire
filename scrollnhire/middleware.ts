@@ -41,6 +41,9 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
+  console.log("TOKEN:", token);
+  console.log(process.env.NEXTAUTH_SECRET);
+
   const isPublicRoute =
     PUBLIC_ROUTES.some((route) => matchRoute(pathname, route)) ||
     PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));

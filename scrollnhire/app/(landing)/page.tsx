@@ -94,7 +94,22 @@ const LandingPage = () => {
       </div>
 
       <div className="w-full px-8 pt-12 pb-12 sm:px-16 md:px-24 h-fit relative max-w-screen overflow-hidden overflow-y-visible blue_gradient">
-        <div className="z-5 relative w-full aspect-video bg-foreground rounded-xl"></div>
+        <div className="z-5 relative w-full flex items-center justify-center aspect-video">
+          <Image
+            src="/landing/student_dashboard_dark.png"
+            height={1000}
+            width={1000}
+            alt="chats"
+            className="hidden dark:block h-full w-auto rounded-xl"
+          />
+          <Image
+            src="/landing/student_dashboard.png"
+            height={1000}
+            width={1000}
+            alt="chats"
+            className="block dark:hidden h-full w-auto rounded-xl"
+          />
+        </div>
         {/* <div className="z-4 absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none w-screen h-fit">
           <Image
             src="/landing/light_to_dark_gradient.png"
@@ -193,6 +208,20 @@ const LandingPage = () => {
                           theme="light"
                           className="scale-60 sm:scale-75 md:scale-90"
                         /> */}
+                <Image
+                  src="/landing/chats.png"
+                  height={1000}
+                  width={1000}
+                  alt="chats"
+                  className="hidden dark:block h-full w-auto"
+                />
+                <Image
+                  src="/landing/chats_dark.png"
+                  height={1000}
+                  width={1000}
+                  alt="chats"
+                  className="block dark:hidden h-full w-auto"
+                />
               </div>
             </div>
 
@@ -209,6 +238,24 @@ const LandingPage = () => {
               </div>
               <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex overflow-hidden justify-center items-center relative bg-transparent">
                 <div className="w-full h-full flex items-center justify-center bg-transparent">
+                  <video
+                    src="/videos/interview.mp4"
+                    loop
+                    muted
+                    autoPlay
+                    height={1000}
+                    width={1000}
+                    className="hidden dark:block h-full w-auto"
+                  />
+                  <video
+                    src="/videos/interview_dark.mp4"
+                    height={1000}
+                    width={1000}
+                    loop
+                    muted
+                    autoPlay
+                    className="block dark:hidden h-full w-auto"
+                  />
                   {/* <EffortlessIntegration width={400} height={250} className="max-w-full max-h-full" /> */}
                 </div>
                 {/* Gradient mask for soft bottom edge */}
@@ -229,6 +276,24 @@ const LandingPage = () => {
               </div>
               <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex overflow-hidden items-center justify-center relative">
                 <div className="absolute inset-0 flex items-center justify-center">
+                  <video
+                    src="/videos/kanban.mp4"
+                    loop
+                    muted
+                    autoPlay
+                    height={1000}
+                    width={1000}
+                    className="hidden dark:block h-full w-auto"
+                  />
+                  <video
+                    src="/videos/kanban_dark.mp4"
+                    height={1000}
+                    width={1000}
+                    loop
+                    muted
+                    autoPlay
+                    className="block dark:hidden h-full w-auto"
+                  />
                   {/* <NumbersThatSpeak
                             width="100%"
                             height="100%"

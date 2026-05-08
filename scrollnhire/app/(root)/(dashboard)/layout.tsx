@@ -167,13 +167,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             //   router.push(role === "student" ? "/student" : "/employer")
             // }
           >
-            <Image
+            {/* <Image
               alt="logo"
               width="24"
               height="24"
               className="me-1 rounded-[5px] transition-all "
               // style={{ color: "transparent" }}
               src="/logo.webp"
+            /> */}
+            <Image
+              src="/logo_white.svg"
+              height={60}
+              width={60}
+              alt="gradient"
+              className="hidden dark:block h-6 w-6 me-1"
+            />
+            <Image
+              src="/logo_black.svg"
+              height={60}
+              width={60}
+              alt="gradient"
+              className="dark:hidden block h-6 w-6 me-1"
             />
 
             <span
@@ -199,7 +213,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
                     ["/student", "/employer"].includes(pathname)
-                      ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
                   disabled={role === null}
@@ -432,7 +446,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   variant={
                     pathname === "/notifications" ? "secondary" : "ghost"
                   }
-                  className="w-full pl-2 relative cursor-pointer justify-start overflow-hidden"
+                  className={cn(
+                    "w-full pl-2 relative cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
+                    pathname === "/notifications"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
+                      : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
+                  )}
                   onClick={() => router.push("/notifications")}
                 >
                   {unreadNotifications > 0 && (
@@ -542,13 +561,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             //   router.push(role === "student" ? "/student" : "/employer")
             // }
           >
-            <Image
+            {/* <Image
               alt="logo"
               width="24"
               height="24"
               className="me-1 rounded-[5px] transition-all "
               // style={{ color: "transparent" }}
               src="/logo.webp"
+            /> */}
+            <Image
+              src="/logo_white.svg"
+              height={60}
+              width={60}
+              alt="gradient"
+              className="hidden dark:block h-6 w-6 me-1"
+            />
+            <Image
+              src="/logo_black.svg"
+              height={60}
+              width={60}
+              alt="gradient"
+              className="dark:hidden block h-6 w-6 me-1"
             />
 
             <span
@@ -588,7 +621,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "w-full pl-2 cursor-pointer justify-start overflow-hidden shadow-zinc-300 dark:shadow-[#14141b]",
                     ["/student", "/employer"].includes(pathname)
-                      ? "bg-zinc-50 hover:bg-white dark:hover:bg-zinc-700 dark:bg-zinc-800"
+                      ? "bg-white hover:bg-white dark:hover:bg-zinc-800 dark:bg-zinc-800"
                       : "hover:bg-[#fcfcfc] dark:hover:bg-accent/50",
                   )}
                   disabled={role === null}

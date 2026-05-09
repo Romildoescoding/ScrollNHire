@@ -4,6 +4,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import {
   Bookmark,
   BookmarkCheck,
+  Check,
   EllipsisVertical,
   Heart,
   Loader2,
@@ -259,6 +260,13 @@ export default function ReelCard({
     };
   }, []);
 
+  const [copied, setIsCopied] = useState(false);
+  useEffect(() => {
+    if (copied) {
+      const timeout = setTimeout(() => setIsCopied(false), 500);
+    }
+  }, [copied]);
+
   return (
     <div className="flex h-full justify-center w-full bg-background dark:bg-[#0f0f12]">
       {/* PHONE WIDTH CONTAINER */}
@@ -367,12 +375,25 @@ export default function ReelCard({
               </TooltipContent>
             </Tooltip>
           )}
-          <button className="cursor-pointer flex flex-col items-center">
-            <Send
-              strokeWidth={1.5}
-              className="h-8 w-8 md:h-6 md:w-6"
-              // size={24}
-            />
+          <button
+            className="cursor-pointer flex flex-col items-center"
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `https://scrollnhire.vercel.app/reels/${reel._id}`,
+              );
+              setIsCopied(true);
+            }}
+          >
+            {!copied ? (
+              <Send
+                strokeWidth={1.5}
+                className="h-8 w-8 md:h-6 md:w-6"
+                // size={24}
+              />
+            ) : (
+              <Check strokeWidth={1.5} className="h-8 w-8 md:h-6 md:w-6" />
+            )}
+
             <span className="text-[10px]">{shares}</span>
           </button>
 
@@ -491,6 +512,7 @@ export default function ReelCard({
 
                 <button
                   onClick={submitComment}
+                  disabled={!session?.user?.email}
                   className="text-blue-500 font-semibold"
                 >
                   Post

@@ -9,6 +9,7 @@ import { signIn } from "next-auth/react";
 import { Input } from "./ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -134,7 +135,21 @@ export function LoginForm({
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+                {/* <GalleryVerticalEnd className="size-6" /> */}
+                <Image
+                  src="/logo_white.svg"
+                  height={60}
+                  width={60}
+                  alt="gradient"
+                  className="hidden dark:block h-6 w-6"
+                />
+                <Image
+                  src="/logo_black.svg"
+                  height={60}
+                  width={60}
+                  alt="gradient"
+                  className="dark:hidden block h-6 w-6"
+                />
               </div>
               <span className="sr-only">ScrollnHire.</span>
             </a>
@@ -256,11 +271,11 @@ export function LoginForm({
 
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
         By clicking continue, you agree to our{" "}
-        <a onClick={() => router.push("/terms")} className="cursor-pointer">
+        <a href="/terms-and-conditions" className="cursor-pointer">
           Terms of Service
         </a>{" "}
         and{" "}
-        <a onClick={() => router.push("/privacy")} className="cursor-pointer">
+        <a href="/privacy-policy" className="cursor-pointer">
           Privacy Policy
         </a>
         .

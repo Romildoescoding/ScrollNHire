@@ -1256,7 +1256,7 @@ const ChatArea = ({
             {/* Right Section */}
             <div className="flex items-center gap-2">
               {/* Desktop Actions */}
-              <div className="hidden lg:flex items-center gap-2">
+              {/* <div className="hidden lg:flex items-center gap-2">
                 <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
                   <Video className="w-4 h-4" />
                 </button>
@@ -1264,7 +1264,7 @@ const ChatArea = ({
                 <button className="w-9 h-9 flex items-center justify-center rounded-md border bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700">
                   <PhoneMissed className="w-4 h-4" />
                 </button>
-              </div>
+              </div> */}
 
               {/* More Menu */}
               <button className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700">

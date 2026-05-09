@@ -16,9 +16,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "SaaSify - Streamline Your Workflow",
+  title: "ScrollnHire | Hiring and Discovery Reimagined",
   description:
-    "Boost productivity, reduce costs, and scale your business with our all-in-one SaaS platform.",
+    "Scroll through real people, real work, and real opportunities — all in one platform designed for hiring and getting hired.",
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@ import { createEmbedding } from "@/app/_lib/geminiEmbedding";
 import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { Like } from "@/app/models/LikeModel";
 import { Reel } from "@/app/models/ReelModel";
+import StudentProfile from "@/app/models/StudentProfileModel";
 import { User } from "@/app/models/UserModel";
 import { auth } from "@/auth";
 import mongoose from "mongoose";

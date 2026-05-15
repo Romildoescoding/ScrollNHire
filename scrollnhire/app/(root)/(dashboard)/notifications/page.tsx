@@ -82,7 +82,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div>
+    <div className="px-2 sm:px-4">
       <div className="text-center mb-8">
         <h1 className="text-4xl italic font-playfair">Notifications</h1>
       </div>

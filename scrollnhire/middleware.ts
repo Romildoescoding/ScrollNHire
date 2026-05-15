@@ -72,8 +72,21 @@ export async function middleware(req: NextRequest) {
   const role = token.role as "student" | "employer";
 
   // SAFE FALLBACK FOR NOT ROLES
+  const isOnboardingRoute = matchRoute(pathname, "/onboarding");
+
+  // SAFE FALLBACK FOR NO ROLE
   if (!role) {
-    return NextResponse.redirect(new URL("/onboarding", req.url));
+    if (!isOnboardingRoute) {
+      return NextResponse.redirect(new URL("/onboarding", req.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Prevent users with role from visiting onboarding again:
+  if (role && isOnboardingRoute) {
+    return NextResponse.redirect(
+      new URL(role === "student" ? "/student" : "/employer", req.url),
+    );
   }
 
   /**
@@ -100,11 +113,11 @@ export async function middleware(req: NextRequest) {
 }
 
 // export const config = {
-//   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+//   matcher: [
+//     "/((?!api|_next/static|_next/image|favicon.ico|landing|videos).*)",
+//   ],
 // };
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|landing|videos).*)",
-  ],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

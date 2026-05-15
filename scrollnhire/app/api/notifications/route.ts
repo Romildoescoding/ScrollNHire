@@ -2,6 +2,7 @@ import dbConnect from "@/app/_lib/dbConnect";
 import { Notification } from "@/app/models/NotificationModel";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { Reel } from "@/app/models/ReelModel";
 
 export async function GET(req: NextRequest) {
   try {

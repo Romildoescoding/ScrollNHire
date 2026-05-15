@@ -42,8 +42,8 @@ export async function middleware(req: NextRequest) {
     secureCookie: process.env.NODE_ENV === "production",
   });
 
-  console.log("TOKEN:", token);
-  console.log(process.env.AUTH_SECRET);
+  // console.log("TOKEN:", token);
+  // console.log(process.env.AUTH_SECRET);
 
   const isPublicRoute =
     PUBLIC_ROUTES.some((route) => matchRoute(pathname, route)) ||

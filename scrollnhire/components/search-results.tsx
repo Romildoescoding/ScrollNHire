@@ -148,7 +148,7 @@ const SearchResults = ({
   return (
     <div ref={containerRef} className="flex-1 overflow-y-scroll p-4">
       {loading && (
-        <div className="flex justify-center py-4">
+        <div className="flex justify-center py-20">
           <Loader2 className="animate-spin" />
         </div>
       )}
@@ -169,8 +169,7 @@ const SearchResults = ({
                   src={reel.thumbnailUrl}
                   alt="reel"
                   loading="lazy"
-                  className={`w-full object-cover transition duration-500  ${
-                    isSquare ? "aspect-square" : "aspect-[2/3]"
+                  className={`w-full object-cover transition duration-500 aspect-[2/3]
                   }`}
                 />
 

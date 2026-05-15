@@ -21,14 +21,14 @@ export default function GlobalError({
     <div className=" bg-white dark:bg-black h-screen pt-44 lg:pt-[216px] pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0 max-w-screen overflow-x-hidden overflow-y-auto">
       <div className="w-full flex flex-col justify-center items-center gap-3 sm:gap-4">
         <div className="self-stretch w-full rounded-[3px] flex flex-col justify-center items-center gap-2">
-          {/* <div className=" w-full font-sans max-w-fit text-center hidden min-[334px]:flex justify-center flex-col text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-medium lg:leading-24 px-2 sm:px-4 md:px-0">
+          <div className=" w-full font-sans max-w-fit text-center hidden min-[334px]:flex justify-center flex-col text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-medium lg:leading-24 px-2 sm:px-4 md:px-0">
             <span className="leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-[50px]">
               {`The page you're looking for`}
             </span>
             <h1 className="font-playfair text-slate-900 dark:text-slate-100 italic leading-tight mb-2">
               {`doesn't exist`}
             </h1>
-          </div> */}
+          </div>
           <div className=" w-full font-sans max-w-fit text-center min-[334px]:hidden flex justify-center flex-col text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-medium lg:leading-24 px-2 sm:px-4 md:px-0">
             <h1 className="font-playfair text-slate-900 dark:text-slate-100 italic leading-tight mb-2">
               {`Uh Oh!`}

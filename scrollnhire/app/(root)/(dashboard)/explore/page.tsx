@@ -201,6 +201,8 @@ export default function ExplorePage() {
 
   const [showTagAndFilter, setShowTagAndFilter] = useState(true);
 
+  const [resultsLength, setResultsLength] = useState(0);
+
   return (
     <div className="h-[calc(100vh-96px)] flex flex-col">
       <div className="relative flex flex-col gap-2 border-b">
@@ -385,12 +387,13 @@ export default function ExplorePage() {
           selectedTags={selectedTags}
           type={type}
           searchIsActive={isSearchActive}
+          setResultsLength={setResultsLength}
         />
       )}
 
       {/* 🧱 GRID */}
 
-      {isSearchActive && !query && (
+      {isSearchActive && !query && resultsLength === 0 && (
         <div className="p-4">
           <p className="text-sm text-zinc-400 mb-2">Suggestions</p>
 
@@ -468,7 +471,8 @@ export default function ExplorePage() {
                   )}
 
                   {/* overlay */}
-                  <div className="absolute bottom-2 left-2 right-2 text-white text-xs z-10">
+                  <div className="absolute left-0 bottom-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent text-sm z-10">
+                    {/* <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10"> */}
                     <p className="font-semibold truncate">{reel.user.name}</p>
                     <p className="truncate opacity-70">{reel.caption}</p>
                   </div>
@@ -486,7 +490,11 @@ export default function ExplorePage() {
           )}
 
           {!hasMore && (
-            <div className="text-center text-neutral-500 py-4">{`That's it for the reels`}</div>
+            <div className="text-center text-neutral-500 py-4">
+              &copy; {new Date().getFullYear()} ScrollnHire. All rights
+              reserved.
+            </div>
+            // <div className="text-center text-neutral-500 py-4">{`That's it for the reels`}</div>
           )}
         </div>
       )}

@@ -1,6 +1,13 @@
 import { IProject } from "@/app/models/ProjectModel";
 import { ExternalLink, Loader2, User2 } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
@@ -10,6 +17,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { profile } from "console";
 interface Reel {
   _id: string;
   thumbnailUrl: string;
@@ -21,18 +29,25 @@ interface Reel {
   user: User;
 }
 
+interface User {
+  name: string;
+  // image:string;
+}
+
 const SearchResults = ({
   query,
   type,
   sort,
   selectedTags,
   searchIsActive,
+  setResultsLength,
 }: {
   query: string;
   type: "reels" | "profiles" | "projects" | "all";
   sort: "trending" | "latest" | "most_liked";
   selectedTags: string[];
   searchIsActive: boolean;
+  setResultsLength: Dispatch<SetStateAction<number>>;
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,6 +112,10 @@ const SearchResults = ({
     setLoading(false);
   };
 
+  useEffect(() => {
+    setResultsLength(reels.length + profiles.length + projects.length);
+  }, [reels.length, projects.length, setResultsLength, profiles.length]);
+
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const hasFetchedOnceRef = useRef(false);
@@ -146,7 +165,7 @@ const SearchResults = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-scroll p-4">
+    <div ref={containerRef} className="flex-1 overflow-y-scroll p-4 pt-8">
       {loading && (
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin" />
@@ -190,8 +209,9 @@ const SearchResults = ({
                 )}
 
                 {/* overlay */}
-                <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10">
-                  {/* <p className="font-semibold truncate">{reel.user.name}</p> */}
+                <div className="absolute left-0 bottom-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent text-sm z-10">
+                  {/* <div className="absolute bottom-2 left-2 right-2 text-white text-sm z-10"> */}
+                  <p className="font-semibold truncate">{reel.user.name}</p>
                   <p className="truncate opacity-70">{reel.caption}</p>
                 </div>
               </div>

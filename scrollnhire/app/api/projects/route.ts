@@ -21,7 +21,7 @@ export async function GET() {
       );
     }
 
-    const student = await StudentProfile.findOne({ userId });
+    const student = await StudentProfile.findOne({ userId }, { embedding: 0 });
 
     if (!student) {
       return NextResponse.json(
@@ -30,7 +30,10 @@ export async function GET() {
       );
     }
 
-    const projects = await Project.find({ studentId: student._id });
+    const projects = await Project.find(
+      { studentId: student._id },
+      { embedding: 0 },
+    );
 
     return NextResponse.json({
       success: true,
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const student = await StudentProfile.findOne({ userId });
+    const student = await StudentProfile.findOne({ userId }, { embedding: 0 });
 
     if (!student) {
       return NextResponse.json(

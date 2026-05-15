@@ -30,8 +30,10 @@ interface Reel {
 }
 
 interface User {
+  _id: string;
   name: string;
-  // image:string;
+  image: string;
+  role: string;
 }
 
 const SearchResults = ({

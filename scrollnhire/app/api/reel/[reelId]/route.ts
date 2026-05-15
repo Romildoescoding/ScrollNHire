@@ -62,7 +62,10 @@ export async function PATCH(
     // 🧠 Recompute embedding if needed
     if (shouldUpdateEmbedding || !reel.embedding?.length) {
       // get creator context
-      const studentProfile = await StudentProfile.findOne({ userId }).lean();
+      const studentProfile = await StudentProfile.findOne(
+        { userId },
+        { embedding: 0 },
+      ).lean();
 
       const embeddingText = `
 This is a short video reel created by a student.

@@ -23,10 +23,10 @@ export default function GlobalError({
         <div className="self-stretch w-full rounded-[3px] flex flex-col justify-center items-center gap-2">
           <div className=" w-full font-sans max-w-fit text-center hidden min-[334px]:flex justify-center flex-col text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-medium lg:leading-24 px-2 sm:px-4 md:px-0">
             <span className="leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-[50px]">
-              {`The page you're looking for`}
+              {`Uh Oh!`}
             </span>
             <h1 className="font-playfair text-slate-900 dark:text-slate-100 italic leading-tight mb-2">
-              {`doesn't exist`}
+              {`Something went wrong.`}
             </h1>
           </div>
           <div className=" w-full font-sans max-w-fit text-center min-[334px]:hidden flex justify-center flex-col text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-medium lg:leading-24 px-2 sm:px-4 md:px-0">

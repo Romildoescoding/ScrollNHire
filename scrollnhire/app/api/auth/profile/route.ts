@@ -43,15 +43,21 @@ export async function POST(req) {
 
     // 🎯 Role-based fetch
     if (user.role === "student") {
-      studentProfile = await StudentProfile.findOne({
-        userId: user._id,
-      })
+      studentProfile = await StudentProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("collegeId", "name domain location") // 👈 populate college
         .lean();
 
-      const projects = await Project.find({ studentId: studentProfile._id });
+      const projects = await Project.find(
+        { studentId: studentProfile._id },
+        { embedding: 0 },
+      );
 
-      const reels = await Reel.find({ userId: user._id });
+      const reels = await Reel.find({ userId: user._id }, { embedding: 0 });
 
       studentProfile = {
         ...studentProfile,
@@ -63,9 +69,12 @@ export async function POST(req) {
     }
 
     if (user.role === "employer") {
-      employerProfile = await EmployerProfile.findOne({
-        userId: user._id,
-      })
+      employerProfile = await EmployerProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("companyId", "name domain") // 👈 populate company
         .lean();
 

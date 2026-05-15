@@ -28,9 +28,12 @@ export async function POST(req) {
 
     // 🎯 Role-based fetch
     if (user.role === "student") {
-      studentProfile = await StudentProfile.findOne({
-        userId: user._id,
-      })
+      studentProfile = await StudentProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("collegeId", "name domain location") // 👈 populate college
         .lean();
 
@@ -42,9 +45,12 @@ export async function POST(req) {
     }
 
     if (user.role === "employer") {
-      employerProfile = await EmployerProfile.findOne({
-        userId: user._id,
-      })
+      employerProfile = await EmployerProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("companyId", "name domain") // 👈 populate company
         .lean();
 
@@ -216,9 +222,12 @@ CGPA: ${profile.cgpa || ""}
     let employerProfile = null;
 
     if (user.role === "student") {
-      studentProfile = await StudentProfile.findOne({
-        userId: user._id,
-      })
+      studentProfile = await StudentProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("collegeId", "name domain location")
         .lean();
 
@@ -230,9 +239,12 @@ CGPA: ${profile.cgpa || ""}
     }
 
     if (user.role === "employer") {
-      employerProfile = await EmployerProfile.findOne({
-        userId: user._id,
-      })
+      employerProfile = await EmployerProfile.findOne(
+        {
+          userId: user._id,
+        },
+        { embedding: 0 },
+      )
         .populate("companyId", "name domain")
         .lean();
 

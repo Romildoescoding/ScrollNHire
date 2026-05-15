@@ -32,7 +32,7 @@ export async function GET() {
     //   bio: 5,
     //   verification: 10,
     // };
-    const profile = await StudentProfile.findOne({ userId });
+    const profile = await StudentProfile.findOne({ userId }, { embedding: 0 });
 
     let completion = 0;
     const suggestions: string[] = [];

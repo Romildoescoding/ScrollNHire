@@ -63,6 +63,49 @@ export async function GET(req: NextRequest) {
             vectorScore: { $meta: "vectorSearchScore" },
           },
         },
+
+        // 🔗 JOIN USER
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+
+        // 🧹 flatten
+        {
+          $unwind: "$user",
+        },
+
+        // 🎯 remove embedding + shape response
+        {
+          $project: {
+            // embedding: 0, // ❌ remove embedding
+
+            // keep reel fields
+            // userId: 1,
+            videoUrl: 1,
+            thumbnailUrl: 1,
+            tags: 1,
+            caption: 1,
+            likesCount: 1,
+            commentsCount: 1,
+            sharesCount: 1,
+            viewsCount: 1,
+            createdAt: 1,
+            vectorScore: 1,
+
+            // replace userId with user object
+            user: {
+              _id: "$user._id",
+              name: "$user.name",
+              image: "$user.image",
+              role: "$user.role",
+            },
+          },
+        },
       ]);
 
       reels = rawReels
@@ -166,6 +209,11 @@ export async function GET(req: NextRequest) {
         {
           $addFields: {
             vectorScore: { $meta: "vectorSearchScore" },
+          },
+        },
+        {
+          $project: {
+            embedding: 0,
           },
         },
       ]);

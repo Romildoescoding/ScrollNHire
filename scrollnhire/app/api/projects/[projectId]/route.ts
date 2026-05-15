@@ -22,7 +22,7 @@ export async function PATCH(
       );
     }
 
-    const student = await StudentProfile.findOne({ userId });
+    const student = await StudentProfile.findOne({ userId }, { embedding: 0 });
 
     if (!student) {
       return NextResponse.json(

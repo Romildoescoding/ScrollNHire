@@ -37,7 +37,10 @@ export async function POST(req: Request) {
     }
 
     // 🧠 OPTIONAL: get student profile for better context
-    const studentProfile = await StudentProfile.findOne({ userId }).lean();
+    const studentProfile = await StudentProfile.findOne(
+      { userId },
+      { embedding: 0 },
+    ).lean();
 
     // 🧠 Build embedding text
     const embeddingText = `
@@ -133,7 +136,7 @@ export async function GET(req: NextRequest) {
 
     // 🎯 INITIAL REEL HANDLING
     if (initialReelId && !cursorCreatedAt && !cursorId) {
-      const initialReel = await Reel.findById(initialReelId)
+      const initialReel = await Reel.findById(initialReelId, { embedding: 0 })
         .populate({
           path: "userId",
           model: "User",
@@ -145,7 +148,7 @@ export async function GET(req: NextRequest) {
         reels.push(initialReel);
       }
 
-      const remaining = await Reel.find(query)
+      const remaining = await Reel.find(query, { embedding: 0 })
         .sort({
           createdAt: -1,
           _id: -1,
@@ -161,7 +164,7 @@ export async function GET(req: NextRequest) {
       reels = [...reels, ...remaining];
     } else {
       // 🔁 NORMAL FLOW
-      reels = await Reel.find(query)
+      reels = await Reel.find(query, { embedding: 0 })
         .sort({
           createdAt: -1,
           _id: -1,

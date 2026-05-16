@@ -25,6 +25,8 @@ import { Input } from "./input";
 import { formatCommentTime } from "@/app/_lib/actions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { userAgent } from "next/server";
 // import Image from "next/image";
 
 interface User {
@@ -267,6 +269,8 @@ export default function ReelCard({
     }
   }, [copied]);
 
+  const router = useRouter();
+
   return (
     <div className="flex h-full justify-center w-full bg-background dark:bg-[#0f0f12]">
       {/* PHONE WIDTH CONTAINER */}
@@ -415,7 +419,12 @@ export default function ReelCard({
               className="w-9 h-9 rounded-full object-cover"
             />
 
-            <span className="font-semibold text-white">@{reel.user.name}</span>
+            <span
+              className="font-semibold text-white"
+              onClick={() => router.push(`/profile/${reel.user._id}`)}
+            >
+              @{reel.user.name}
+            </span>
           </div>
 
           {/* CAPTION */}

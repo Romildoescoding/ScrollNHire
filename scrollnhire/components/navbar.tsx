@@ -86,12 +86,12 @@ const Navbar = () => {
             isSidebarOpen ? " md:text-neutral-600" : " text-neutral-600",
           )}
         >
-          <PanelLeftOpen size={20} />
-          {/* {isSidebarOpen ? (
+          {/* <PanelLeftOpen size={20} /> */}
+          {isSidebarOpen ? (
             <PanelLeftClose size={20} />
           ) : (
             <PanelLeftOpen size={20} />
-          )} */}
+          )}
         </button>
 
         <div className="flex items-center gap-4">

@@ -19,5 +19,7 @@ const collegeSchema = new Schema<ICollege>({
   createdAt: { type: Date, default: Date.now },
 });
 
+collegeSchema.index({ name: 1, location: 1 }, { unique: true });
+
 export default mongoose.models.College ||
   mongoose.model<ICollege>("College", collegeSchema);

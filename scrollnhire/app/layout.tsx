@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     siteName: "ScrollnHire",
     images: [
       {
-        url: "/landing/employer_dashboard.png", // 👉 make sure this exists in /public
+        url: "/landing/landing_page.png", // 👉 make sure this exists in /public
         width: 1200,
         height: 630,
         alt: "ScrollnHire Employer Dashboard Preview",
@@ -67,10 +67,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ScrollnHire",
     description: "Hire talent by scrolling real work",
-    images: [
-      "/landing/employer_dashboard.png",
-      "/landing/student_dashboard.png",
-    ],
+    images: ["/landing/landing_page.png"],
   },
 
   robots: {

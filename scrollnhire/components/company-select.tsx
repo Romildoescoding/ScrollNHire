@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Label } from "./ui/label";
+import { Building2 } from "lucide-react";
 
 type Company = {
   _id: string;
@@ -80,6 +81,8 @@ export default function CompanySelect({
     onChange({ companyId: "", companyName: "" });
   };
 
+  const [imgError, setImgError] = useState<Record<string, boolean>>({});
+
   return (
     <div className="relative w-full">
       <Label className="mb-2">
@@ -102,12 +105,19 @@ export default function CompanySelect({
               onClick={() => handleSelect(company)}
               className="transition-all px-4 py-2 cursor-pointer flex gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 items-center"
             >
-              <Image
-                src={`https://img.logo.dev/${company.domain}?token=${LOGO_DEV_KEY}`}
-                alt="logo"
-                width={20}
-                height={20}
-              />
+              {company.domain && !imgError[company._id] ? (
+                <Image
+                  src={`https://img.logo.dev/${company.domain}?token=${LOGO_DEV_KEY}`}
+                  alt="logo"
+                  width={20}
+                  height={20}
+                  onError={() =>
+                    setImgError((prev) => ({ ...prev, [company._id]: true }))
+                  }
+                />
+              ) : (
+                <Building2 />
+              )}
               {company.name}
             </div>
           ))}

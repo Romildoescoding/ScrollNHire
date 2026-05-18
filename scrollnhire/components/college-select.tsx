@@ -86,6 +86,8 @@ export default function CollegeSelect({
 
   const ref = useRef(null);
 
+  const [imgError, setImgError] = useState<Record<string, boolean>>({});
+
   return (
     <div className="relative w-full flex-1">
       <Label className="mb-2">
@@ -108,12 +110,15 @@ export default function CollegeSelect({
               onClick={() => handleSelect(college)}
               className="transition-all px-4 py-2 cursor-pointer flex gap-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 items-center"
             >
-              {college.domain ? (
+              {college.domain && !imgError[college._id] ? (
                 <Image
                   src={`https://img.logo.dev/${college.domain}?token=${LOGO_DEV_KEY}`}
                   alt="Company logo"
                   width={24}
                   height={24}
+                  onError={() =>
+                    setImgError((prev) => ({ ...prev, [college._id]: true }))
+                  }
                 />
               ) : (
                 <div className="h-fit w-fit">

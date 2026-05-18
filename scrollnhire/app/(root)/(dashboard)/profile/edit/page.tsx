@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Camera, Plus, X } from "lucide-react";
 
@@ -238,6 +238,8 @@ const ProfilePage = () => {
     });
   };
 
+  const imageRef = useRef(null);
+
   return (
     <>
       <div className="p-6 pt-2">
@@ -250,6 +252,7 @@ const ProfilePage = () => {
                   type="file"
                   className="hidden"
                   onChange={handleImageChange}
+                  ref={imageRef}
                 />
                 <Image
                   src={form.imageUrl || ""}
@@ -261,7 +264,11 @@ const ProfilePage = () => {
                 />
               </label>
               <div className="flex max-[349px]:items-center flex-col justify-end gap-1 w-full h-full">
-                <Button className="max-w-fit" onClick={handleImageChange}>
+                <Button
+                  className="max-w-fit"
+                  onClick={() => imageRef.current?.click()}
+                >
+                  {/* <Button className="max-w-fit" onClick={handleImageChange}> */}
                   <Plus /> Change Image
                 </Button>
                 <span className="text-[10px] text-foreground/50">

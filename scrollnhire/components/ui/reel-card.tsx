@@ -331,11 +331,13 @@ export default function ReelCard({
               strokeWidth={1.5}
               // size={24}
               className={cn(
-                "h-8 w-8 md:h-6 md:w-6",
+                "h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]",
                 liked ? "fill-red-500 text-red-500" : "",
               )}
             />
-            <span className="text-[10px]">{likes}</span>
+            <span className="text-[10px] drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]">
+              {likes}
+            </span>
           </button>
 
           <button
@@ -344,10 +346,12 @@ export default function ReelCard({
           >
             <MessageCircle
               strokeWidth={1.5}
-              className="h-8 w-8 md:h-6 md:w-6"
+              className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
               // size={24}
             />
-            <span className="text-[10px]">{commentsLength}</span>
+            <span className="text-[10px] drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]">
+              {commentsLength}
+            </span>
           </button>
 
           {session?.user?.role === "employer" && (
@@ -360,13 +364,13 @@ export default function ReelCard({
                   {isShortlisted ? (
                     <BookmarkCheck
                       strokeWidth={1.5}
-                      className="h-8 w-8 md:h-6 md:w-6"
+                      className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
                       // size={24}
                     />
                   ) : (
                     <Bookmark
                       strokeWidth={1.5}
-                      className="h-8 w-8 md:h-6 md:w-6"
+                      className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
                       // size={24}
                     />
                   )}
@@ -391,20 +395,25 @@ export default function ReelCard({
             {!copied ? (
               <Send
                 strokeWidth={1.5}
-                className="h-8 w-8 md:h-6 md:w-6"
+                className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
                 // size={24}
               />
             ) : (
-              <Check strokeWidth={1.5} className="h-8 w-8 md:h-6 md:w-6" />
+              <Check
+                strokeWidth={1.5}
+                className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
+              />
             )}
 
-            <span className="text-[10px]">{shares}</span>
+            <span className="text-[10px] drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]">
+              {shares}
+            </span>
           </button>
 
           <button className="cursor-pointer flex flex-col items-center">
             <EllipsisVertical
               strokeWidth={1.5}
-              className="h-8 w-8 md:h-6 md:w-6"
+              className="h-8 w-8 md:h-6 md:w-6 drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"
               // size={24}
             />
           </button>

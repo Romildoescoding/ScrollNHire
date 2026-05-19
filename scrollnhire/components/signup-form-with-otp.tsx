@@ -351,7 +351,7 @@ export function SignupFormWithOtp({
         className={cn("flex items-center justify-center", className)}
         {...props}
       >
-        <Card className="w-full max-w-md gap-0 overflow-hidden bg-white dark:bg-zinc-950 border-none">
+        <Card className="w-full max-w-md gap-0 overflow-hidden shadow-none bg-zinc-50 dark:bg-zinc-950 border-none">
           <CardHeader className="space-y-1 p-0">
             <div className="flex flex-col items-center gap-2">
               <a

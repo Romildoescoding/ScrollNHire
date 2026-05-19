@@ -6,6 +6,7 @@ import TagsInput from "@/components/ui/tags-input";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const Create = () => {
   const { data: session } = useSession();
@@ -106,6 +107,12 @@ const Create = () => {
           tags,
           duration: cloudData.duration,
         }),
+      });
+
+      posthog.capture("reel_uploaded", {
+        tags,
+        duration: cloudData.duration,
+        caption_length: caption.trim().length,
       });
 
       reset();

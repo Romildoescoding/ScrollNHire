@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/card";
 
 import { motion, AnimatePresence } from "framer-motion";
+import posthog from "posthog-js";
 
 export function SignupFormWithOtp({
   className,
@@ -244,6 +245,12 @@ export function SignupFormWithOtp({
 
         return;
       }
+
+      posthog.identify(email, { email });
+      posthog.capture("user_signed_up", {
+        email,
+        signup_method: "email",
+      });
 
       setTimeout(() => {
         router.push("/callback");

@@ -5,6 +5,7 @@ import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { Message } from "@/app/models/Message";
 import { Conversation } from "@/app/models/ConversationModel";
 import { Notification } from "@/app/models/NotificationModel";
+import { getPostHogClient } from "@/app/lib/posthog-server";
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +69,16 @@ export async function POST(req: Request) {
       // meta: {
       //   role: convo.role, // optional if useful
       // },
+    });
+
+    getPostHogClient().capture({
+      distinctId: userId,
+      event: "interview_scheduled",
+      properties: {
+        student_id: receiverId,
+        interview_time: interviewTime,
+        conversation_id: conversationId,
+      },
     });
 
     return Response.json({

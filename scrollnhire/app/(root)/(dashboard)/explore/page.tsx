@@ -27,6 +27,7 @@ import SearchResults from "@/components/search-results";
 import { unique } from "next/dist/build/utils";
 import { useSidebar } from "@/app/context/SidebarContext";
 import { cn } from "@/lib/utils";
+import posthog from "posthog-js";
 
 interface User {
   _id: string;
@@ -142,6 +143,9 @@ export default function ExplorePage() {
     setReels([]);
     setCursor(null);
     setHasMore(true);
+    if (query) {
+      posthog.capture("search_performed", { query, type, sort });
+    }
   }, [query]);
 
   const [isSearchActive, setIsSearchActive] = useState(false);

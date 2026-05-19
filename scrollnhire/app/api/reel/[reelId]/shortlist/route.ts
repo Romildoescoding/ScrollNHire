@@ -3,6 +3,7 @@ import { Notification } from "@/app/models/NotificationModel";
 import HiringProcess from "@/app/models/HiringProcessModel";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { getPostHogClient } from "@/app/lib/posthog-server";
 
 export async function POST(
   req: NextRequest,
@@ -48,6 +49,12 @@ export async function POST(
         reelId,
         type: "shortlist",
         message: "shortlisted your profile",
+      });
+
+      getPostHogClient().capture({
+        distinctId: employerId,
+        event: "reel_shortlisted",
+        properties: { reel_id: reelId, student_id: studentId },
       });
 
       return NextResponse.json({

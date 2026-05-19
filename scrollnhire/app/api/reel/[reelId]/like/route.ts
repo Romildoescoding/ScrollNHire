@@ -3,6 +3,7 @@ import { Like } from "@/app/models/LikeModel";
 import { Notification } from "@/app/models/NotificationModel";
 import { Reel } from "@/app/models/ReelModel";
 import { NextRequest, NextResponse } from "next/server";
+import { getPostHogClient } from "@/app/lib/posthog-server";
 
 export async function POST(
   req: NextRequest,
@@ -58,6 +59,12 @@ export async function POST(
 
   await Reel.findByIdAndUpdate(reelId, {
     $inc: { likesCount: 1 },
+  });
+
+  getPostHogClient().capture({
+    distinctId: userId,
+    event: "reel_liked",
+    properties: { reel_id: reelId },
   });
 
   return NextResponse.json({ liked: true });

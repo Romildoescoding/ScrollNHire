@@ -3,6 +3,7 @@
 import { Conversation } from "@/app/models/ConversationModel";
 import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { auth } from "@/auth";
+import { getPostHogClient } from "@/app/lib/posthog-server";
 
 export async function POST(req: Request) {
   try {
@@ -42,6 +43,12 @@ export async function POST(req: Request) {
       },
       { status: "chatting" },
     );
+
+    getPostHogClient().capture({
+      distinctId: userId,
+      event: "conversation_started",
+      properties: { student_id: studentId, hiring_process_id: hiringProcessId },
+    });
 
     return Response.json({
       success: true,

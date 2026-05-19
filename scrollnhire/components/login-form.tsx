@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
+import posthog from "posthog-js";
 
 export function LoginForm({
   className,
@@ -122,6 +123,8 @@ export function LoginForm({
 
     setErrorMessage("");
     // SUCCESS
+    posthog.identify(email, { email });
+    posthog.capture("user_logged_in", { email, login_method: "email" });
     router.push("/callback");
   }
 

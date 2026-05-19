@@ -4,6 +4,7 @@ import dbConnect from "@/app/_lib/dbConnect";
 import HiringProcessModel from "@/app/models/HiringProcessModel";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { getPostHogClient } from "@/app/lib/posthog-server";
 
 export async function PATCH(req: Request) {
   try {
@@ -55,6 +56,16 @@ export async function PATCH(req: Request) {
       { $set: update },
       { new: true },
     );
+
+    getPostHogClient().capture({
+      distinctId: userId,
+      event: "hiring_status_updated",
+      properties: {
+        hiring_process_id: hiringProcessId,
+        new_status: hiringProcess?.status,
+        previous_status: existing?.status,
+      },
+    });
 
     return NextResponse.json({
       success: true,

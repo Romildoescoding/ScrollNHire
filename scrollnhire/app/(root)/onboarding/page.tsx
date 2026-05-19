@@ -20,6 +20,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
+import posthog from "posthog-js";
 
 // -----------------------------
 // Main Onboarding Page
@@ -185,6 +186,7 @@ function RoleSelection({
       await update({
         role,
       });
+      posthog.capture("onboarding_role_selected", { role });
       setStep((step) => step + 1);
     } catch (err) {
       console.error(err);
@@ -446,6 +448,7 @@ function CompletionScreen({
     if (!role)
       return console.log("Role not found dude like what the helly", role);
     else console.log(role);
+    posthog.capture("onboarding_completed", { role });
     setTimeout(
       () => router.push(role === "student" ? "/student" : "/employer"),
       5000,

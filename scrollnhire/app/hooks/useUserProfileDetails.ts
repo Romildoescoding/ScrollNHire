@@ -41,23 +41,26 @@ export function useUserProfileDetails(param?: string | null | undefined) {
   const { data: session } = useSession();
 
   // ✅ Create a function to re-fetch user details
-  const fetchUser = useCallback(async (email: string | null) => {
-    try {
-      const response = await fetch(`/api/auth/profile`, {
-        method: "POST",
-        body: JSON.stringify({ email: param ? null : email, param }),
-        credentials: "include",
-      });
-      const fetchedUser = await response.json();
+  const fetchUser = useCallback(
+    async (email: string | null) => {
+      try {
+        const response = await fetch(`/api/auth/profile`, {
+          method: "POST",
+          body: JSON.stringify({ email: param ? null : email, param }),
+          credentials: "include",
+        });
+        const fetchedUser = await response.json();
 
-      setUser(fetchedUser.user);
-      fetched.current = true;
-      setStatus("authenticated");
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      setStatus("error");
-    }
-  }, []);
+        setUser(fetchedUser.user);
+        fetched.current = true;
+        setStatus("authenticated");
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setStatus("error");
+      }
+    },
+    [param],
+  );
 
   // handles the empty user session case with this check
   useEffect(() => {
@@ -66,10 +69,12 @@ export function useUserProfileDetails(param?: string | null | undefined) {
       fetchUser(session.user.email);
       // setStatus("authenticated");
     } else {
+      // to fetch the one with the param id
+      if (param) fetchUser(null);
       // no need to fetch the user with no email yk as it is just not there.
       // fetchUser(null);
     }
-  }, [session?.user, fetchUser]);
+  }, [session?.user, fetchUser, param]);
 
   return {
     user,

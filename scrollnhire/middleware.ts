@@ -35,6 +35,10 @@ const EMPLOYER_ROUTES = ["/employer", "/manage"];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  if (pathname.startsWith("/ingest")) {
+    return NextResponse.next();
+  }
+
   // 🔥 EDGE SAFE TOKEN
   const token = await getToken({
     req,

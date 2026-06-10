@@ -17,7 +17,7 @@ const PUBLIC_ROUTES = [
   "/terms-and-conditions",
   "/careers",
 ];
-const PUBLIC_PREFIXES = ["/reels"];
+const PUBLIC_PREFIXES = ["/reels", "/profile/"];
 
 const AUTH_ROUTES = ["/login", "/signup"];
 
@@ -45,9 +45,13 @@ export async function middleware(req: NextRequest) {
   // console.log("TOKEN:", token);
   // console.log(process.env.AUTH_SECRET);
 
+  const isPublicProfileRoute =
+    /^\/profile\/[^/]+$/.test(pathname) && pathname !== "/profile/edit";
+
   const isPublicRoute =
     PUBLIC_ROUTES.some((route) => matchRoute(pathname, route)) ||
-    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    isPublicProfileRoute;
 
   const isAuthRoute = AUTH_ROUTES.some((route) => matchRoute(pathname, route));
 
